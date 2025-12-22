@@ -1,0 +1,43 @@
+{
+  "title": "Trustfy Overview",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Gateway Requests",
+      "targets": [
+        { "expr": "trustfy_gateway_requests_total" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Gateway Avg Latency (ms)",
+      "targets": [
+        { "expr": "trustfy_gateway_request_latency_ms_avg" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Indexer Last Block",
+      "targets": [
+        { "expr": "trustfy_indexer_last_block" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Notifications WS Clients",
+      "targets": [
+        { "expr": "trustfy_notifications_ws_clients" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Settlement Requests",
+      "targets": [
+        { "expr": "trustfy_settlement_requests_total" }
+      ]
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" }
+}

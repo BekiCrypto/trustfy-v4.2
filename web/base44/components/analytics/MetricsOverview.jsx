@@ -1,0 +1,75 @@
+import React from 'react';
+import { motion } from "framer-motion";
+import StatsCard from "../common/StatsCard";
+import { 
+  DollarSign, 
+  ArrowLeftRight, 
+  AlertTriangle,
+  Shield,
+  TrendingUp,
+  TrendingDown
+} from "lucide-react";
+
+export default function MetricsOverview({ trades = [], disputes = [], policies = [] }) {
+  // Calculate metrics
+  const totalVolume = trades.reduce((sum, trade) => sum + (trade.amount || 0), 0);
+  const completedTrades = trades.filter(t => t.status === 'completed').length;
+  const disputedTrades = trades.filter(t => t.status === 'disputed').length;
+  const insuredTrades = trades.filter(t => t.is_insured).length;
+  
+  const successRate = trades.length > 0 
+    ? ((completedTrades / trades.length) * 100).toFixed(1) 
+    : 0;
+    
+  const disputeRate = trades.length > 0 
+    ? ((disputedTrades / trades.length) * 100).toFixed(1) 
+    : 0;
+    
+  const insuranceRate = trades.length > 0 
+    ? ((insuredTrades / trades.length) * 100).toFixed(1) 
+    : 0;
+  
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <StatsCard
+        title="Total Volume"
+        value={`$${totalVolume.toLocaleString()}`}
+        subtitle={`${trades.length} trades`}
+        icon={DollarSign}
+        gradient="from-blue-500 to-cyan-500"
+        trend="up"
+        trendValue="+12.5%"
+      />
+      
+      <StatsCard
+        title="Success Rate"
+        value={`${successRate}%`}
+        subtitle={`${completedTrades} completed`}
+        icon={TrendingUp}
+        gradient="from-emerald-500 to-teal-500"
+        trend="up"
+        trendValue="+3.2%"
+      />
+      
+      <StatsCard
+        title="Dispute Rate"
+        value={`${disputeRate}%`}
+        subtitle={`${disputedTrades} disputes`}
+        icon={AlertTriangle}
+        gradient="from-amber-500 to-orange-500"
+        trend={parseFloat(disputeRate) < 5 ? 'up' : 'down'}
+        trendValue={parseFloat(disputeRate) < 5 ? 'Low' : 'High'}
+      />
+      
+      <StatsCard
+        title="Insurance Adoption"
+        value={`${insuranceRate}%`}
+        subtitle={`${insuredTrades} insured`}
+        icon={Shield}
+        gradient="from-purple-500 to-pink-500"
+        trend="up"
+        trendValue="+8.7%"
+      />
+    </div>
+  );
+}

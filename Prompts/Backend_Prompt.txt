@@ -1,0 +1,174 @@
+ROLE
+You are a senior frontend architect + Web3 integrator. Build a complete production-grade Trustfy web app (Vite + React + TS) that matches the PRD V4.2 intent, the Solidity contract TrustfyEscrowV4_2.sol, and the ABI TrustfyEscrowV4_2_Amended_ABI.txt. Your output must be code-ready: routes, pages, components, hooks, state model, API client, and wallet transaction wiring.
+
+INPUTS
+- PRD: /mnt/data/# Trustfy PRD V4.2.md
+- Contract: /mnt/data/TrustfyEscrowV4_2.sol
+- ABI: /mnt/data/TrustfyEscrowV4_2_Amended_ABI.txt
+- Backend endpoints follow the system-wide plan (assume base URL env VITE_API_URL) and exist.
+
+NON-NEGOTIABLE UI PRINCIPLES
+1) On-chain state is the source of truth for escrow state. UI must display the state derived from the backend indexer, and for write-actions it must also verify on-chain state via wagmi read (or backend read-model with freshness indicator).
+2) No custodial actions. All contract writes are executed by the connected wallet.
+3) UI language must match contract enums and canonical terms:
+   States: CREATED, TAKEN, FUNDED, PAYMENT_CONFIRMED, DISPUTED, RESOLVED, CANCELLED.
+   Outcomes: BUYER_WINS, SELLER_WINS.
+4) UI must never present a “final” step unless the relevant on-chain transaction is mined and indexed.
+5) Every write shows: wallet prompt, pending tx, tx hash, explorer link, confirmations, final success or revert reason.
+6) Role-based access: USER (default), ARBITRATOR, ADMIN, enforced both in UI and server. UI hides restricted pages unless role present, but server must still enforce.
+
+TECH STACK
+- Vite + React + TypeScript
+- Tailwind CSS
+- wagmi + viem + WalletConnect
+- TanStack Query for API
+- Zustand (or Redux Toolkit) for UI state (minimal)
+- react-router for routing
+- zod for runtime validation
+- Optional UI kit: shadcn/ui (preferred) or a lightweight component library
+
+ENV VARS
+- VITE_API_URL
+- VITE_CHAIN_ID (56 or 97)
+- VITE_CONTRACT_ADDRESS
+- VITE_RPC_URL
+- VITE_BLOCK_EXPLORER_BASE (bscscan or testnet)
+- VITE_WALLETCONNECT_PROJECT_ID
+- VITE_TOKEN_LIST_JSON_URL (optional) OR use backend token registry endpoint
+
+DATA CONTRACTS (ASSUME BACKEND)
+Auth:
+- POST /v1/auth/nonce
+- POST /v1/auth/login
+- POST /v1/auth/logout
+Indexer:
+- GET /v1/indexer/status
+Escrows:
+- GET /v1/escrows?status=&tokenKey=&role=&page=&pageSize=
+- GET /v1/escrows/:escrowId
+- GET /v1/escrows/:escrowId/timeline
+- GET /v1/escrows/:escrowId/participants
+Chat / Instructions:
+- GET /v1/escrows/:escrowId/messages
+- POST /v1/escrows/:escrowId/messages
+- GET /v1/escrows/:escrowId/payment-instructions
+- POST /v1/escrows/:escrowId/payment-instructions
+Evidence:
+- POST /v1/escrows/:escrowId/evidence/presign
+- POST /v1/escrows/:escrowId/evidence/commit
+- GET /v1/escrows/:escrowId/evidence
+Disputes:
+- POST /v1/escrows/:escrowId/dispute/open
+- GET /v1/disputes?status=
+- GET /v1/disputes/:escrowId
+- POST /v1/disputes/:escrowId/recommendation
+- POST /v1/disputes/:escrowId/resolve
+Admin:
+- GET /v1/admin/pools
+- POST /v1/admin/withdraw
+- POST /v1/admin/roles/arbitrators
+- POST /v1/admin/roles/admins
+- GET/POST /v1/admin/tokens
+User roles endpoint (assume):
+- GET /v1/me -> { address, roles: ["USER"|"ARBITRATOR"|"ADMIN"], preferences? }
+
+YOUR TASK
+Wire the complete FRONTEND FLOWS + UI. You must output:
+1) Route map (public/user/arbitrator/admin) with page responsibilities.
+2) Page-level user journeys for Seller, Buyer, Arbitrator, Admin.
+3) Component architecture (folders, shared components).
+4) API client layer with typed requests/responses and auth handling.
+5) Wallet + contract integration layer:
+   - Read hooks for escrow state (optional direct chain reads).
+   - Write hooks for every contract method used in UI.
+   - ABI typed wrapper (viem) and addresses per chainId.
+6) A deterministic “Next Action engine” for Escrow Detail page:
+   It must decide what button(s) to show for the connected wallet based on:
+   - escrow current state
+   - whether wallet is seller or buyer
+   - roles (arbitrator/admin)
+   - on-chain preconditions (as far as possible)
+7) UI screens:
+   - Landing
+   - Explore marketplace (escrow/ad list)
+   - Create Escrow
+   - My Escrows
+   - Escrow Detail (timeline, funds, actions, chat, instructions, evidence, dispute)
+   - Notifications settings (optional)
+   - Arbitrator: Dispute Queue, Dispute Detail
+   - Admin: Pools & Withdraw, Token Registry, Role Management
+8) UX requirements:
+   - Global “Chain status” bar showing indexer sync state and chainId.
+   - “Network mismatch” guard (if wallet chain differs).
+   - Error boundary and toast notifications.
+   - Pagination, filtering, and empty states.
+   - Transaction modal with steps: prepare -> sign -> pending -> confirmed -> indexed.
+9) Security/quality:
+   - No leaking of payment instructions in public screens.
+   - Sanitize chat content.
+   - Rate limit hints (UI-level).
+   - Prevent double-submit and re-entrancy in UI (disable buttons while pending).
+10) Testing plan:
+   - Unit test next-action engine.
+   - E2E flows for seller/buyer/dispute on testnet.
+
+CONTRACT METHODS TO SUPPORT (BASED ON ABI)
+- createEscrow(CreateEscrowParams) payable if native token and/or fee/bond logic requires
+- takeEscrow(escrowId)
+- fundEscrow(escrowId, ref)
+- confirmPayment(escrowId, ref)
+- releaseEscrow(escrowId, ref)
+- openDispute(escrowId)
+- resolveDispute(escrowId, outcome, ref) (arbitrator)
+- withdrawPlatform(tokenKey, feeAmount, bondAmount) (admin)
+Also show read-only data (if present): getEscrow, feeRecipient, etc.
+
+IMPORTANT FLOW DETAILS (YOU MUST IMPLEMENT IN UI)
+- Every escrow action button must:
+  a) confirm user role (seller/buyer/arbitrator/admin)
+  b) confirm escrow state supports the action
+  c) prepare tx with proper args including `ref` bytes32 if required
+  d) show tx progress and final explorer link
+  e) wait for indexing: poll /v1/escrows/:id until state changes or timeline includes txHash
+- Evidence uploads:
+  - Use presigned upload URL then commit metadata
+- Dispute open:
+  - Create backend case record then prompt on-chain openDispute
+- Resolve dispute:
+  - Save decision intent to backend then prompt on-chain resolveDispute
+
+REF GENERATION (bytes32)
+If contract expects a `ref` bytes32:
+- Generate deterministically: keccak256(escrowId + action + timestamp + randomSalt)
+- Store it in local state and include in backend metadata payload to aid auditing.
+
+UI COPY (MUST BE SIMPLE)
+No hype language. Clear labels:
+- “Create Escrow”
+- “Take Escrow”
+- “Fund Escrow”
+- “Confirm Payment”
+- “Release Escrow”
+- “Open Dispute”
+- “Resolve Dispute”
+- “Withdraw Platform Funds”
+State labels must map to enum names.
+
+OUTPUT FORMAT
+Return a complete implementation blueprint with:
+- File tree and key file responsibilities
+- Pseudocode for next-action engine
+- Example code snippets for:
+  - wagmi config
+  - viem contract client
+  - useTxFlow hook
+  - EscrowDetailActions component
+  - ProtectedRoute for roles
+  - API client with auth token injection
+- A checklist of pages and acceptance criteria per page
+
+START
+Read the PRD + contract + ABI first. Then produce the frontend blueprint and key code scaffolding.
+
+STOP CONDITION
+When the app can run locally, connect wallet, browse escrows, create/take/fund/confirm/release, upload evidence, open/resolve disputes (arbitrator), and withdraw pools (admin), with correct guards and status syncing.

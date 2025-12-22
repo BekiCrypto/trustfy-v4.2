@@ -1,0 +1,16 @@
+{
+  "name": "trustfy-v4.2",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["api", "worker", "web", "shared"],
+  "scripts": {
+    "web:dev": "cd web && npm run dev",
+    "web:build": "cd web && npm run build",
+    "web:lint": "cd web && npm run lint",
+    "web:test": "cd web && npm run test",
+    "bootstrap": "npm install"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "description": "Trustfy V4.2 full-stack workspace"
+}

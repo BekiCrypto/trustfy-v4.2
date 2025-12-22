@@ -1,0 +1,1253 @@
+
+> @trustfy/api@0.1.0 start
+> ts-node src/main.ts
+
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +13ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +13ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +11ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +8ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIndexerModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEscrowReadModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRbacModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAdminModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCoordinationModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDisputeModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEvidenceModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/v1/auth}:[39m[38;5;3m +26ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/auth/nonce, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/auth/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/auth/logout, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mRbacController {/v1/rbac}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/rbac/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/rbac/roles, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mIndexerController {/v1/indexer}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/indexer/status, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mEscrowReadController {/v1/escrows}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/timeline, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/participants, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mCoordinationController {/v1/escrows}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/messages, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/messages, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/payment-instructions, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/payment-instructions, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/fiat-status, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mNotificationsController {/v1/notifications}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/notifications/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mEvidenceController {/v1/escrows/:escrowId/evidence}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/evidence/presign, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/evidence/commit, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/evidence, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDisputeController {/v1}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/escrows/:escrowId/dispute/open, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/disputes, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/disputes/:escrowId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/disputes/:escrowId/recommendation, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/disputes/:escrowId/resolve, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminController {/v1/admin}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/pools, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/withdraw, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/roles/arbitrators, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/roles/admins, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/tokens, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/admin/tokens, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/v1/health}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32804  - [39m12/20/2025, 11:59:25 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +1ms[39m
+🚀 Trustfy API listening on port 4000
+[31m[Nest] 32804  - [39m12/22/2025, 3:07:47 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:08:41 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:08:42 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:08:42 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:08:54 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:00 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:09 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:09:32 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:10:03 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:10:12 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:10:15 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:10:54 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:10:55 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:11:33 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:12:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:12:13 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:12:14 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:12:20 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:13:36 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:40 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:42 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:43 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:43 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:44 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:44 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:44 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:44 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:44 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:17:55 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:18:12 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:18:37 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:18:39 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:20:50 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:20:51 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:21:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:22:01 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17
+[31m[Nest] 32804  - [39m12/22/2025, 3:22:07 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31m
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.[39m
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.nonce.create()` invocation in
+/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:29
+
+  55   expirationTime: expiresAt.toISOString(),
+  56 }
+  57 
+→ 58 await this.prisma.nonce.create(
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at $n.handleRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async AuthService.createNonce (/Users/beki/Desktop/P2P/Trustfy V4.2/api/src/modules/auth/auth.service.ts:58:5)
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/beki/Desktop/P2P/Trustfy V4.2/node_modules/@nestjs/core/router/router-proxy.js:9:17

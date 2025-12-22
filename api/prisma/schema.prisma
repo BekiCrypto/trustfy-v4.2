@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  address     String    @id
+  displayName String?
+  createdAt   DateTime  @default(now())
+  lastLoginAt DateTime?
+  roles       Role[]
+  notificationPreference NotificationPreference?
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  address   String
+  role      String
+  createdBy String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [address], references: [address])
+
+  @@unique([address, role])
+}
+
+model Escrow {
+  escrowId         Bytes      @id
+  chainId          Int
+  contractAddress  String
+  tokenKey         String
+  amount           Decimal
+  feeAmount        Decimal
+  sellerBond       Decimal
+  buyerBond        Decimal
+  state            String
+  seller           String
+  buyer            String?
+  createdAtBlock   BigInt
+  updatedAtBlock   BigInt
+  txHashCreate     String?
+  txHashLast       String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  timeline         EscrowTimeline[]
+  messages         EscrowMessage[]
+  paymentInstruction EscrowPaymentInstruction?
+  fiatStatuses     EscrowFiatStatus[]
+  evidence         EvidenceItem[]
+  dispute          Dispute?
+
+  @@index([seller])
+  @@index([buyer])
+  @@index([state])
+  @@index([tokenKey])
+}
+
+model EscrowTimeline {
+  id          BigInt   @id @default(autoincrement())
+  escrowId    Bytes
+  chainId     Int
+  eventName   String
+  stateAfter  String
+  txHash      String
+  blockNumber BigInt
+  logIndex    Int
+  timestamp   DateTime
+  payload     Json
+  Escrow      Escrow   @relation(fields: [escrowId], references: [escrowId])
+
+  @@index([escrowId])
+  @@index([blockNumber])
+  @@unique([escrowId, blockNumber, logIndex])
+}
+
+model EscrowMessage {
+  id         String    @id @default(uuid())
+  escrowId   Bytes?
+  sender     String
+  text       String
+  attachment String?
+  hash       String?
+  createdAt  DateTime  @default(now())
+  editedAt   DateTime?
+  Escrow     Escrow?   @relation(fields: [escrowId], references: [escrowId])
+}
+
+model EscrowPaymentInstruction {
+  escrowId  Bytes     @id
+  seller    String
+  content   Json?
+  updatedAt DateTime  @updatedAt
+  Escrow    Escrow    @relation(fields: [escrowId], references: [escrowId])
+}
+
+model EscrowFiatStatus {
+  id        BigInt   @id @default(autoincrement())
+  escrowId  Bytes?
+  actor     String
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+  Escrow    Escrow?  @relation(fields: [escrowId], references: [escrowId])
+}
+
+model EvidenceItem {
+  id          String   @id @default(uuid())
+  escrowId    Bytes?
+  uploader    String
+  uri         String
+  sha256      String
+  mime        String
+  size        BigInt
+  description String?
+  createdAt   DateTime @default(now())
+  Escrow      Escrow?  @relation(fields: [escrowId], references: [escrowId])
+
+  @@index([escrowId])
+}
+
+model Dispute {
+  escrowId          Bytes   @id
+  openedBy         String
+  reasonCode       String?
+  summary          String?
+  status           String
+  arbitratorAssigned String?
+  outcome          String?
+  ref              Bytes?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  Escrow           Escrow   @relation(fields: [escrowId], references: [escrowId])
+
+  @@index([status])
+}
+
+model IndexerCheckpoint {
+  chainId        Int
+  contractAddress String
+  lastSyncedBlock BigInt
+  updatedAt      DateTime @default(now())
+
+  @@id([chainId, contractAddress])
+}
+
+model TokenRegistry {
+  chainId  Int
+  tokenKey String
+  symbol   String
+  decimals Int
+  name     String
+  enabled  Boolean @default(true)
+
+  @@id([chainId, tokenKey])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorAddress String?
+  action     String
+  target     String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+}
+
+model Nonce {
+  id             String   @id @default(uuid())
+  address        String
+  value          String   /// hashed nonce value
+  chainId        Int
+  domain         String?
+  issuedAt       DateTime
+  expiresAt      DateTime
+  used           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([address])
+  @@index([used])
+  @@unique([address, value])
+}
+
+model NotificationPreference {
+  address     String   @id
+  webhookUrl  String?
+  email       String?
+  telegramId  String?
+  smsNumber   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [address], references: [address])
+
+  @@index([address])
+}

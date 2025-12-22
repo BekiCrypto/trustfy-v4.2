@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint frontend
+        run: npm run web:lint
+
+      - name: Build frontend
+        run: npm run web:build
+
+      - name: Run frontend unit tests
+        run: npm run --workspace web test
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run frontend E2E tests
+        run: npm run --workspace web playwright
+
+      - name: Lint backend
+        run: npm run --workspace @trustfy/api lint
+
+      - name: Build backend
+        run: npm run --workspace @trustfy/api build
+
+      - name: Build worker
+        run: npm run --workspace @trustfy/worker build

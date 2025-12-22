@@ -1,0 +1,1 @@
+{"version":3,"file":"fiat-status.dto.js","sourceRoot":"","sources":["../../../../../src/modules/coordination/dto/fiat-status.dto.ts"],"names":[],"mappings":";;;;;;;;;AAAA,OAAO,EAAE,UAAU,EAAE,QAAQ,EAAE,SAAS,EAAE,MAAM,iBAAiB,CAAA;AAEjE,MAAM,OAAO,aAAa;IAExB,MAAM,CAAS;IAKf,IAAI,CAAS;CACd;AANC;IADC,QAAQ,EAAE;;6CACI;AAKf;IAHC,UAAU,EAAE;IACZ,QAAQ,EAAE;IACV,SAAS,CAAC,GAAG,CAAC;;2CACF"}

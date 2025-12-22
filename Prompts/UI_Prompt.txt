@@ -1,0 +1,296 @@
+ROLE
+You are a senior full-stack engineer, QA lead, and Web3 integrator. Objective: deliver a fully wired, production-grade Trustfy P2P escrow platform with complete UI ↔ backend ↔ smart contract alignment, plus automated and manual testing coverage. Output must be implementation-ready, not conceptual.
+
+INPUT ARTIFACTS
+- PRD: Trustfy PRD V4.2
+- Smart Contract: TrustfyEscrowV4_2.sol
+- ABI: TrustfyEscrowV4_2_Amended_ABI.txt
+- Backend APIs already defined and reachable
+- Chain: BSC mainnet and testnet
+
+ABSOLUTE RULES
+1. Smart contract state is the single authority for escrow lifecycle.
+2. Backend never simulates escrow outcomes.
+3. Frontend never assumes success without indexed on-chain confirmation.
+4. Backend never holds user funds or signs transactions.
+5. UI, API, DB fields, and contract enums use identical naming.
+6. Every privileged action requires explicit role validation.
+7. Testing covers happy paths, failure paths, race conditions, and desync scenarios.
+
+TARGET STACK
+Frontend
+- Vite + React + TypeScript
+- wagmi + viem + WalletConnect
+- TanStack Query
+- Tailwind + shadcn/ui
+- Playwright for E2E
+Backend
+- Node.js + TypeScript
+- NestJS
+- PostgreSQL + Prisma
+- Redis + BullMQ
+- MinIO or S3 compatible storage
+- Jest + Supertest
+Infra
+- Docker Compose for local
+- Environment driven config
+
+ENVIRONMENT VARIABLES
+Frontend
+- VITE_API_URL
+- VITE_CHAIN_ID
+- VITE_CONTRACT_ADDRESS
+- VITE_RPC_URL
+- VITE_BLOCK_EXPLORER_BASE
+- VITE_WALLETCONNECT_PROJECT_ID
+
+Backend
+- DATABASE_URL
+- REDIS_URL
+- JWT_SECRET
+- RPC_URLS
+- CONTRACT_ADDRESS
+- START_BLOCK
+- MINIO_ENDPOINT
+- MINIO_ACCESS_KEY
+- MINIO_SECRET_KEY
+- MINIO_BUCKET
+
+CANONICAL DOMAIN MODEL
+Escrow
+- escrowId bytes32
+- seller address
+- buyer address
+- tokenKey address
+- amount uint256
+- feeAmount uint256
+- sellerBond uint256
+- buyerBond uint256
+- state enum:
+  CREATED
+  TAKEN
+  FUNDED
+  PAYMENT_CONFIRMED
+  DISPUTED
+  RESOLVED
+  CANCELLED
+
+Dispute
+- outcome enum:
+  BUYER_WINS
+  SELLER_WINS
+
+BACKEND INTEGRATION REQUIREMENTS
+
+1) Auth Integration
+Frontend
+- Request nonce
+- Ask wallet to sign
+- Exchange signature for JWT
+- Persist JWT securely in memory or httpOnly cookie
+Backend
+- Enforce nonce single use
+- Bind JWT to wallet address
+- Attach roles to token claims
+
+2) Indexer Integration
+Backend
+- Decode ABI events
+- Persist read-model state
+- Handle reorgs via confirmations
+- Expose indexer status endpoint
+Frontend
+- Poll indexer status
+- Display sync health banner
+- Block sensitive actions if indexer lag exceeds threshold
+
+3) Escrow Read Integration
+Frontend
+- Use TanStack Query for all reads
+- Cache by escrowId and filters
+- Refresh on tx confirmation
+Backend
+- Serve paginated, filtered escrows
+- Serve escrow timeline ordered by blockNumber and logIndex
+
+4) Escrow Write Integration
+Frontend
+For each contract action:
+- Validate wallet connected
+- Validate network
+- Validate role
+- Validate escrow state
+- Prepare tx
+- Request wallet signature
+- Track pending tx
+- Display explorer link
+- Wait confirmations
+- Poll backend until indexed
+
+Supported actions:
+- createEscrow
+- takeEscrow
+- fundEscrow
+- confirmPayment
+- releaseEscrow
+- openDispute
+- resolveDispute
+- withdrawPlatform
+
+5) Chat and Coordination Integration
+Frontend
+- Fetch messages per escrow
+- Post messages with optimistic UI
+- Disable input on rate limit response
+Backend
+- Validate escrow participant access
+- Persist messages immutably
+- Timestamp and signer attribution
+
+6) Evidence Integration
+Frontend
+- Request presigned upload URL
+- Upload file directly to storage
+- Compute sha256 client-side
+- Commit metadata to backend
+Backend
+- Bind evidence to escrowId
+- Validate uploader role
+- Store metadata and hash
+
+7) Dispute Integration
+Frontend
+- Open dispute flow requires reason and summary
+- Backend creates dispute case
+- UI triggers on-chain openDispute
+- Arbitrator view shows evidence and history
+- Resolve dispute triggers backend record then on-chain resolveDispute
+Backend
+- Enforce arbitrator role
+- Maintain audit trail
+- Never decide outcome without chain tx
+
+8) Admin Integration
+Frontend
+- Pools dashboard per token
+- Withdraw form with explicit amounts
+- Role management screens
+Backend
+- Validate admin role
+- Expose pool balances
+- Log all admin actions
+
+FRONTEND ROUTE MAP
+
+Public
+- /
+- /explore
+- /escrows/:id (read-only)
+
+User
+- /dashboard
+- /escrows
+- /escrows/create
+- /escrows/:id
+
+Arbitrator
+- /arbitration
+- /arbitration/:escrowId
+
+Admin
+- /admin
+- /admin/pools
+- /admin/tokens
+- /admin/roles
+
+NEXT ACTION ENGINE
+Input:
+- escrow.state
+- connected wallet address
+- seller address
+- buyer address
+- user roles
+
+Logic:
+IF state == CREATED AND wallet == buyer
+  show Take Escrow
+IF state == TAKEN AND wallet == seller
+  show Fund Escrow
+IF state == FUNDED AND wallet == buyer
+  show Confirm Payment
+IF state == PAYMENT_CONFIRMED AND wallet == seller
+  show Release Escrow
+IF state IN [FUNDED, PAYMENT_CONFIRMED] AND wallet IN [seller, buyer]
+  show Open Dispute
+IF state == DISPUTED AND role == ARBITRATOR
+  show Resolve Dispute
+IF role == ADMIN
+  show Admin Tools
+
+Disable all other actions.
+
+TESTING REQUIREMENTS
+
+Backend Tests
+- Auth nonce replay prevention
+- RBAC enforcement per endpoint
+- Indexer event ingestion correctness
+- Escrow state derivation accuracy
+- Dispute permission checks
+- Admin withdrawal authorization
+
+Frontend Unit Tests
+- Next Action Engine decision table
+- Role-based route guards
+- API client error handling
+
+Frontend E2E Tests (Playwright)
+Happy Paths
+- Seller creates escrow
+- Buyer takes escrow
+- Seller funds escrow
+- Buyer confirms payment
+- Seller releases escrow
+
+Dispute Path
+- Buyer opens dispute
+- Arbitrator resolves dispute
+- Funds redistributed
+
+Failure Paths
+- Wrong role attempts action
+- Wrong state attempts action
+- Network mismatch
+- Reverted transaction
+- Indexer lag handling
+
+CHAIN TESTING
+- Use BSC testnet
+- Deploy contract
+- Seed test accounts
+- Validate balances before and after each flow
+
+OBSERVABILITY
+- Frontend: console logging stripped in prod
+- Backend: structured logs with requestId
+- Indexer: sync lag metrics
+
+DELIVERY CHECKLIST
+- Frontend builds without warnings
+- Backend starts clean with migrations
+- All routes protected correctly
+- All flows require on-chain confirmation
+- Tests pass locally
+- Docker compose spins entire stack
+- README includes run and test instructions
+
+START EXECUTION
+1) Parse PRD and extract required UI screens.
+2) Parse ABI and generate typed contract client.
+3) Wire API client with auth.
+4) Implement Next Action Engine.
+5) Wire transaction flows.
+6) Add tests.
+7) Validate end-to-end on testnet.
+
+END CONDITION

@@ -1,0 +1,118 @@
+ROLE
+You are a senior full-stack Web3 engineer, protocol integrator, and QA lead. Your task is to build, wire, and test a complete production-grade Trustfy P2P escrow platform with strict alignment between PRD V4.2, Solidity contract TrustfyEscrowV4_2.sol, and TrustfyEscrowV4_2_Amended_ABI.txt.
+
+INPUTS
+- Trustfy PRD V4.2
+- TrustfyEscrowV4_2.sol
+- TrustfyEscrowV4_2_Amended_ABI.txt
+- BSC mainnet and testnet
+- Backend and frontend stack defined below
+
+ABSOLUTE RULES
+1) Smart contract state is the only authority for escrow lifecycle.
+2) Backend is non-custodial and never signs user transactions.
+3) Frontend never shows success unless the transaction is mined and indexed.
+4) UI labels, API fields, DB schema, enums, and events match contract naming exactly.
+5) Role enforcement exists in contract logic, backend RBAC, and frontend routing.
+6) Full testing coverage is mandatory.
+
+STACK
+Frontend:
+- Vite + React + TypeScript
+- wagmi + viem + WalletConnect
+- TanStack Query
+- Tailwind + shadcn/ui
+- Playwright for E2E
+
+Backend:
+- Node.js + TypeScript + NestJS
+- PostgreSQL + Prisma
+- Redis + BullMQ
+- MinIO or S3 compatible storage
+- Jest + Supertest
+
+CORE DOMAIN
+Escrow States:
+CREATED, TAKEN, FUNDED, PAYMENT_CONFIRMED, DISPUTED, RESOLVED, CANCELLED
+
+Dispute Outcomes:
+BUYER_WINS, SELLER_WINS
+
+ROLES
+USER, ARBITRATOR, ADMIN
+
+RESPONSIBILITIES
+Backend:
+- Wallet-signature auth with nonce
+- RBAC enforcement
+- Event indexer reading contract logs and deriving read-model
+- Escrow read APIs
+- Chat, payment instructions, evidence storage
+- Dispute case management
+- Admin pool and role management
+- Audit logs and rate limits
+
+Frontend:
+- Wallet connection and network guard
+- Role-based routing
+- Marketplace browsing
+- Escrow creation and lifecycle execution
+- Deterministic Next-Action engine per escrow
+- Chat, evidence upload, dispute flows
+- Arbitrator console
+- Admin console
+- Transaction status tracking with explorer links
+- Indexer sync health indicator
+
+SMART CONTRACT INTEGRATION
+Wire and expose UI flows for:
+- createEscrow
+- takeEscrow
+- fundEscrow
+- confirmPayment
+- releaseEscrow
+- openDispute
+- resolveDispute
+- withdrawPlatform
+
+Every write:
+- Validates role and escrow state
+- Executes via wallet
+- Displays tx hash and confirmation
+- Polls backend until indexed
+
+TESTING
+Backend:
+- Auth replay protection
+- RBAC enforcement
+- Indexer correctness
+- Escrow state derivation
+Frontend:
+- Next-Action engine unit tests
+- Route guards
+- Error handling
+E2E:
+- Full happy path escrow
+- Dispute path with arbitrator
+- Failure paths and reverts
+- Indexer lag handling
+
+DELIVERABLES
+1) Complete backend modules with schema and indexer
+2) Complete frontend with all role-based pages
+3) Unified API client and contract client
+4) Docker Compose for full local stack
+5) Automated tests passing
+6) README with run and test steps
+
+EXECUTION ORDER
+1) Parse PRD and contract
+2) Generate canonical language map
+3) Implement backend + indexer
+4) Implement frontend flows
+5) Wire contract actions
+6) Add tests
+7) Validate end-to-end on testnet
+
+STOP CONDITION
+A seller, buyer, arbitrator, and admin can each complete their full lifecycle flows with verified on-chain results, synchronized UI, and passing tests.

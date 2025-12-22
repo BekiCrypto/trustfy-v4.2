@@ -1,0 +1,331 @@
+ROLE
+You are a senior full-stack engineer and protocol integrator. Goal: deliver a production-grade Trustfy P2P escrow platform aligned across PRD V4.2, Solidity contract TrustfyEscrowV4_2.sol, and ABI TrustfyEscrowV4_2_Amended_ABI.txt.
+
+INPUT FILES (local paths)
+- /mnt/data/# Trustfy PRD V4.2.md
+- /mnt/data/TrustfyEscrowV4_2.sol
+- /mnt/data/TrustfyEscrowV4_2_Amended_ABI.txt
+
+NON-NEGOTIABLE RULES
+1) On-chain state is source of truth for escrow lifecycle. Backend never fakes escrow status.
+2) Backend is non-custodial. No private keys stored. No server-side signing of user funds.
+3) UI wording and backend enums must match contract enums and event semantics.
+4) Every contract write is executed by the user wallet or arbitrator wallet in the browser. Backend coordinates, indexes, stores evidence, and notifies.
+5) All features required for “operational marketplace UX” exist: event indexing, read-model API, chat, evidence, disputes, admin withdrawals, role-based pages.
+
+DELIVERABLES
+A) Complete backend with modules, database schema, indexer, API, auth, RBAC, evidence storage, notifications integration points.
+B) Complete frontend with role-based pages (user, seller/buyer, arbitrator, admin) and transaction flows mapped to ABI.
+C) Security hardening, tests, CI checks, and deployment-ready configuration.
+D) A unified “canonical language map” used across UI labels, API responses, and DB fields.
+
+TECH STACK TARGET (choose a pragmatic, common stack)
+Backend:
+- Node.js (TypeScript), NestJS preferred (or Fastify/Express with structured modules)
+- PostgreSQL with migrations (Prisma or Drizzle)
+- Redis for rate limits, sessions, queues
+- BullMQ for jobs
+- Object storage: S3 compatible (MinIO supported)
+- Ethers v6 or viem for chain reads in indexer
+Frontend:
+- Vite + React + TypeScript
+- wagmi + viem + WalletConnect
+- TanStack Query
+- Tailwind
+Infrastructure:
+- Docker Compose for local dev
+- Optional: Kubernetes manifests folder, or production-ready compose with healthchecks
+
+CHAIN SUPPORT
+- BSC mainnet and BSC testnet (config-driven)
+- RPC URLs set by env
+- Contract address set by env per chainId
+
+CANONICAL TERMINOLOGY AND STATE MODEL (MUST IMPLEMENT)
+Use these names everywhere (UI text, API, DB, docs):
+- Escrow: a single trade instance identified by escrowId (bytes32)
+- Seller: creates escrow and later funds it
+- Buyer: takes escrow and later confirms payment
+- TokenKey: address(0) for native coin, otherwise ERC20 address
+- Amount: crypto principal
+- FeeAmount: platform fee locked on fund
+- SellerBond, BuyerBond: bonds locked and re-allocated by outcome
+- State enum mapping mirrors contract:
+  CREATED, TAKEN, FUNDED, PAYMENT_CONFIRMED, DISPUTED, RESOLVED, CANCELLED
+- DisputeOutcome mirrors contract:
+  BUYER_WINS, SELLER_WINS
+
+CONTRACT AND ABI INTEGRATION
+1) Parse ABI and generate a typed client wrapper for:
+- createEscrow
+- takeEscrow
+- fundEscrow
+- confirmPayment
+- releaseEscrow
+- openDispute
+- resolveDispute
+- withdrawPlatform
+- grantCredit / spendCredit / withdraw (only if required by PRD, otherwise keep behind admin/arbitrator gates)
+2) Generate event listeners and indexed events:
+- EscrowCreated
+- EscrowTaken
+- EscrowFunded
+- PaymentConfirmed
+- EscrowResolved
+- EscrowCancelled
+3) Derive read-model state strictly from events and on-chain reads.
+
+BACKEND DESIGN (MUST BUILD)
+Modules:
+1) AuthModule (wallet signature based)
+- Endpoints:
+  POST /v1/auth/nonce  -> returns nonce
+  POST /v1/auth/login  -> verifies signature of nonce + domain + chainId + issuedAt + expiry
+  POST /v1/auth/logout
+- Output: JWT access token, refresh token optional
+- Anti-replay: nonce single-use, expires quickly
+
+2) RBACModule
+Roles:
+- USER: default
+- ARBITRATOR: address allowlist + optional on-chain check if contract exposes roles
+- ADMIN: address allowlist + optional on-chain owner/role check
+- Moderator optional for content moderation
+Implement:
+- role resolution per request
+- route guards and policies
+- audit logging for privileged routes
+
+3) IndexerModule (core requirement)
+- Runs as service or worker process
+- Tracks chain head, confirmations, reorg safety
+- Stores checkpoints per chainId and contractAddress
+- Backfill support from a startBlock
+- Uses getLogs with topics from ABI
+- Writes to Postgres: escrows read-model, timeline, participants, pools
+- Exposes:
+  GET /v1/indexer/status -> lastSyncedBlock, lagBlocks, chainId, contractAddress
+
+4) EscrowReadModule
+Read-only APIs powered by DB:
+- GET /v1/escrows?status=&tokenKey=&role=&page=&pageSize=
+- GET /v1/escrows/:escrowId
+- GET /v1/escrows/:escrowId/timeline
+- GET /v1/escrows/:escrowId/participants
+
+5) CoordinationModule (chat + off-chain instructions)
+- GET /v1/escrows/:escrowId/messages
+- POST /v1/escrows/:escrowId/messages
+- GET /v1/escrows/:escrowId/payment-instructions
+- POST /v1/escrows/:escrowId/payment-instructions  (seller writes)
+- POST /v1/escrows/:escrowId/fiat-status  (coordination only)
+Rules:
+- Access limited to escrow participants, arbitrators, admins
+- Rate limit messages per escrow
+- Store message hashes for integrity
+- Support attachments via EvidenceModule only
+
+6) EvidenceModule
+- POST /v1/escrows/:escrowId/evidence/presign
+- POST /v1/escrows/:escrowId/evidence/commit
+- GET /v1/escrows/:escrowId/evidence
+Store:
+- uri, sha256, mime, size, description, uploader, createdAt
+Integrity:
+- sha256 computed client-side and stored
+- optional server verifies by streaming download in background job
+
+7) DisputeModule
+- POST /v1/escrows/:escrowId/dispute/open  (creates case record, UI triggers openDispute on-chain)
+- GET /v1/disputes?status=
+- GET /v1/disputes/:escrowId
+- POST /v1/disputes/:escrowId/recommendation  (internal notes, arbitrator/admin)
+- POST /v1/disputes/:escrowId/resolve  (records decision intent, UI triggers resolveDispute on-chain)
+Rules:
+- Dispute status derived from on-chain events plus case metadata
+- Arbitrator decision requires ARBITRATOR role
+- Full audit trail
+
+8) AdminModule
+- GET /v1/admin/pools?tokenKey=
+- POST /v1/admin/withdraw  (UI triggers withdrawPlatform on-chain)
+- Manage allowlists:
+  POST /v1/admin/roles/arbitrators
+  POST /v1/admin/roles/admins
+- Manage token lists used by UI dropdowns:
+  GET/POST /v1/admin/tokens
+
+9) NotificationModule (integration points)
+- Webhook triggers on escrow state changes, new message, dispute opened, dispute resolved
+- Supports: Web push, Telegram bot, SMS provider hooks
+- Store notification preferences per user address
+
+DATABASE SCHEMA (MUST IMPLEMENT)
+Tables:
+- users (address PK, createdAt, lastLoginAt, displayName optional)
+- roles (address, role, createdAt, createdBy)
+- escrows (escrowId PK, chainId, contractAddress, tokenKey, amount, feeAmount, sellerBond, buyerBond, state, seller, buyer, createdAtBlock, updatedAtBlock, txHashCreate, txHashLast)
+- escrow_timeline (id, escrowId, chainId, eventName, stateAfter, txHash, blockNumber, logIndex, timestamp, payloadJson)
+- escrow_messages (id, escrowId, sender, text, createdAt, editedAt optional)
+- escrow_payment_instructions (escrowId, seller, contentJson, updatedAt)
+- escrow_fiat_status (id, escrowId, actor, status, note, createdAt)
+- evidence_items (id, escrowId, uploader, uri, sha256, mime, size, description, createdAt)
+- disputes (escrowId PK, openedBy, reasonCode, summary, status, arbitratorAssigned optional, outcome optional, ref optional, createdAt, updatedAt)
+- indexer_checkpoints (chainId, contractAddress, lastSyncedBlock, updatedAt)
+- token_registry (chainId, tokenKey, symbol, decimals, name, enabled)
+- audit_logs (id, actorAddress, action, target, metadataJson, createdAt)
+Indexes:
+- escrows by seller, buyer, state, tokenKey
+- timeline by escrowId, blockNumber, logIndex
+- evidence by escrowId
+- disputes by status
+
+SECURITY REQUIREMENTS
+- Strict CORS allowlist
+- Helmet and secure headers
+- Input validation with Zod or class-validator
+- Rate limiting per IP and per wallet address
+- Message content length caps and moderation hooks
+- JWT short TTL, refresh optional
+- Nonce single-use and stored hashed
+- RBAC enforced on every privileged route
+- Audit logs for admin and arbitrator actions
+- Use parameterized queries only
+
+FRONTEND (MUST BUILD)
+Routing by role:
+Public:
+- Landing
+- Explore ads / escrows (read-only list)
+User (wallet connected):
+- Dashboard
+- My Escrows (filters by role and state)
+- Create Escrow
+- Escrow Detail page:
+  - timeline (from API)
+  - chat (API)
+  - payment instructions
+  - evidence upload
+  - transaction panel with correct next action
+Arbitrator:
+- Dispute Queue
+- Dispute Detail:
+  - evidence viewer
+  - chat read
+  - recommendation notes
+  - resolve panel that triggers on-chain resolveDispute
+Admin:
+- Admin Dashboard
+- Pools and Withdrawals
+- Token Registry
+- Role Management (allowlists)
+Shared UI requirements:
+- Show chain sync status (lastSyncedBlock and lag)
+- Every on-chain write shows: tx hash, explorer link, confirmation status
+- UI prevents wrong step calls by checking current state from API and optionally direct chain read for safety
+- Clear labels matching canonical terms
+
+TRANSACTION FLOW MAPPING (MUST IMPLEMENT)
+Seller:
+1) createEscrow (wallet tx)
+2) wait for buyer take event
+3) fundEscrow (wallet tx) locks amount + fee + seller bond
+4) after buyer confirmPayment, seller releaseEscrow
+Buyer:
+1) takeEscrow
+2) off-chain fiat payment steps
+3) confirmPayment (locks buyer bond)
+4) dispute open if needed
+Dispute:
+- openDispute (participant tx)
+- resolveDispute (arbitrator tx)
+Admin:
+- withdrawPlatform (admin tx)
+
+ACCESS CONTROL RULES (MUST ENFORCE)
+- Chat and evidence visible to escrow participants, arbitrator, admin
+- Payment instructions editable by seller only
+- Dispute notes and decision actions by arbitrator/admin only
+- Role management and withdrawals by admin only
+- Public pages show no sensitive payment instructions
+
+INDEXER AND READ CONSISTENCY (MUST ENFORCE)
+- State transitions computed from event order by blockNumber and logIndex
+- Reorg safe: store last N blocks and re-validate
+- If missing events, re-scan window
+- Compute escrow “current state” from latest timeline row
+- Pools computed from contract events or explicit on-chain reads if events do not include amounts
+
+TESTING REQUIREMENTS
+Backend:
+- Unit tests for auth, RBAC, validation
+- Integration tests for indexer event ingestion with mocked logs
+- API tests for access control
+Frontend:
+- Component tests for escrow stepper
+- E2E happy path flow: create, take, fund, confirmPayment, release
+- E2E dispute path: openDispute, resolve
+Tooling:
+- Lint, typecheck, format
+- CI workflow
+
+DEPLOYMENT REQUIREMENTS
+- Docker Compose:
+  - api
+  - worker/indexer
+  - postgres
+  - redis
+  - minio
+- Environment variables:
+  - DATABASE_URL
+  - REDIS_URL
+  - JWT_SECRET
+  - CORS_ORIGINS
+  - RPC_URLS per chain
+  - CONTRACT_ADDRESS per chain
+  - START_BLOCK per chain
+  - MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET
+  - NOTIFICATIONS_URL, NOTIFICATIONS_INTERNAL_TOKEN (placeholders supported)
+- Health endpoints:
+  GET /v1/health
+  GET /v1/indexer/status
+
+DOCUMENTATION REQUIREMENTS
+- README with local run steps
+- Threat model section
+- API docs (OpenAPI)
+- “Canonical language map” table showing PRD term, UI label, API field, DB field, contract element
+
+WORK PLAN (EXECUTE IN ORDER)
+1) Read PRD and extract feature list and vocabulary.
+2) Read Solidity and ABI and extract: functions, events, enums, role gates, fee and bond logic.
+3) Produce canonical language map and state machine spec.
+4) Implement DB schema + migrations.
+5) Implement auth + RBAC + audit logs.
+6) Implement indexer with checkpoints, reorg safety, backfill.
+7) Implement read APIs.
+8) Implement chat, instructions, evidence, dispute workflows.
+9) Implement admin endpoints.
+10) Implement frontend pages and wallet tx wiring with step guards.
+11) Add tests, CI, docs.
+12) Validate end-to-end flows against testnet using env config.
+
+QUALITY BAR
+- No placeholder logic in core flows.
+- No silent failures. Structured errors with codes.
+- Strict alignment: PRD intent, UI terms, backend fields, contract state and event semantics match.
+- Production readiness: observability (logs, request ids), rate limits, audit logs, migrations, health checks.
+
+OUTPUT FORMAT EXPECTATION
+Return:
+1) Proposed repo structure (folders for api, worker, web, shared).
+2) Complete list of endpoints with request/response shapes.
+3) DB schema (migrations) and model definitions.
+4) Indexer logic with event decoding and state derivation rules.
+5) Frontend route map and per-page responsibilities.
+6) RBAC policy matrix.
+7) Local dev compose and env sample.
+8) Test plan and CI config.
+
+START NOW
+Begin by parsing the three input files, then generate the canonical language map and the escrow state machine specification. Then build the rest following the work plan above.

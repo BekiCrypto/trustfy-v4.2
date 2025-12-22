@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'traefik'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['traefik:8080']
+
+  - job_name: 'gateway'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['gateway:8080']
+
+  - job_name: 'services'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 'auth:4000'
+          - 'profile:4001'
+          - 'marketplace:4002'
+          - 'orders:4003'
+          - 'settlement:4004'
+          - 'disputes:4005'
+          - 'evidence:4006'
+          - 'notifications:4007'
+          - 'admin:4008'
+          - 'prime:4009'
+          - 'indexer:4011'
+
+  - job_name: 'postgres'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml

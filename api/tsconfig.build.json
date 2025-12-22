@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDecoratorMetadata": true,
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
+    "declaration": false,
+    "rootDir": ".."
+  },
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
+}

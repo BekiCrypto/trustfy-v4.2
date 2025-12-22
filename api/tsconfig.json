@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@trustfy/shared": ["../shared/src/index.ts"],
+      "@trustfy/shared/*": ["../shared/src/*"]
+    },
+    "rootDir": "src",
+    "rootDirs": ["src", "../shared/src"],
+    "outDir": "dist",
+    "incremental": true,
+    "types": ["node", "vitest"]
+  },
+  "include": ["src", "prisma"]
+}

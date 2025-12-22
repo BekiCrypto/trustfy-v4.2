@@ -1,0 +1,29 @@
+# OS
+# .DS_Store
+
+# Env
+# .env
+# .env.local
+# env/
+
+# Node
+# node_modules/
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+
+# Logs
+* .log
+
+# Test artifacts
+# test-results/
+# .snapshots/
+
+# Build
+# dist/
+# build/
+
+# IDE
+# .vscode/
+# .idea/
+

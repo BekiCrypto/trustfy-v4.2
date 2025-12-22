@@ -1,0 +1,29 @@
+groups:
+  - name: trustfy-alerts
+    rules:
+      - alert: ServiceDown
+        expr: trustfy_service_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service down ({{ $labels.instance }})"
+          description: "trustfy_service_up reported 0 for more than 1 minute."
+
+      - alert: HighGatewayLatency
+        expr: trustfy_gateway_request_latency_ms_avg > 500
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Gateway latency high ({{ $labels.instance }})"
+          description: "Average gateway latency above 500ms for 2 minutes."
+
+      - alert: IndexerStalled
+        expr: (time() - trustfy_indexer_last_block) > 900
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Indexer stalled ({{ $labels.instance }})"
+          description: "Indexer checkpoint has not advanced for >15 minutes."
