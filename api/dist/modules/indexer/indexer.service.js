@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,13 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { createPublicClient, http } from "viem";
-import { PrismaService } from "../prisma/prisma.service";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IndexerService = void 0;
+const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
+const viem_1 = require("viem");
+const prisma_service_1 = require("../prisma/prisma.service");
 let IndexerService = class IndexerService {
-    prisma;
-    configService;
     constructor(prisma, configService) {
         this.prisma = prisma;
         this.configService = configService;
@@ -22,16 +23,12 @@ let IndexerService = class IndexerService {
         const contractMap = this.parseChainRecord(this.configService.get("CONTRACT_ADDRESS"));
         const rpcMap = this.parseChainRecord(this.configService.get("RPC_URLS"));
         const confirmations = Number(this.configService.get("INDEXER_CONFIRMATIONS") ?? "6");
-        const statuses = [];
-        for (const [chainIdString, contractAddress] of Object.entries(contractMap)) {
+        const entries = Object.entries(contractMap);
+        const statusList = await Promise.all(entries.map(async ([chainIdString, contractAddress]) => {
             const chainId = Number(chainIdString);
             const rpcUrl = rpcMap[chainId];
             if (!rpcUrl)
-                continue;
-            const client = createPublicClient({
-                transport: http(rpcUrl),
-            });
-            const headBlock = await client.getBlockNumber();
+                return null;
             const checkpoint = await this.prisma.indexerCheckpoint.findUnique({
                 where: {
                     chainId_contractAddress: {
@@ -41,15 +38,32 @@ let IndexerService = class IndexerService {
                 },
             });
             const lastSynced = checkpoint ? Number(checkpoint.lastSyncedBlock) : 0;
-            const lag = Math.max(0, Number(headBlock) - lastSynced - confirmations);
-            statuses.push({
-                chainId,
-                contractAddress: contractAddress.toLowerCase(),
-                lastSyncedBlock: lastSynced,
-                lagBlocks: lag,
-            });
-        }
-        return statuses;
+            try {
+                const client = (0, viem_1.createPublicClient)({
+                    transport: (0, viem_1.http)(rpcUrl, { timeout: 5000 }),
+                });
+                const headBlock = await Promise.race([
+                    client.getBlockNumber(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("rpc timeout")), 6000)),
+                ]);
+                const lag = Math.max(0, Number(headBlock) - lastSynced - confirmations);
+                return {
+                    chainId,
+                    contractAddress: contractAddress.toLowerCase(),
+                    lastSyncedBlock: lastSynced,
+                    lagBlocks: lag,
+                };
+            }
+            catch {
+                return {
+                    chainId,
+                    contractAddress: contractAddress.toLowerCase(),
+                    lastSyncedBlock: lastSynced,
+                    lagBlocks: -1,
+                };
+            }
+        }));
+        return statusList.filter((status) => Boolean(status));
     }
     parseChainRecord(value) {
         if (!value)
@@ -65,10 +79,9 @@ let IndexerService = class IndexerService {
         }, {});
     }
 };
-IndexerService = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [PrismaService,
-        ConfigService])
+exports.IndexerService = IndexerService;
+exports.IndexerService = IndexerService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        config_1.ConfigService])
 ], IndexerService);
-export { IndexerService };
-//# sourceMappingURL=indexer.service.js.map

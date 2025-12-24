@@ -12,8 +12,12 @@ export class QueryEscrowsDto {
   tokenKey?: string
 
   @IsOptional()
-  @IsIn(["seller", "buyer"])
-  role?: "seller" | "buyer"
+  @IsString()
+  role?: "seller" | "buyer" | "participant"
+
+  @IsOptional()
+  @IsString()
+  participant?: string
 
   @IsOptional()
   @Type(() => Number)

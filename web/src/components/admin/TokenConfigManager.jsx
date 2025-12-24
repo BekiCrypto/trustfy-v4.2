@@ -15,6 +15,8 @@ import { ESCROW_ABI, CONTRACT_ADDRESSES, RPC_URLS, EXPLORERS } from "../web3/con
 import { useWallet } from "../web3/WalletContext"
 import RoleGuard from "../web3/RoleGuard"
 import { tokenConfigSchema } from "./trustfyAdminSchema"
+import { useUpsertToken } from "@/hooks/admin"
+import { ERC20_ABI, CHAIN_IDS } from "../web3/contractABI"
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
@@ -37,6 +39,7 @@ export default function TokenConfigManager() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [legacyMode, setLegacyMode] = useState(false)
+  const [backendMode, setBackendMode] = useState(false)
   const [previewAmount, setPreviewAmount] = useState(100)
 
   const tokens = useMemo(() => {
@@ -64,6 +67,7 @@ export default function TokenConfigManager() {
   })
 
   const formValues = watch()
+  const upsertToken = useUpsertToken()
 
   const tokenAddressFor = (symbol) => {
     if (symbol === "BNB" || symbol === "MATIC" || symbol === "ETH") return ZERO_ADDRESS
@@ -104,6 +108,40 @@ export default function TokenConfigManager() {
   }, [chain, token])
 
   const onSubmit = async (values) => {
+    if (backendMode) {
+      try {
+        const rpcUrl = RPC_URLS[chain]
+        const provider = new ethers.JsonRpcProvider(rpcUrl)
+        const tokenAddress = tokenAddressFor(token)
+        let decimals = 18
+        let name = token
+        if (tokenAddress !== ZERO_ADDRESS) {
+          const erc20 = new ethers.Contract(tokenAddress, ERC20_ABI, provider)
+          try {
+            const d = await erc20.decimals()
+            decimals = Number(d)
+          } catch {}
+          try {
+            const n = await erc20.name()
+            name = typeof n === "string" ? n : token
+          } catch {}
+        }
+        await upsertToken.mutateAsync({
+          chainId: CHAIN_IDS[chain],
+          tokenKey: tokenAddress,
+          symbol: token,
+          name,
+          decimals,
+          enabled: values.enabled,
+        })
+        toast.success("Token registry updated via backend")
+        await loadConfig()
+        return
+      } catch (error) {
+        toast.error(error?.message || "Failed to update token via backend")
+        return
+      }
+    }
     if (!signer) {
       toast.error("Wallet not connected")
       return
@@ -219,6 +257,14 @@ export default function TokenConfigManager() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-slate-300 text-sm">Use Backend Worker</Label>
+              <div className="mt-2">
+                <Switch checked={backendMode} onCheckedChange={setBackendMode} />
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-slate-300 text-sm">Maker Fee (bps)</Label>
@@ -362,7 +408,7 @@ export default function TokenConfigManager() {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Submitting to Blockchain…
+                {backendMode ? "Submitting to Backend…" : "Submitting to Blockchain…"}
               </>
             ) : (
               <>

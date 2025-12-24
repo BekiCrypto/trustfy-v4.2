@@ -32,6 +32,7 @@ export const PAGE_ACCESS = {
   Tiers: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
   Profile: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
   Settings: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
+  Referrals: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
   TradeDetails: [ROLES.PUBLIC, ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
   DisputeDetails: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
   InsuranceMarketplace: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.ARBITRATOR, ROLES.USER],
@@ -55,12 +56,11 @@ export const NAVIGATION_CONFIG = {
   // Common navigation for all roles
   common: [
     { name: 'Dashboard', translationKey: 'nav.dashboard', icon: 'LayoutDashboard', page: 'Dashboard', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
-    { name: 'Explore', translationKey: 'nav.marketplace', icon: 'ShoppingBag', page: 'Marketplace', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
-    { name: 'Post Ad', translationKey: 'nav.postAd', icon: 'Megaphone', page: 'Marketplace?create=1', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
-    { name: 'Escrows', translationKey: 'nav.orders', icon: 'FileText', page: 'Orders', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
+    { name: 'Explore P2P', translationKey: 'nav.marketplace', icon: 'ShoppingBag', page: 'Marketplace', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
+    { name: 'My Orders', translationKey: 'nav.orders', icon: 'FileText', page: 'Orders', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
     { name: 'Disputes', translationKey: 'nav.disputes', icon: 'AlertTriangle', page: 'Disputes', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
     { name: 'Smart Bond', translationKey: 'nav.smartBond', icon: 'Shield', page: 'BondCredits', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
-    { name: 'Trading Bots', translationKey: 'nav.tradingBots', icon: 'Bot', page: 'TradingAPI', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
+    { name: 'Referrals', translationKey: 'nav.referrals', icon: 'Trophy', page: 'Referrals', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
     { name: 'Settings', translationKey: 'nav.settings', icon: 'Settings', page: 'Settings', roles: [ROLES.USER, ROLES.ARBITRATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN] },
   ],
 

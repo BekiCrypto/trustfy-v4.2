@@ -13,7 +13,7 @@ import {
 import { format } from "date-fns";
 import WalletAddress from "../common/WalletAddress";
 import ChainBadge from "../common/ChainBadge";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EscrowSummaryDrawer({ trade, bondAmount, escrowStatus, effectiveStatus }) {
   const { t } = useTranslation();

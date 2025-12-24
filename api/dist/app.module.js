@@ -1,45 +1,55 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { AuthModule } from "./modules/auth/auth.module";
-import { RbacModule } from "./modules/rbac/rbac.module";
-import { IndexerModule } from "./modules/indexer/indexer.module";
-import { EscrowReadModule } from "./modules/escrow-read/escrow-read.module";
-import { CoordinationModule } from "./modules/coordination/coordination.module";
-import { EvidenceModule } from "./modules/evidence/evidence.module";
-import { DisputeModule } from "./modules/dispute/dispute.module";
-import { AdminModule } from "./modules/admin/admin.module";
-import { NotificationsModule } from "./modules/notifications/notifications.module";
-import { HealthModule } from "./modules/health/health.module";
-import { PrismaModule } from "./modules/prisma/prisma.module";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppModule = void 0;
+const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
+const auth_module_1 = require("./modules/auth/auth.module");
+const rbac_module_1 = require("./modules/rbac/rbac.module");
+const indexer_module_1 = require("./modules/indexer/indexer.module");
+const escrow_read_module_1 = require("./modules/escrow-read/escrow-read.module");
+const coordination_module_1 = require("./modules/coordination/coordination.module");
+const evidence_module_1 = require("./modules/evidence/evidence.module");
+const dispute_module_1 = require("./modules/dispute/dispute.module");
+const admin_module_1 = require("./modules/admin/admin.module");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
+const health_module_1 = require("./modules/health/health.module");
+const prisma_module_1 = require("./modules/prisma/prisma.module");
+const referrals_module_1 = require("./modules/referrals/referrals.module");
+const reviews_module_1 = require("./modules/reviews/reviews.module");
+const offers_module_1 = require("./modules/offers/offers.module");
+const users_module_1 = require("./modules/users/users.module");
 let AppModule = class AppModule {
 };
-AppModule = __decorate([
-    Module({
+exports.AppModule = AppModule;
+exports.AppModule = AppModule = __decorate([
+    (0, common_1.Module)({
         imports: [
-            ConfigModule.forRoot({
+            config_1.ConfigModule.forRoot({
                 isGlobal: true,
-                envFilePath: ".env",
+                envFilePath: [".env", ".env.local"],
                 expandVariables: true,
             }),
-            PrismaModule,
-            AuthModule,
-            RbacModule,
-            IndexerModule,
-            EscrowReadModule,
-            CoordinationModule,
-            EvidenceModule,
-            DisputeModule,
-            AdminModule,
-            NotificationsModule,
-            HealthModule,
+            prisma_module_1.PrismaModule,
+            auth_module_1.AuthModule,
+            rbac_module_1.RbacModule,
+            indexer_module_1.IndexerModule,
+            escrow_read_module_1.EscrowReadModule,
+            coordination_module_1.CoordinationModule,
+            evidence_module_1.EvidenceModule,
+            dispute_module_1.DisputeModule,
+            admin_module_1.AdminModule,
+            notifications_module_1.NotificationsModule,
+            health_module_1.HealthModule,
+            referrals_module_1.ReferralsModule,
+            reviews_module_1.ReviewsModule,
+            offers_module_1.OffersModule,
+            users_module_1.UsersModule,
         ],
     })
 ], AppModule);
-export { AppModule };
-//# sourceMappingURL=app.module.js.map

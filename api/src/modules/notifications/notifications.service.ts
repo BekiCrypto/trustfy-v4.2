@@ -29,11 +29,49 @@ export class NotificationsService implements OnModuleDestroy {
   }
 
   async queueEvent(event: NotificationEvent) {
+    // Persist notification
+    try {
+      await this.prisma.notification.create({
+        data: {
+          address: event.userAddress,
+          type: event.type,
+          title: event.title,
+          message: event.message,
+          link: event.link,
+          metadata: event.metadata as any,
+        }
+      })
+    } catch (e) {
+      console.error("Failed to persist notification", e)
+    }
+
     await this.queue.add("webhook", event, {
       removeOnComplete: true,
       removeOnFail: 200,
     })
     await this.dispatch(event)
+  }
+
+  async listNotifications(address: string, limit = 50) {
+    return this.prisma.notification.findMany({
+      where: { address },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    })
+  }
+
+  async markAsRead(id: string, address: string) {
+    return this.prisma.notification.updateMany({
+      where: { id, address },
+      data: { read: true },
+    })
+  }
+  
+  async markAllAsRead(address: string) {
+    return this.prisma.notification.updateMany({
+      where: { address, read: false },
+      data: { read: true },
+    })
   }
 
   private async dispatch(event: NotificationEvent) {
@@ -66,24 +104,18 @@ export class NotificationsService implements OnModuleDestroy {
 
   async upsertPreferences(address: string, payload: {
     webhookUrl?: string
-    email?: string
     telegramId?: string
-    smsNumber?: string
   }) {
     return this.prisma.notificationPreference.upsert({
       where: { address },
       create: {
         address,
         webhookUrl: payload.webhookUrl,
-        email: payload.email,
         telegramId: payload.telegramId,
-        smsNumber: payload.smsNumber,
       },
       update: {
         webhookUrl: payload.webhookUrl,
-        email: payload.email,
         telegramId: payload.telegramId,
-        smsNumber: payload.smsNumber,
       },
     })
   }

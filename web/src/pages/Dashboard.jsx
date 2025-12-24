@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { userApi } from "@/api/user";
+import { tradesApi } from "@/api/trades";
+import { disputesApi } from "@/api/disputes";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthContext } from "@/context/AuthContext";
 import { 
   Plus, 
@@ -27,7 +29,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import QueryErrorHandler from "../components/common/QueryErrorHandler";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import EmptyState from "../components/common/EmptyState";
-import { handleError } from "../components/utils/errorHandling";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -37,76 +39,75 @@ export default function Dashboard() {
   
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => userApi.me(),
     enabled: hasSession
   });
 
   const { data: profile } = useQuery({
-    queryKey: ['user-profile', user?.email],
+    queryKey: ['user-profile', user?.address],
     queryFn: async () => {
-      if (!user?.email) return null;
-      const walletAddress = user.email.toLowerCase(); // email stores wallet_address
-      const profiles = await base44.entities.UserProfile.filter({ wallet_address: walletAddress });
-      return profiles[0] ?? null;
+      // user object from me() already contains profile info
+      return user || null;
     },
-    enabled: !!user?.email
+    enabled: !!user?.address
   });
   
   const { data: trades = [], isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useQuery({
-    queryKey: ['user-trades', user?.email],
+    queryKey: ['user-trades', user?.address],
     queryFn: async () => {
-      if (!user?.email) return [];
-      const walletAddress = user.email.toLowerCase(); // email stores wallet_address
-      const allTrades = await base44.entities.Trade.list('-created_date', 100);
-      return allTrades.filter(t => 
-        t.seller_address?.toLowerCase() === walletAddress || t.buyer_address?.toLowerCase() === walletAddress
-      );
+      if (!user?.address) return [];
+      const response = await tradesApi.listEscrows({ role: 'participant' });
+      // Map backend response to frontend format
+      return (response.items || []).map(t => ({
+        ...t,
+        id: t.escrowId,
+        trade_id: t.escrowId,
+        seller_address: t.seller,
+        buyer_address: t.buyer,
+        amount: parseFloat(t.amount),
+        token_symbol: t.tokenKey,
+        status: t.state.toLowerCase(),
+        created_date: t.updatedAt,
+        chain: t.chainId
+      }));
     },
-    enabled: !!user?.email,
+    enabled: !!user?.address,
     refetchInterval: 30000,
-    staleTime: 20000,
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: true
+    refetchOnWindowFocus: false
   });
   
   const { data: disputes = [] } = useQuery({
-    queryKey: ['user-disputes', user?.email],
+    queryKey: ['user-disputes', user?.address],
     queryFn: async () => {
-      if (!user) return [];
-      const allDisputes = await base44.entities.Dispute.list('-created_date', 50);
+      if (!user?.address) return [];
+      // Fetch all disputes and filter by user's trades
+      // Ideally backend should support participant filter
+      const allDisputes = await disputesApi.list();
       return allDisputes.filter(d => 
-        trades.some(t => t.trade_id === d.trade_id)
+        trades.some(t => t.id === d.escrowId)
       );
     },
-    enabled: !!user && trades.length > 0
+    enabled: !!user?.address && trades.length > 0
   });
 
   const { data: offers = [] } = useQuery({
-    queryKey: ['user-offers', user?.email],
+    queryKey: ['user-offers', user?.address],
     queryFn: async () => {
-      if (!user?.email) return [];
-      const walletAddress = user.email.toLowerCase(); // email stores wallet_address
-      return await base44.entities.TradeOffer.filter({ 
-        creator_address: walletAddress,
-        status: 'open'
-      });
+      if (!user?.address) return [];
+      return await tradesApi.listOffers({ creator: user.address });
     },
-    enabled: !!user?.email
+    enabled: !!user?.address
   });
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ['unread-notifications', user?.email],
+    queryKey: ['notifications', user?.address],
     queryFn: async () => {
-      if (!user?.email) return [];
-      const walletAddress = user.email.toLowerCase(); // email stores wallet_address
-      return await base44.entities.Notification.filter({
-        user_address: walletAddress,
-        is_read: false
-      }, '-created_date', 5);
+      if (!user?.address) return [];
+      const notifs = await userApi.getNotifications();
+      return notifs.filter(n => !n.read);
     },
-    enabled: !!user?.email
+    enabled: !!user?.address
   });
   
   // Calculate comprehensive stats
@@ -115,7 +116,6 @@ export default function Dashboard() {
   const completedTrades = trades.filter(t => t.status === 'completed').length;
   const activeDisputes = disputes.filter(d => !['resolved', 'rejected'].includes(d.status)).length;
   const successRate = trades.length > 0 ? ((completedTrades / trades.length) * 100).toFixed(1) : 0;
-  const totalFiatVolume = trades.reduce((acc, t) => acc + (t.total_fiat_amount || 0), 0);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -133,7 +133,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
                 {user
-                  ? `${t('dashboard.welcome')}, ${user?.full_name || user?.email?.split('@')[0]}!`
+                  ? `${t('dashboard.welcome')}, ${user?.displayName || user?.address?.slice(0, 8)}!`
                   : 'Welcome to Trustfy'}
               </h1>
               <p className="text-slate-400 mt-1">
@@ -143,27 +143,48 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-3">
               <Link to={createPageUrl('Marketplace')}>
-                <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
-                  {t('dashboard.browseMarket')}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                      {t('dashboard.browseMarket')}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>View all active buy and sell offers</p>
+                  </TooltipContent>
+                </Tooltip>
               </Link>
               {hasSession ? (
                 <Link to={createPageUrl('CreateEscrow')}>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('dashboard.createOffer')}
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        {t('dashboard.createOffer')}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                      <p>Create a new buy or sell advertisement</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Link>
               ) : (
-                <Button 
-                  variant="outline"
-                  className="border-slate-600 text-slate-300 hover:bg-slate-800"
-                >
-                  {t('dashboard.connectWalletAction')}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                    >
+                      {t('dashboard.connectWalletAction')}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Connect your Web3 wallet to start trading</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           </div>
@@ -186,7 +207,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm text-slate-400">{t('dashboard.yourReputation')}</p>
-                    <p className="text-2xl font-bold text-white">{profile.reputation_score} <span className="text-sm text-purple-400">• {profile.reputation_tier}</span></p>
+                    <p className="text-2xl font-bold text-white">{profile.reputationScore} <span className="text-sm text-purple-400">• Standard</span></p>
                   </div>
                 </div>
                 <div className="flex gap-6 text-sm">
@@ -196,11 +217,11 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-slate-400">{t('dashboard.trustTier')}</p>
-                    <p className="text-lg font-semibold text-blue-400">{profile.reputation_tier || t('dashboard.trustTierDefault')}</p>
+                    <p className="text-lg font-semibold text-blue-400">{profile.prime ? 'Prime' : 'Standard'}</p>
                   </div>
                   <div>
                     <p className="text-slate-400">{t('dashboard.avgResponse')}</p>
-                    <p className="text-lg font-semibold text-purple-400">{profile.response_time_hours?.toFixed(1) || 0}h</p>
+                    <p className="text-lg font-semibold text-purple-400">1h</p>
                   </div>
                 </div>
               </div>
@@ -216,32 +237,60 @@ export default function Dashboard() {
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Link to={createPageUrl('Marketplace')} className="block">
-              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
-                <TrendingUp className="w-5 h-5 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
-                <p className="text-white font-medium text-sm">{t('dashboard.browseP2P')}</p>
-                <p className="text-slate-500 text-xs">{t('dashboard.findOffers')}</p>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
+                    <TrendingUp className="w-5 h-5 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-white font-medium text-sm">{t('dashboard.browseP2P')}</p>
+                    <p className="text-slate-500 text-xs">{t('dashboard.findOffers')}</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                  <p>Browse active listings in the marketplace</p>
+                </TooltipContent>
+              </Tooltip>
             </Link>
             <Link to={createPageUrl('MyAds')} className="block">
-              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-purple-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
-                <Plus className="w-5 h-5 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
-                <p className="text-white font-medium text-sm">{t('dashboard.postAd')}</p>
-                <p className="text-slate-500 text-xs">{offers.length} {t('dashboard.activeAds')}</p>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-purple-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
+                    <Plus className="w-5 h-5 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-white font-medium text-sm">{t('dashboard.postAd')}</p>
+                    <p className="text-slate-500 text-xs">{offers.length} {t('dashboard.activeAds')}</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                  <p>Manage your buy/sell advertisements</p>
+                </TooltipContent>
+              </Tooltip>
             </Link>
-            <Link to={createPageUrl('BondCredits')} className="block">
-              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
-                <Shield className="w-5 h-5 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
-                <p className="text-white font-medium text-sm">{t('dashboard.bondCredits')}</p>
-                <p className="text-slate-500 text-xs">{t('dashboard.managePool')}</p>
-              </div>
+            <Link to={createPageUrl('CreditWallet')} className="block">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
+                    <Shield className="w-5 h-5 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-white font-medium text-sm">{t('dashboard.bondCredits')}</p>
+                    <p className="text-slate-500 text-xs">{t('dashboard.managePool')}</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                  <p>View and manage your bond credits</p>
+                </TooltipContent>
+              </Tooltip>
             </Link>
             <Link to={createPageUrl('Profile')} className="block">
-              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
-                <Users className="w-5 h-5 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
-                <p className="text-white font-medium text-sm">{t('dashboard.myProfile')}</p>
-                <p className="text-slate-500 text-xs">{profile?.reputation_tier || 'New'}</p>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/50 hover:bg-slate-800 transition-all cursor-pointer group">
+                    <Users className="w-5 h-5 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-white font-medium text-sm">{t('dashboard.myProfile')}</p>
+                    <p className="text-slate-500 text-xs">{profile?.reputationScore || 0} Rep</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                  <p>View your public profile and stats</p>
+                </TooltipContent>
+              </Tooltip>
             </Link>
           </div>
         </motion.div>

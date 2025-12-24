@@ -23,19 +23,48 @@ export class DisputeController {
     return this.service.openDispute(escrowId, payload, user)
   }
 
-  @Roles("ADMIN", "ARBITRATOR")
+  @Roles("ADMIN", "ARBITRATOR", "SUPER_ADMIN")
   @Get("disputes")
-  list(@Query("status") status?: string) {
-    return this.service.listDisputes(status)
+  list(
+    @Query("status") status?: string,
+    @Query("assignee") assignee?: string
+  ) {
+    return this.service.listDisputes(status, assignee)
   }
 
-  @Roles("ADMIN", "ARBITRATOR")
+  @Roles("ARBITRATOR", "SUPER_ADMIN")
+  @Post("disputes/:escrowId/claim")
+  claim(
+    @Param("escrowId") escrowId: string,
+    @CurrentUser() user: AuthPayload
+  ) {
+    return this.service.claimDispute(escrowId, user)
+  }
+
+  @Post("disputes/:escrowId/escalate")
+  escalate(
+    @Param("escrowId") escrowId: string,
+    @Body() body: { level: number; status: string },
+    @CurrentUser() user: AuthPayload
+  ) {
+    return this.service.escalateDispute(escrowId, body.level, body.status, user)
+  }
+
+  @Post("disputes/:escrowId/analysis")
+  saveAnalysis(
+    @Param("escrowId") escrowId: string,
+    @Body() body: { analysis: any; tier: number }
+  ) {
+    return this.service.saveAIAnalysis(escrowId, body.analysis, body.tier)
+  }
+
+  @Roles("ADMIN", "ARBITRATOR", "SUPER_ADMIN")
   @Get("disputes/:escrowId")
   detail(@Param("escrowId") escrowId: string) {
     return this.service.getDispute(escrowId)
   }
 
-  @Roles("ADMIN", "ARBITRATOR")
+  @Roles("ADMIN", "ARBITRATOR", "SUPER_ADMIN")
   @Post("disputes/:escrowId/recommendation")
   recommend(
     @Param("escrowId") escrowId: string,
@@ -45,7 +74,7 @@ export class DisputeController {
     return this.service.addRecommendation(escrowId, payload, user)
   }
 
-  @Roles("ARBITRATOR")
+  @Roles("ARBITRATOR", "SUPER_ADMIN")
   @Post("disputes/:escrowId/resolve")
   resolve(
     @Param("escrowId") escrowId: string,

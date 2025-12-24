@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateRiskScore, calculatePremium } from "../insurance/RiskCalculator";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function CreateTradeModal({ open, onOpenChange }) {
   const { t } = useTranslation();

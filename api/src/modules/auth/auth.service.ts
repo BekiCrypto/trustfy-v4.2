@@ -141,6 +141,69 @@ export class AuthService {
       },
     })
 
+    // Bootstrap privileged roles from environment
+    // ADMIN:
+    // 1) If no ADMIN exists yet, grant ADMIN to the first successful login
+    // 2) If ADMIN_BOOTSTRAP_ADDRESSES / ADMIN_WALLETS includes this address, ensure ADMIN role
+    try {
+      const bootstrapRaw =
+        this.configService.get<string>("ADMIN_BOOTSTRAP_ADDRESSES") ??
+        this.configService.get<string>("ADMIN_WALLETS") ??
+        ""
+      const bootstrap = bootstrapRaw
+        .split(",")
+        .map((x) => x.trim().toLowerCase())
+        .filter(Boolean)
+      const anyAdmin = await this.prisma.role.findFirst({ where: { role: "ADMIN" } })
+      if (!anyAdmin || bootstrap.includes(normalizedAddress)) {
+        await this.prisma.role.upsert({
+          where: {
+            address_role: {
+              address: normalizedAddress,
+              role: "ADMIN",
+            },
+          },
+          update: {},
+          create: {
+            address: normalizedAddress,
+            role: "ADMIN",
+            createdBy: normalizedAddress,
+          },
+        })
+      }
+    } catch {
+      // ignore bootstrap failures; normal auth continues
+    }
+
+    // SUPER_ADMIN:
+    // If SUPER_ADMIN_WALLETS includes this address, ensure SUPER_ADMIN role
+    try {
+      const superAdminRaw =
+        this.configService.get<string>("SUPER_ADMIN_WALLETS") ?? ""
+      const superAdmins = superAdminRaw
+        .split(",")
+        .map((x) => x.trim().toLowerCase())
+        .filter(Boolean)
+      if (superAdmins.includes(normalizedAddress)) {
+        await this.prisma.role.upsert({
+          where: {
+            address_role: {
+              address: normalizedAddress,
+              role: "SUPER_ADMIN",
+            },
+          },
+          update: {},
+          create: {
+            address: normalizedAddress,
+            role: "SUPER_ADMIN",
+            createdBy: normalizedAddress,
+          },
+        })
+      }
+    } catch {
+      // ignore
+    }
+
     const roles = await this.prisma.role.findMany({
       where: { address: normalizedAddress },
     })
@@ -179,6 +242,18 @@ export class AuthService {
       address: normalizedAddress,
       roles: roleNames,
     }
+  }
+
+  async getProfile(address: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { address },
+      include: {
+        roles: true,
+        prime: true,
+        notificationPreference: true,
+      },
+    })
+    return user
   }
 
   async logout(address: string) {

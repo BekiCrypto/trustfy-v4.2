@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,19 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsOptional, IsString, MaxLength } from "class-validator";
-export class FiatStatusDto {
-    status;
-    note;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FiatStatusDto = void 0;
+const class_validator_1 = require("class-validator");
+class FiatStatusDto {
 }
+exports.FiatStatusDto = FiatStatusDto;
 __decorate([
-    IsString(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], FiatStatusDto.prototype, "status", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
-    MaxLength(500),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(500),
     __metadata("design:type", String)
 ], FiatStatusDto.prototype, "note", void 0);
-//# sourceMappingURL=fiat-status.dto.js.map

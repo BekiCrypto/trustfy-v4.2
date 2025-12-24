@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,10 +9,8 @@ import { createPageUrl } from "@/utils";
 import DocumentationModal from "../components/landing/DocumentationModal";
 import TermsModal from "../components/landing/TermsModal";
 import PrivacyModal from "../components/landing/PrivacyModal";
-import BeginnerGuideModal from "../components/landing/BeginnerGuideModal";
 import TermsSummaryModal from "../components/landing/TermsSummaryModal";
 import ComplianceModal from "../components/landing/ComplianceModal";
-import KYCPolicyModal from "../components/landing/KYCPolicyModal";
 import LegalDisclaimerModal from "../components/landing/LegalDisclaimerModal";
 import SafetyModal from "../components/landing/SafetyModal";
 import LandingHeader from "../components/landing/LandingHeader";
@@ -42,12 +40,11 @@ import {
 export default function Home() {
   const { t } = useTranslation();
   const [showDocs, setShowDocs] = React.useState(false);
+  const [docsTab, setDocsTab] = React.useState("overview");
   const [showTerms, setShowTerms] = React.useState(false);
   const [showPrivacy, setShowPrivacy] = React.useState(false);
-  const [showBeginnerGuide, setShowBeginnerGuide] = React.useState(false);
   const [showTermsSummary, setShowTermsSummary] = React.useState(false);
   const [showCompliance, setShowCompliance] = React.useState(false);
-  const [showKYCPolicy, setShowKYCPolicy] = React.useState(false);
   const [showLegalDisclaimer, setShowLegalDisclaimer] = React.useState(false);
   const [showSafety, setShowSafety] = React.useState(false);
   const navigate = useNavigate();
@@ -94,10 +91,12 @@ export default function Home() {
     }
   ];
 
-  const stats = t('landing.stats', { returnObjects: true });
-  const howItWorksSteps = t('landing.howItWorks.steps', { returnObjects: true });
+  const stats = t('landing.stats', { returnObjects: true }) || [];
+  const howItWorksStepsRaw = t('landing.howItWorks.steps', { returnObjects: true });
+  const howItWorksSteps = Array.isArray(howItWorksStepsRaw) ? howItWorksStepsRaw : [];
   const howItWorksIcons = [FileText, Users, Lock, CheckCircle2];
-  const faqItems = t('landing.faq.items', { returnObjects: true });
+  const faqItemsRaw = t('landing.faq.items', { returnObjects: true });
+  const faqItems = Array.isArray(faqItemsRaw) ? faqItemsRaw : [];
   const howItWorks = howItWorksSteps.map((step, index) => ({
     ...step,
     icon: howItWorksIcons[index] || FileText,
@@ -110,17 +109,16 @@ export default function Home() {
 
   const handleModalOpen = (modalName) => {
     const modalMap = {
-      docs: setShowDocs,
-      terms: setShowTerms,
-      privacy: setShowPrivacy,
-      beginner: setShowBeginnerGuide,
-      summary: setShowTermsSummary,
-      compliance: setShowCompliance,
-      kyc: setShowKYCPolicy,
-      disclaimer: setShowLegalDisclaimer,
-      safety: setShowSafety
+      docs: () => { setDocsTab("overview"); setShowDocs(true); },
+      beginner: () => { setDocsTab("getting-started"); setShowDocs(true); },
+      terms: () => setShowTerms(true),
+      privacy: () => setShowPrivacy(true),
+      summary: () => setShowTermsSummary(true),
+      compliance: () => setShowCompliance(true),
+      disclaimer: () => setShowLegalDisclaimer(true),
+      safety: () => setShowSafety(true)
     };
-    modalMap[modalName]?.(true);
+    modalMap[modalName]?.();
   };
 
   return (
@@ -178,12 +176,12 @@ export default function Home() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                onClick={() => setShowDocs(true)}
-                className="border-slate-700 text-white hover:bg-slate-800 hover:border-blue-500/50 text-lg px-8 py-6 group transition-all"
+                onClick={() => { setDocsTab("overview"); setShowDocs(true); }}
+                className="bg-slate-800/40 border-slate-600 text-white hover:bg-slate-800 hover:border-blue-500 text-lg px-8 py-6 group transition-all"
               >
-                <BookOpen className="w-5 h-5 mr-2 group-hover:text-blue-400 transition-colors" />
+                <BookOpen className="w-5 h-5 mr-2 text-blue-400 group-hover:text-blue-300 transition-colors" />
                 {t('landing.hero.viewDocumentation')}
-                <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </Button>
             </div>
 
@@ -414,13 +412,11 @@ export default function Home() {
       <LandingFooter onModalOpen={handleModalOpen} />
 
       {/* Modals */}
-      <DocumentationModal open={showDocs} onOpenChange={setShowDocs} />
+      <DocumentationModal open={showDocs} onOpenChange={setShowDocs} defaultTab={docsTab} />
       <TermsModal open={showTerms} onOpenChange={setShowTerms} />
       <PrivacyModal open={showPrivacy} onOpenChange={setShowPrivacy} />
-      <BeginnerGuideModal open={showBeginnerGuide} onOpenChange={setShowBeginnerGuide} />
       <TermsSummaryModal open={showTermsSummary} onOpenChange={setShowTermsSummary} />
       <ComplianceModal open={showCompliance} onOpenChange={setShowCompliance} />
-      <KYCPolicyModal open={showKYCPolicy} onOpenChange={setShowKYCPolicy} />
       <LegalDisclaimerModal open={showLegalDisclaimer} onOpenChange={setShowLegalDisclaimer} />
       <SafetyModal open={showSafety} onOpenChange={setShowSafety} />
       

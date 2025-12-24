@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,11 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { ethers } from "ethers";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RbacService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const ethers_1 = require("ethers");
 let RbacService = class RbacService {
-    prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
@@ -56,22 +58,21 @@ let RbacService = class RbacService {
                 actorAddress: actor ? this.normalizeAddress(actor) : null,
                 action,
                 target,
-                metadata: metadata ?? {},
+                metadata: (metadata ?? {}),
             },
         });
     }
     normalizeAddress(address) {
         try {
-            return ethers.getAddress(address).toLowerCase();
+            return ethers_1.ethers.getAddress(address).toLowerCase();
         }
         catch {
-            throw new BadRequestException("Invalid Ethereum address");
+            throw new common_1.BadRequestException("Invalid Ethereum address");
         }
     }
 };
-RbacService = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [PrismaService])
+exports.RbacService = RbacService;
+exports.RbacService = RbacService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], RbacService);
-export { RbacService };
-//# sourceMappingURL=rbac.service.js.map

@@ -55,14 +55,20 @@ export class CoordinationService {
       },
     })
 
-    await this.notifications.queueEvent({
-      type: "escrow/message",
-      escrowId,
-      sender: normalizedSender,
-      payload: {
-        text: payload.text,
-      },
-    })
+    const recipient = this.getOtherParty(escrow, normalizedSender)
+    if (recipient) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "New Message",
+        message: `New message in escrow ${formatEscrowId(escrow.escrowId)}`,
+        type: "escrow/message",
+        escrowId,
+        sender: normalizedSender,
+        payload: {
+          text: payload.text,
+        },
+      })
+    }
 
     return this.toMessageItem(message)
   }
@@ -109,14 +115,19 @@ export class CoordinationService {
       },
     })
 
-    await this.notifications.queueEvent({
-      type: "escrow/payment-instruction",
-      escrowId,
-      sender: normalizedSeller,
-      payload: {
-        updatedAt: instruction.updatedAt.toISOString(),
-      },
-    })
+    if (escrow.buyer) {
+      await this.notifications.queueEvent({
+        userAddress: escrow.buyer,
+        title: "Payment Instructions Updated",
+        message: `Payment instructions updated for escrow ${formatEscrowId(escrow.escrowId)}`,
+        type: "escrow/payment-instruction",
+        escrowId,
+        sender: normalizedSeller,
+        payload: {
+          updatedAt: instruction.updatedAt.toISOString(),
+        },
+      })
+    }
 
     return {
       seller: instruction.seller,
@@ -140,14 +151,20 @@ export class CoordinationService {
       },
     })
 
-    await this.notifications.queueEvent({
-      type: "escrow/fiat-status",
-      escrowId,
-      sender: normalized,
-      payload: {
-        status: payload.status,
-      },
-    })
+    const recipient = this.getOtherParty(escrow, normalized)
+    if (recipient) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "Fiat Status Update",
+        message: `Fiat status updated to ${payload.status}`,
+        type: "escrow/fiat-status",
+        escrowId,
+        sender: normalized,
+        payload: {
+          status: payload.status,
+        },
+      })
+    }
 
     return {
       id: record.id.toString(),
@@ -185,7 +202,9 @@ export class CoordinationService {
     const participant =
       record.seller === normalized || record.buyer === normalized
     const privileged =
-      caller.roles.includes("ADMIN") || caller.roles.includes("ARBITRATOR")
+      caller.roles.includes("ADMIN") ||
+      caller.roles.includes("ARBITRATOR") ||
+      caller.roles.includes("SUPER_ADMIN")
     if (!participant && !privileged) {
       throw new ForbiddenException("not authorized for this escrow")
     }
@@ -194,9 +213,19 @@ export class CoordinationService {
   private ensureSellerOrAdmin(record: Escrow, caller: AuthPayload) {
     this.ensureAccess(record, caller)
     const normalized = this.normalizeAddress(caller.address)
-    if (record.seller !== normalized && !caller.roles.includes("ADMIN")) {
+    if (
+      record.seller !== normalized &&
+      !caller.roles.includes("ADMIN") &&
+      !caller.roles.includes("SUPER_ADMIN")
+    ) {
       throw new ForbiddenException("only seller can update payment notes")
     }
+  }
+
+  private getOtherParty(escrow: Escrow, sender: string): string | null {
+    if (escrow.seller === sender) return escrow.buyer
+    if (escrow.buyer === sender) return escrow.seller
+    return null
   }
 
   private normalizeAddress(address: string) {

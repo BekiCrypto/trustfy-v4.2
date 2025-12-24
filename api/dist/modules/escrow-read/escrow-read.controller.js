@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,14 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
-import { EscrowReadService } from "./escrow-read.service";
-import { QueryEscrowsDto } from "./dto/query-escrows.dto";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { OptionalJwtAuthGuard } from "../auth/guards/optional-jwt-auth.guard";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EscrowReadController = void 0;
+const common_1 = require("@nestjs/common");
+const escrow_read_service_1 = require("./escrow-read.service");
+const query_escrows_dto_1 = require("./dto/query-escrows.dto");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const optional_jwt_auth_guard_1 = require("../auth/guards/optional-jwt-auth.guard");
 let EscrowReadController = class EscrowReadController {
-    service;
     constructor(service) {
         this.service = service;
     }
@@ -34,45 +36,44 @@ let EscrowReadController = class EscrowReadController {
         return this.service.getParticipants(escrowId, user);
     }
 };
+exports.EscrowReadController = EscrowReadController;
 __decorate([
-    UseGuards(OptionalJwtAuthGuard),
-    Get(),
-    __param(0, Query()),
-    __param(1, CurrentUser("address")),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)("address")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [QueryEscrowsDto, String]),
+    __metadata("design:paramtypes", [query_escrows_dto_1.QueryEscrowsDto, String]),
     __metadata("design:returntype", Promise)
 ], EscrowReadController.prototype, "list", null);
 __decorate([
-    UseGuards(JwtAuthGuard),
-    Get(":escrowId"),
-    __param(0, Param("escrowId")),
-    __param(1, CurrentUser()),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(":escrowId"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], EscrowReadController.prototype, "detail", null);
 __decorate([
-    UseGuards(JwtAuthGuard),
-    Get(":escrowId/timeline"),
-    __param(0, Param("escrowId")),
-    __param(1, CurrentUser()),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(":escrowId/timeline"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], EscrowReadController.prototype, "timeline", null);
 __decorate([
-    UseGuards(JwtAuthGuard),
-    Get(":escrowId/participants"),
-    __param(0, Param("escrowId")),
-    __param(1, CurrentUser()),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(":escrowId/participants"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], EscrowReadController.prototype, "participants", null);
-EscrowReadController = __decorate([
-    Controller("v1/escrows"),
-    __metadata("design:paramtypes", [EscrowReadService])
+exports.EscrowReadController = EscrowReadController = __decorate([
+    (0, common_1.Controller)("v1/escrows"),
+    __metadata("design:paramtypes", [escrow_read_service_1.EscrowReadService])
 ], EscrowReadController);
-export { EscrowReadController };
-//# sourceMappingURL=escrow-read.controller.js.map

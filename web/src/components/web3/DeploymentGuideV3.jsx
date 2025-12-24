@@ -27,7 +27,7 @@ export default function DeploymentGuideV3() {
   const deploymentConfig = {
     testnet: {
       chainId: 97,
-      rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+      rpcUrl: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
       explorer: 'https://testnet.bscscan.com',
       faucet: 'https://testnet.bnbchain.org/faucet-smart',
       name: 'BSC Testnet'

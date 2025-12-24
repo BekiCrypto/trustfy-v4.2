@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,12 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, UseGuards } from "@nestjs/common";
-import { RbacService } from "./rbac.service";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RbacController = void 0;
+const common_1 = require("@nestjs/common");
+const rbac_service_1 = require("./rbac.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 let RbacController = class RbacController {
-    rbacService;
     constructor(rbacService) {
         this.rbacService = rbacService;
     }
@@ -27,23 +29,22 @@ let RbacController = class RbacController {
         return { address, roles };
     }
 };
+exports.RbacController = RbacController;
 __decorate([
-    Get("health"),
+    (0, common_1.Get)("health"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], RbacController.prototype, "health", null);
 __decorate([
-    UseGuards(JwtAuthGuard),
-    Get("roles"),
-    __param(0, CurrentUser("address")),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)("roles"),
+    __param(0, (0, current_user_decorator_1.CurrentUser)("address")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], RbacController.prototype, "me", null);
-RbacController = __decorate([
-    Controller("v1/rbac"),
-    __metadata("design:paramtypes", [RbacService])
+exports.RbacController = RbacController = __decorate([
+    (0, common_1.Controller)("v1/rbac"),
+    __metadata("design:paramtypes", [rbac_service_1.RbacService])
 ], RbacController);
-export { RbacController };
-//# sourceMappingURL=rbac.controller.js.map

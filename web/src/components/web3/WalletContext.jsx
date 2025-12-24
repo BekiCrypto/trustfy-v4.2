@@ -88,7 +88,7 @@ export const WalletProvider = ({ children }) => {
         chainId: '0x61',
         chainName: 'BNB Smart Chain Testnet',
         nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-        rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+        rpcUrls: ['https://data-seed-prebsc-2-s1.binance.org:8545/'],
         blockExplorerUrls: ['https://testnet.bscscan.com/']
       }
     };
@@ -408,10 +408,8 @@ export const WalletProvider = ({ children }) => {
   };
   
   const getPlatformFeePool = async (chain, tokenSymbol) => {
-    if (!provider) throw new Error('Wallet not connected');
-    
     try {
-      const escrowContract = getContract(chain, 'escrow');
+      const escrowContract = getReadOnlyContract(chain, 'escrow');
       const tokenAddress = BEP20Helper.getTokenAddress(tokenSymbol, chain);
       const poolWei = await escrowContract.platformFeePool(tokenAddress);
       return ethers.formatUnits(poolWei, 18);
@@ -422,10 +420,8 @@ export const WalletProvider = ({ children }) => {
   };
   
   const getPlatformBondRevenue = async (chain, tokenSymbol) => {
-    if (!provider) throw new Error('Wallet not connected');
-    
     try {
-      const escrowContract = getContract(chain, 'escrow');
+      const escrowContract = getReadOnlyContract(chain, 'escrow');
       const tokenAddress = BEP20Helper.getTokenAddress(tokenSymbol, chain);
       const revenueWei = await escrowContract.platformBondRevenue(tokenAddress);
       return ethers.formatUnits(revenueWei, 18);

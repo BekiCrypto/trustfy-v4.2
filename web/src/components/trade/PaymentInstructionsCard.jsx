@@ -12,7 +12,7 @@ import {
   Shield
 } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * PaymentInstructionsCard - Shows clear payment instructions for buyer

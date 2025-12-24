@@ -34,8 +34,19 @@ const hasDialogTitle = (node) => {
   return child ? hasDialogTitle(child) : false
 }
 
+const hasDialogDescription = (node) => {
+  if (!node) return false
+  if (Array.isArray(node)) return node.some(hasDialogDescription)
+  if (!React.isValidElement(node)) return false
+  if (node.type === DialogPrimitive.Description) return true
+  if (node.type === DialogDescription) return true
+  const child = node.props?.children
+  return child ? hasDialogDescription(child) : false
+}
+
 const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
   const shouldInsertTitle = !hasDialogTitle(children)
+  const shouldInsertDescription = !hasDialogDescription(children)
 
   return (
     <DialogPortal>
@@ -49,6 +60,9 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
         {...props}>
         {shouldInsertTitle && (
           <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>
+        )}
+        {shouldInsertDescription && (
+          <DialogPrimitive.Description className="sr-only">Dialog</DialogPrimitive.Description>
         )}
         {children}
         <DialogPrimitive.Close

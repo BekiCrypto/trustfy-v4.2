@@ -1,3 +1,5 @@
+import { useTranslation } from "../hooks/useTranslation"
+
 interface TxFlowModalProps {
   open: boolean
   status: "idle" | "preparing" | "wallet" | "pending" | "confirmed" | "error"
@@ -68,4 +70,3 @@ export const TxFlowModal = ({ open, status, txHash, explorerUrl, error, onClose 
     </div>
   )
 }
-import { useTranslation } from "react-i18next"

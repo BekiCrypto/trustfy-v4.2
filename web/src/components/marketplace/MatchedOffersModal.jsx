@@ -15,7 +15,7 @@ import ReputationBadge from "../common/ReputationBadge";
 import { createNotification, NotificationTemplates } from "../notifications/notificationHelpers";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function MatchedOffersModal({ open, onOpenChange, offer, allOffers = [] }) {
   const queryClient = useQueryClient();

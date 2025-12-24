@@ -1,7 +1,8 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Activity } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const statusConfig = {
   pending: { 
@@ -108,9 +109,16 @@ export default function StatusBadge({ status, showDetail = false }) {
   }
   
   return (
-    <Badge className={`bg-gradient-to-r ${config.color} ${config.border} ${config.text} border font-medium text-xs flex items-center gap-1`}>
-      <Activity className="w-3 h-3" />
-      {t(`status.${statusKey}`) || config.label}
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger>
+        <Badge className={`bg-gradient-to-r ${config.color} ${config.border} ${config.text} border font-medium text-xs flex items-center gap-1 cursor-help`}>
+          <Activity className="w-3 h-3" />
+          {t(`status.${statusKey}`) || config.label}
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+        <p>{config.detail}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

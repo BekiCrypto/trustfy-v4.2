@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Clock, AlertTriangle, Scale, Users } from "lucide-react";
 import { format, differenceInHours, addHours } from "date-fns";
@@ -44,15 +44,16 @@ export default function DisputeTimeline({ dispute }) {
     }
   ];
   const getCurrentStageIndex = () => {
-    if (dispute.status === 'resolved') return 4;
-    if (dispute.status === 'dao_vote') return 3;
-    if (dispute.status === 'arbitration') return 2;
-    if (dispute.status === 'automated_review') return 1;
+    const status = dispute.status?.toLowerCase();
+    if (status === 'resolved') return 4;
+    if (status === 'escalated_to_dao' || status === 'dao_vote') return 3;
+    if (status === 'escalated_to_arbitrator' || status === 'arbitration' || status === 'in_progress') return 2;
+    if (status === 'open' || status === 'automated_review') return 1;
     return 0;
   };
 
   const currentStageIndex = getCurrentStageIndex();
-  const createdAt = new Date(dispute.created_date);
+  const createdAt = new Date(dispute.createdAt || dispute.created_date);
 
   const getStageDeadline = (stageIndex) => {
     let totalHours = 0;
@@ -180,7 +181,7 @@ export default function DisputeTimeline({ dispute }) {
         <div>
           <p className="text-xs text-slate-500">{t('dispute.timeline.escalationLevel')}</p>
           <p className="text-sm font-semibold text-white">
-            {t('dispute.timeline.escalationValue', { level: dispute.escalation_level })}
+            {t('dispute.timeline.escalationValue', { level: dispute.escalationLevel || dispute.escalation_level })}
           </p>
         </div>
       </div>

@@ -165,6 +165,37 @@ export const fetchEvidence = async (escrowId: string): Promise<EvidenceEntry[]> 
   return response.data
 }
 
+// Referrals
+export interface ReferralDashboard {
+  address: string
+  codes: { code: string; link: string; createdAt: string }[]
+  totalReferrals: number
+  qualifiedReferrals: number
+  earnings: number
+  walletBalance: number
+  referrals: {
+    referee: string
+    qualified: boolean
+    qualifiedAt?: string
+    createdAt: string
+  }[]
+}
+
+export const fetchReferralDashboard = async (): Promise<ReferralDashboard> => {
+  const response = await http.get("/v1/referrals/me/dashboard")
+  return response.data
+}
+
+export const createReferralCode = async (): Promise<{ code: string; referralLink: string }> => {
+  const response = await http.post("/v1/referrals/codes")
+  return response.data
+}
+
+export const postReferralAttribution = async (refCode: string, refereeAddress: string) => {
+  const response = await http.post("/v1/referrals/attribution", { refCode, refereeAddress })
+  return response.data
+}
+
 export interface EvidencePresignPayload {
   filename: string
   size: number
@@ -317,5 +348,11 @@ export const postAdminRole = async (payload: AdminRolePayload) => {
 
 export const postArbitratorRole = async (payload: AdminRolePayload) => {
   const response = await http.post("/v1/admin/roles/arbitrators", payload)
+  return response.data
+}
+
+// Referrals: withdraw earnings
+export const withdrawReferralEarnings = async (amount: number) => {
+  const response = await http.post("/v1/referrals/withdraw", { amount })
   return response.data
 }

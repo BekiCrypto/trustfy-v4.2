@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +18,6 @@ import { Input } from "@/components/ui/input";
 import DocumentationModal from "../components/landing/DocumentationModal";
 import TermsModal from "../components/landing/TermsModal";
 import PrivacyModal from "../components/landing/PrivacyModal";
-import KYCPolicyModal from "../components/landing/KYCPolicyModal";
-import BeginnerGuideModal from "../components/landing/BeginnerGuideModal";
 import TermsSummaryModal from "../components/landing/TermsSummaryModal";
 import ComplianceModal from "../components/landing/ComplianceModal";
 import LegalDisclaimerModal from "../components/landing/LegalDisclaimerModal";
@@ -37,7 +35,7 @@ export default function DocsHub() {
       docs: [
         { id: 'terms', name: t('docsHub.docs.terms.name'), description: t('docsHub.docs.terms.description'), icon: FileText, modal: 'terms' },
         { id: 'privacy', name: t('docsHub.docs.privacy.name'), description: t('docsHub.docs.privacy.description'), icon: Lock, modal: 'privacy' },
-        { id: 'kyc', name: t('docsHub.docs.identity.name'), description: t('docsHub.docs.identity.description'), icon: Shield, modal: 'kyc' },
+        
         { id: 'disclaimer', name: t('docsHub.docs.disclaimer.name'), description: t('docsHub.docs.disclaimer.description'), icon: AlertTriangle, modal: 'disclaimer' },
         { id: 'compliance', name: t('docsHub.docs.compliance.name'), description: t('docsHub.docs.compliance.description'), icon: Scale, modal: 'compliance' },
       ]
@@ -216,11 +214,10 @@ export default function DocsHub() {
       </div>
 
       {/* Modals */}
-      <DocumentationModal open={activeModal === 'docs'} onOpenChange={() => setActiveModal(null)} />
+      <DocumentationModal open={activeModal === 'docs'} onOpenChange={() => setActiveModal(null)} defaultTab="overview" />
+      <DocumentationModal open={activeModal === 'beginner'} onOpenChange={() => setActiveModal(null)} defaultTab="getting-started" />
       <TermsModal open={activeModal === 'terms'} onOpenChange={() => setActiveModal(null)} />
       <PrivacyModal open={activeModal === 'privacy'} onOpenChange={() => setActiveModal(null)} />
-      <KYCPolicyModal open={activeModal === 'kyc'} onOpenChange={() => setActiveModal(null)} />
-      <BeginnerGuideModal open={activeModal === 'beginner'} onOpenChange={() => setActiveModal(null)} />
       <TermsSummaryModal open={activeModal === 'summary'} onOpenChange={() => setActiveModal(null)} />
       <ComplianceModal open={activeModal === 'compliance'} onOpenChange={() => setActiveModal(null)} />
       <LegalDisclaimerModal open={activeModal === 'disclaimer'} onOpenChange={() => setActiveModal(null)} />

@@ -101,14 +101,20 @@ export class EvidenceService {
       },
     })
 
-    await this.notifications.queueEvent({
-      type: "escrow/evidence",
-      escrowId,
-      sender: normalized,
-      payload: {
-        uri,
-      },
-    })
+    const recipient = this.getOtherParty(escrow, normalized)
+    if (recipient) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "New Evidence Uploaded",
+        message: `New evidence uploaded in escrow ${formatEscrowId(escrow.escrowId)}`,
+        type: "escrow/evidence",
+        escrowId,
+        sender: normalized,
+        payload: {
+          uri,
+        },
+      })
+    }
 
     return this.mapRecord(record)
   }
@@ -169,6 +175,12 @@ export class EvidenceService {
     if (!participant && !privileged) {
       throw new ForbiddenException("insufficient permissions for this escrow")
     }
+  }
+
+  private getOtherParty(escrow: Escrow, sender: string): string | null {
+    if (escrow.seller === sender) return escrow.buyer
+    if (escrow.buyer === sender) return escrow.seller
+    return null
   }
 
   private normalizeAddress(address: string) {

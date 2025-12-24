@@ -11,6 +11,7 @@ import ChainBadge from "../common/ChainBadge";
 import WalletAddress from "../common/WalletAddress";
 import { base44 } from "@/api/base44Client";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function TradeCard({ trade, index = 0, effectiveStatus }) {
   const navigate = useNavigate();
@@ -32,13 +33,13 @@ export default function TradeCard({ trade, index = 0, effectiveStatus }) {
     if (!currentUser) return null;
     
     if (status === 'pending' && isSeller) {
-      return { text: 'Fund Escrow', color: 'amber' };
+      return { text: 'Fund Escrow', color: 'amber', detail: 'You must deposit assets into the secure vault' };
     }
     if (status === 'funded' && isBuyer) {
-      return { text: 'Confirm Payment', color: 'blue' };
+      return { text: 'Confirm Payment', color: 'blue', detail: 'Mark as paid after sending funds' };
     }
     if (status === 'in_progress' && isSeller) {
-      return { text: 'Release Escrow', color: 'emerald' };
+      return { text: 'Release Escrow', color: 'emerald', detail: 'Verify payment and release funds' };
     }
     return null;
   };
@@ -65,48 +66,90 @@ export default function TradeCard({ trade, index = 0, effectiveStatus }) {
                 </div>
               )}
               {actionBadge && (
-                <div className={`flex items-center gap-1 text-xs bg-${actionBadge.color}-500/10 px-2 py-0.5 rounded-full border border-${actionBadge.color}-500/30 animate-pulse`}>
-                  <AlertTriangle className="w-3 h-3" />
-                  <span className={`text-${actionBadge.color}-400 font-semibold`}>
-                    {actionBadge.text}
-                  </span>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className={`flex items-center gap-1 text-xs bg-${actionBadge.color}-500/10 px-2 py-0.5 rounded-full border border-${actionBadge.color}-500/30 animate-pulse cursor-help`}>
+                      <AlertTriangle className="w-3 h-3" />
+                      <span className={`text-${actionBadge.color}-400 font-semibold`}>
+                        {actionBadge.text}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>{actionBadge.detail}</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               {status === 'pending' && !actionBadge && (
-                <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                  <Shield className="w-3 h-3" />
-                  Awaiting Seller Funding
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full cursor-help">
+                      <Shield className="w-3 h-3" />
+                      Awaiting Seller Funding
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Seller needs to deposit assets into escrow</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               {status === 'funded' && !actionBadge && (
-                <div className="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
-                  <Shield className="w-3 h-3" />
-                  Awaiting Buyer Confirmation
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full cursor-help">
+                      <Shield className="w-3 h-3" />
+                      Awaiting Buyer Confirmation
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Buyer needs to send payment and confirm</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               {status === 'in_progress' && !actionBadge && (
-                <div className="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
-                  <Shield className="w-3 h-3" />
-                  Payment Confirmed
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full cursor-help">
+                      <Shield className="w-3 h-3" />
+                      Payment Confirmed
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Seller needs to verify receipt and release funds</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               {isExpiringSoon && status === 'pending' && (
-                <div className="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
-                  <AlertTriangle className="w-3 h-3" />
-                  Expiring Soon
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full cursor-help">
+                      <AlertTriangle className="w-3 h-3" />
+                      Expiring Soon
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Funds will be returned if not funded/completed soon</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
-              <button
-                onClick={() =>
-                  ensureWallet(() =>
-                    navigate(createPageUrl(`TradeDetails?id=${trade.id}`))
-                  )
-                }
-                className="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/30 hover:bg-blue-500/20 transition-all"
-              >
-                <MessageSquare className="w-3 h-3" />
-                Chat
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() =>
+                      ensureWallet(() =>
+                        navigate(createPageUrl(`TradeDetails?id=${trade.id}`))
+                      )
+                    }
+                    className="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/30 hover:bg-blue-500/20 transition-all"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    Chat
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                  <p>Open secure chat with counterparty</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             
             <div className="flex items-center gap-4 text-sm">

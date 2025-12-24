@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Search, Loader2, ArrowLeftRight, Shield, Info } from "lucide-react";
 import TradeCard from "../components/trade/TradeCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";

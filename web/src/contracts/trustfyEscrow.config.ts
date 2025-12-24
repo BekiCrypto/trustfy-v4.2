@@ -11,7 +11,7 @@ const DEFAULT_ESCROW_ADDRESSES: Record<number, string> = {
 
 const DEFAULT_TOKEN_ADDRESSES: Record<number, Record<string, string>> = {
   97: {
-    USDT: "0x7ef95a0fea0df0eb3c1f36c8c6f6f7f3fb5e1e16",
+    USDT: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
     USDC: "0x64544969ed7ebf5f083679233325356ebe738930",
     BUSD: "0x8301f2213c0eed49a7e28ae4c3e91722919b8b47",
     BNB: ZERO_ADDRESS,

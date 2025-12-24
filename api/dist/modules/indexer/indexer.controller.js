@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,10 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Get } from "@nestjs/common";
-import { IndexerService } from "./indexer.service";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IndexerController = void 0;
+const common_1 = require("@nestjs/common");
+const indexer_service_1 = require("./indexer.service");
 let IndexerController = class IndexerController {
-    service;
     constructor(service) {
         this.service = service;
     }
@@ -18,15 +20,14 @@ let IndexerController = class IndexerController {
         return this.service.getStatus();
     }
 };
+exports.IndexerController = IndexerController;
 __decorate([
-    Get("status"),
+    (0, common_1.Get)("status"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], IndexerController.prototype, "status", null);
-IndexerController = __decorate([
-    Controller("v1/indexer"),
-    __metadata("design:paramtypes", [IndexerService])
+exports.IndexerController = IndexerController = __decorate([
+    (0, common_1.Controller)("v1/indexer"),
+    __metadata("design:paramtypes", [indexer_service_1.IndexerService])
 ], IndexerController);
-export { IndexerController };
-//# sourceMappingURL=indexer.controller.js.map

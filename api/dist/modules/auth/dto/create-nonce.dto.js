@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,24 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsEthereumAddress, IsInt, IsOptional, IsString, Min } from "class-validator";
-export class CreateNonceDto {
-    address;
-    chainId;
-    domain;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CreateNonceDto = void 0;
+const class_validator_1 = require("class-validator");
+class CreateNonceDto {
 }
+exports.CreateNonceDto = CreateNonceDto;
 __decorate([
-    IsEthereumAddress(),
+    (0, class_validator_1.IsEthereumAddress)(),
     __metadata("design:type", String)
 ], CreateNonceDto.prototype, "address", void 0);
 __decorate([
-    IsInt(),
-    Min(1),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], CreateNonceDto.prototype, "chainId", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateNonceDto.prototype, "domain", void 0);
-//# sourceMappingURL=create-nonce.dto.js.map

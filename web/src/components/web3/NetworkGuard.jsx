@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { CHAIN_IDS } from './contractABI';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function NetworkGuard({ children, requiredChainId = CHAIN_IDS.BSC }) {
   const { chainId, switchChain, account } = useWallet();

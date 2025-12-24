@@ -15,6 +15,31 @@ export default function ThemeSelector() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     applyTheme(savedTheme);
+
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSystemChange = () => {
+      const current = localStorage.getItem('theme') || 'dark';
+      if (current === 'system') {
+        applyTheme('system');
+        window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: 'system' } }));
+      }
+    };
+    media.addEventListener('change', onSystemChange);
+
+    const onStorage = (e) => {
+      if (e.key === 'theme') {
+        const next = e.newValue || 'dark';
+        setTheme(next);
+        applyTheme(next);
+        window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }));
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      media.removeEventListener('change', onSystemChange);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   const applyTheme = (newTheme) => {
@@ -34,6 +59,7 @@ export default function ThemeSelector() {
     }
     
     localStorage.setItem('theme', newTheme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: newTheme } }));
   };
 
   const changeTheme = (newTheme) => {

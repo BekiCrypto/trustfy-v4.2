@@ -1,7 +1,20 @@
 import { createRoot } from "react-dom/client"
 import type React from "react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { TxFlowModal } from "./TxFlowModal"
+
+// Mock useTranslation
+vi.mock('../hooks/useTranslation', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'txFlow.status.wallet': 'Confirm wallet prompt',
+        'txFlow.status.error': 'Action failed',
+      };
+      return translations[key] || key;
+    },
+  }),
+}));
 
 const render = (component: React.ReactElement) => {
   const container = document.createElement("div")

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from '@/hooks/useTranslation';
+import { disputesApi } from "@/api/disputes";
+import { adminApi } from "@/api/admin";
+import { base44 } from "@/api/base44Client"; // Keeping for auth.me if needed, or replace with context
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -36,68 +38,68 @@ export default function ArbitratorDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [escalationFilter, setEscalationFilter] = useState('all');
+  const queryClient = useQueryClient();
   
   const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me()
   });
   
-  useQuery({
-    queryKey: ['user-profile', user?.email],
+  // Fetch disputes assigned to me
+  const { data: myDisputes = [], isLoading: loadingMy } = useQuery({
+    queryKey: ['my-disputes', user?.address],
+    queryFn: () => disputesApi.list({ assignee: user?.address }),
+    enabled: !!user?.address,
+    refetchInterval: 30000
+  });
+
+  // Fetch unassigned disputes (OPEN status, no assignee logic handled by backend filtering or client side if needed)
+  // Since backend listDisputes(status='OPEN') returns all open disputes regardless of assignee, 
+  // we might get some assigned to others if we don't filter. 
+  // But typically 'OPEN' means not picked up yet if we switch status to 'IN_PROGRESS' on claim.
+  const { data: unassignedDisputes = [], isLoading: loadingUnassigned } = useQuery({
+    queryKey: ['unassigned-disputes'],
     queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ wallet_address: user?.email });
-      return profiles[0] ?? null;
+      const list = await disputesApi.list({ status: 'OPEN' });
+      // Filter out if already assigned (safety check)
+      return list.filter(d => !d.arbitratorAssigned);
     },
-    enabled: !!user?.email
-  });
-  
-  const { data: disputes = [], isLoading } = useQuery({
-    queryKey: ['arbitrator-disputes', user?.email],
-    queryFn: () => base44.entities.Dispute.list('-created_date', 200),
-    enabled: !!user?.email,
     refetchInterval: 30000
   });
 
-  const { data: allTrades = [] } = useQuery({
-    queryKey: ['all-trades'],
-    queryFn: () => base44.entities.Trade.list('-created_date', 200),
-    enabled: !!user?.email,
-    refetchInterval: 30000
+  const { data: resolvedDisputes = [], isLoading: loadingResolved } = useQuery({
+    queryKey: ['resolved-disputes', user?.address],
+    queryFn: () => disputesApi.list({ status: 'RESOLVED', assignee: user?.address }),
+    enabled: !!user?.address,
   });
 
+  // Fetch arbitrators for leaderboard
   const { data: allArbitrators = [] } = useQuery({
     queryKey: ['all-arbitrators'],
     queryFn: async () => {
-      return await base44.entities.UserProfile.filter({ platform_role: 'arbitrator' });
+      // Assuming adminApi.listUsers supports filtering by role or we fetch all and filter
+      const users = await adminApi.listUsers(1, 100); 
+      // This might return { users: [], total: ... } or just [] depending on admin.service
+      // Let's assume it returns { users: [] } based on typical pagination
+      const list = Array.isArray(users) ? users : (users.users || []);
+      return list.filter(u => u.roles?.some(r => r.role === 'ARBITRATOR'));
     }
   });
   
-  // Filter disputes assigned to this arbitrator
-  const myDisputes = disputes.filter(d => 
-    d.arbitrator_address === user?.email && d.status === 'arbitration'
-  );
-  
-  // All unassigned disputes (for arbitrators to pick up)
-  const unassignedDisputes = disputes.filter(d => 
-    !d.arbitrator_address && ['pending', 'automated_review'].includes(d.status)
-  );
+  // Combine for calculating stats if needed, or just use separate lists
+  const pendingDisputes = myDisputes.filter(d => d.status !== 'RESOLVED');
 
   // Calculate priority based on dispute age and value
   const calculatePriority = (dispute) => {
-    const trade = allTrades.find(t => t.trade_id === dispute.trade_id);
-    const ageHours = (Date.now() - new Date(dispute.created_date).getTime()) / (1000 * 60 * 60);
-    const value = trade?.amount || 0;
+    // dispute.escrow is now available
+    const ageHours = (Date.now() - new Date(dispute.createdAt || dispute.created_date).getTime()) / (1000 * 60 * 60);
+    const value = parseFloat(dispute.escrow?.amount || 0);
     
     if (ageHours > 72 || value > 10000) return 'high';
     if (ageHours > 48 || value > 5000) return 'medium';
     return 'low';
   };
   
-  const pendingDisputes = myDisputes.filter(d => d.ruling === 'pending');
-  const resolvedDisputes = disputes.filter(d => 
-    d.arbitrator_address === user?.email && d.status === 'resolved'
-  );
-
   // Apply filters
   const filterDisputes = (disputeList) => {
     return disputeList.filter(dispute => {
@@ -105,16 +107,16 @@ export default function ArbitratorDashboard() {
       
       // Search filter
       const matchesSearch = !searchQuery || 
-        dispute.trade_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dispute.reason?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dispute.id?.toLowerCase().includes(searchQuery.toLowerCase());
+        dispute.escrowId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dispute.reasonCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dispute.summary?.toLowerCase().includes(searchQuery.toLowerCase());
       
       // Priority filter
       const matchesPriority = priorityFilter === 'all' || priority === priorityFilter;
       
       // Escalation filter
       const matchesEscalation = escalationFilter === 'all' || 
-        dispute.escalation_level?.toString() === escalationFilter;
+        dispute.escalationLevel?.toString() === escalationFilter;
       
       return matchesSearch && matchesPriority && matchesEscalation;
     });
@@ -126,38 +128,38 @@ export default function ArbitratorDashboard() {
 
   // Performance metrics
   const totalResolved = resolvedDisputes.length;
+  // Calculate avg time (mock logic or real if resolvedAt exists)
+  // dispute.updatedAt can be used as resolved time if status is RESOLVED
   const avgResolutionTime = resolvedDisputes.length > 0
     ? resolvedDisputes.reduce((sum, d) => {
-        const start = new Date(d.created_date).getTime();
-        const end = new Date(d.resolved_at).getTime();
+        const start = new Date(d.createdAt).getTime();
+        const end = new Date(d.updatedAt).getTime();
         return sum + (end - start);
-      }, 0) / (resolvedDisputes.length * 1000 * 60 * 60) // Convert to hours
+      }, 0) / (resolvedDisputes.length * 1000 * 60 * 60)
     : 0;
   
   const rulingDistribution = {
-    favor_seller: resolvedDisputes.filter(d => d.ruling === 'favor_seller').length,
-    favor_buyer: resolvedDisputes.filter(d => d.ruling === 'favor_buyer').length,
-    split: resolvedDisputes.filter(d => d.ruling === 'split').length
+    favor_seller: resolvedDisputes.filter(d => d.outcome === 'favor_seller').length,
+    favor_buyer: resolvedDisputes.filter(d => d.outcome === 'favor_buyer').length,
+    split: resolvedDisputes.filter(d => d.outcome === 'split').length
   };
 
-  // Arbitrator leaderboard
-  const arbitratorLeaderboard = allArbitrators.map(arb => {
-    const arbDisputes = disputes.filter(d => d.arbitrator_address === arb.wallet_address);
-    const resolved = arbDisputes.filter(d => d.status === 'resolved');
-    return {
+  // Arbitrator leaderboard (simplified)
+  const arbitratorLeaderboard = allArbitrators.map(arb => ({
       ...arb,
-      totalResolved: resolved.length,
-      pending: arbDisputes.filter(d => d.status === 'arbitration').length
-    };
-  }).sort((a, b) => b.totalResolved - a.totalResolved).slice(0, 5);
+      totalResolved: 0, // Need backend support for this count per user
+      pending: 0,
+      display_name: arb.displayName || arb.address.slice(0, 8),
+      reputation_score: arb.reputationScore || 0,
+      reputation_tier: 'Standard' // Mock
+  })).sort((a, b) => b.reputation_score - a.reputation_score).slice(0, 5);
 
   // High priority disputes
-  const highPriorityDisputes = pendingDisputes.filter(d => {
-    const priority = calculatePriority(d);
-    return priority === 'high';
-  });
+  const highPriorityDisputes = pendingDisputes.filter(d => calculatePriority(d) === 'high');
   
-  if (loadingUser || isLoading) {
+  const isLoading = loadingUser || loadingMy || loadingUnassigned || loadingResolved;
+
+  if (isLoading) {
     return <LoadingSpinner text={t('arbitratorPage.loadingDashboard')} />;
   }
   
@@ -292,7 +294,7 @@ export default function ArbitratorDashboard() {
               </h3>
               <div className="space-y-3">
                 {arbitratorLeaderboard.map((arb, idx) => (
-                  <div key={arb.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50">
+                  <div key={arb.address} className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50">
                     <Badge className={
                       idx === 0 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                       idx === 1 ? 'bg-slate-400/20 text-slate-300 border-slate-400/30' :
@@ -345,15 +347,6 @@ export default function ArbitratorDashboard() {
                 {t('arbitrator.userTiers')}
               </TabsTrigger>
             </TabsList>
-
-            {/* Enhanced Stats Component */}
-            <ArbitratorStats 
-              pendingCount={pendingDisputes.length}
-              resolvedCount={totalResolved}
-              totalAssigned={myDisputes.length + resolvedDisputes.length}
-              avgResolutionTime={avgResolutionTime}
-              rulingDistribution={rulingDistribution}
-            />
 
             {/* Filters */}
             <Card className="bg-slate-900/50 border-slate-700/50 p-4 mt-6">
@@ -439,7 +432,7 @@ export default function ArbitratorDashboard() {
                   {filteredPending.map((dispute, idx) => {
                     const priority = calculatePriority(dispute);
                     return (
-                      <div key={dispute.id} className="relative">
+                      <div key={dispute.escrowId} className="relative">
                         {priority === 'high' && (
                           <div className="absolute -left-1 top-0 bottom-0 w-1 bg-red-500 rounded-full" />
                         )}
@@ -466,7 +459,7 @@ export default function ArbitratorDashboard() {
                     </p>
                   </div>
                   {filteredUnassigned.map((dispute, idx) => (
-                    <ArbitratorDisputeCard key={dispute.id} dispute={dispute} index={idx} />
+                    <ArbitratorDisputeCard key={dispute.escrowId} dispute={dispute} index={idx} unassigned />
                   ))}
                 </div>
               )}
@@ -485,7 +478,7 @@ export default function ArbitratorDashboard() {
               ) : (
                 <div className="space-y-4">
                   {filteredResolved.map((dispute, idx) => (
-                    <ArbitratorDisputeCard key={dispute.id} dispute={dispute} resolved index={idx} />
+                    <ArbitratorDisputeCard key={dispute.escrowId} dispute={dispute} resolved index={idx} />
                   ))}
                 </div>
               )}

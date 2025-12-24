@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,12 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OptionalJwtAuthGuard = void 0;
+const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 let OptionalJwtAuthGuard = class OptionalJwtAuthGuard {
-    jwtService;
-    configService;
     constructor(jwtService, configService) {
         this.jwtService = jwtService;
         this.configService = configService;
@@ -32,15 +33,15 @@ let OptionalJwtAuthGuard = class OptionalJwtAuthGuard {
             request.user = decoded;
         }
         catch {
-            // allow requests to proceed even if token invalid
+            // Ignore invalid tokens for optional auth routes.
+            request.user = undefined;
         }
         return true;
     }
 };
-OptionalJwtAuthGuard = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [JwtService,
-        ConfigService])
+exports.OptionalJwtAuthGuard = OptionalJwtAuthGuard;
+exports.OptionalJwtAuthGuard = OptionalJwtAuthGuard = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        config_1.ConfigService])
 ], OptionalJwtAuthGuard);
-export { OptionalJwtAuthGuard };
-//# sourceMappingURL=optional-jwt-auth.guard.js.map

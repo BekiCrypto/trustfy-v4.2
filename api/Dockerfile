@@ -1,15 +1,22 @@
 FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
-COPY prisma ./prisma
-COPY tsconfig*.json ./
-COPY src ./src
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/package.json
+COPY worker/package.json ./worker/package.json
+COPY web/package.json ./web/package.json
+COPY shared/package.json ./shared/package.json
 
-RUN npm install
-RUN npm run build
+RUN npm ci
+
+COPY shared ./shared
+COPY api ./api
+
+RUN npm run build -w @trustfy/shared
+RUN npm run prisma:generate -w @trustfy/api
+RUN npm run build -w @trustfy/api
 
 EXPOSE 4000
 
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start", "-w", "@trustfy/api"]

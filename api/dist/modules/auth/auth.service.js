@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,36 +8,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { BadRequestException, Injectable, UnauthorizedException, } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
-import { randomBytes } from "node:crypto";
-import { ethers } from "ethers";
-import { AUTH_DEFAULT_DOMAIN, AUTH_NONCE_TTL_SECONDS, } from "./auth.constants";
-import { buildAuthMessage, hashNonce, signatureMatchesMessage, } from "./auth.helpers";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
+const node_crypto_1 = require("node:crypto");
+const ethers_1 = require("ethers");
+const auth_constants_1 = require("./auth.constants");
+const auth_helpers_1 = require("./auth.helpers");
 let AuthService = class AuthService {
-    prisma;
-    jwtService;
-    configService;
-    nonceLifetimeMs;
-    defaultDomain;
-    jwtExpiry;
     constructor(prisma, jwtService, configService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.configService = configService;
-        const ttlSeconds = Number(this.configService.get("AUTH_NONCE_TTL_SECONDS") ?? AUTH_NONCE_TTL_SECONDS);
-        this.nonceLifetimeMs = (Number.isFinite(ttlSeconds) ? ttlSeconds : AUTH_NONCE_TTL_SECONDS) * 1000;
+        const ttlSeconds = Number(this.configService.get("AUTH_NONCE_TTL_SECONDS") ?? auth_constants_1.AUTH_NONCE_TTL_SECONDS);
+        this.nonceLifetimeMs = (Number.isFinite(ttlSeconds) ? ttlSeconds : auth_constants_1.AUTH_NONCE_TTL_SECONDS) * 1000;
         this.defaultDomain =
-            this.configService.get("AUTH_DOMAIN") ?? AUTH_DEFAULT_DOMAIN;
+            this.configService.get("AUTH_DOMAIN") ?? auth_constants_1.AUTH_DEFAULT_DOMAIN;
         this.jwtExpiry = this.configService.get("JWT_EXPIRES_IN", "15m");
     }
     async createNonce(dto) {
         const normalizedAddress = this.normalizeAddress(dto.address);
         const issuedAt = new Date();
         const expiresAt = new Date(issuedAt.getTime() + this.nonceLifetimeMs);
-        const nonce = randomBytes(16).toString("hex");
+        const nonce = (0, node_crypto_1.randomBytes)(16).toString("hex");
         const payload = {
             domain: dto.domain ?? this.defaultDomain,
             address: normalizedAddress,
@@ -48,7 +45,7 @@ let AuthService = class AuthService {
         await this.prisma.nonce.create({
             data: {
                 address: normalizedAddress,
-                value: hashNonce(nonce),
+                value: (0, auth_helpers_1.hashNonce)(nonce),
                 chainId: dto.chainId,
                 domain: payload.domain,
                 issuedAt,
@@ -57,7 +54,7 @@ let AuthService = class AuthService {
         });
         return {
             nonce,
-            message: buildAuthMessage(payload),
+            message: (0, auth_helpers_1.buildAuthMessage)(payload),
             expiresAt: payload.expirationTime,
             issuedAt: payload.issuedAt,
             domain: payload.domain,
@@ -66,7 +63,7 @@ let AuthService = class AuthService {
     }
     async login(dto) {
         const normalizedAddress = this.normalizeAddress(dto.address);
-        const hashedNonce = hashNonce(dto.nonce);
+        const hashedNonce = (0, auth_helpers_1.hashNonce)(dto.nonce);
         const nonceRecord = await this.prisma.nonce.findFirst({
             where: {
                 address: normalizedAddress,
@@ -75,10 +72,10 @@ let AuthService = class AuthService {
             },
         });
         if (!nonceRecord) {
-            throw new UnauthorizedException("Invalid or missing nonce");
+            throw new common_1.UnauthorizedException("Invalid or missing nonce");
         }
         if (nonceRecord.expiresAt.getTime() < Date.now()) {
-            throw new UnauthorizedException("Nonce expired");
+            throw new common_1.UnauthorizedException("Nonce expired");
         }
         const payload = {
             domain: nonceRecord.domain ?? this.defaultDomain,
@@ -88,9 +85,9 @@ let AuthService = class AuthService {
             issuedAt: nonceRecord.issuedAt.toISOString(),
             expirationTime: nonceRecord.expiresAt.toISOString(),
         };
-        const message = buildAuthMessage(payload);
-        if (!signatureMatchesMessage(dto.signature, message, normalizedAddress)) {
-            throw new UnauthorizedException("Signature mismatch");
+        const message = (0, auth_helpers_1.buildAuthMessage)(payload);
+        if (!(0, auth_helpers_1.signatureMatchesMessage)(dto.signature, message, normalizedAddress)) {
+            throw new common_1.UnauthorizedException("Signature mismatch");
         }
         await this.prisma.nonce.update({
             where: { id: nonceRecord.id },
@@ -120,6 +117,67 @@ let AuthService = class AuthService {
                 createdBy: normalizedAddress,
             },
         });
+        // Bootstrap privileged roles from environment
+        // ADMIN:
+        // 1) If no ADMIN exists yet, grant ADMIN to the first successful login
+        // 2) If ADMIN_BOOTSTRAP_ADDRESSES / ADMIN_WALLETS includes this address, ensure ADMIN role
+        try {
+            const bootstrapRaw = this.configService.get("ADMIN_BOOTSTRAP_ADDRESSES") ??
+                this.configService.get("ADMIN_WALLETS") ??
+                "";
+            const bootstrap = bootstrapRaw
+                .split(",")
+                .map((x) => x.trim().toLowerCase())
+                .filter(Boolean);
+            const anyAdmin = await this.prisma.role.findFirst({ where: { role: "ADMIN" } });
+            if (!anyAdmin || bootstrap.includes(normalizedAddress)) {
+                await this.prisma.role.upsert({
+                    where: {
+                        address_role: {
+                            address: normalizedAddress,
+                            role: "ADMIN",
+                        },
+                    },
+                    update: {},
+                    create: {
+                        address: normalizedAddress,
+                        role: "ADMIN",
+                        createdBy: normalizedAddress,
+                    },
+                });
+            }
+        }
+        catch {
+            // ignore bootstrap failures; normal auth continues
+        }
+        // SUPER_ADMIN:
+        // If SUPER_ADMIN_WALLETS includes this address, ensure SUPER_ADMIN role
+        try {
+            const superAdminRaw = this.configService.get("SUPER_ADMIN_WALLETS") ?? "";
+            const superAdmins = superAdminRaw
+                .split(",")
+                .map((x) => x.trim().toLowerCase())
+                .filter(Boolean);
+            if (superAdmins.includes(normalizedAddress)) {
+                await this.prisma.role.upsert({
+                    where: {
+                        address_role: {
+                            address: normalizedAddress,
+                            role: "SUPER_ADMIN",
+                        },
+                    },
+                    update: {},
+                    create: {
+                        address: normalizedAddress,
+                        role: "SUPER_ADMIN",
+                        createdBy: normalizedAddress,
+                    },
+                });
+            }
+        }
+        catch {
+            // ignore
+        }
         const roles = await this.prisma.role.findMany({
             where: { address: normalizedAddress },
         });
@@ -150,6 +208,17 @@ let AuthService = class AuthService {
             roles: roleNames,
         };
     }
+    async getProfile(address) {
+        const user = await this.prisma.user.findUnique({
+            where: { address },
+            include: {
+                roles: true,
+                prime: true,
+                notificationPreference: true,
+            },
+        });
+        return user;
+    }
     async logout(address) {
         await this.prisma.auditLog.create({
             data: {
@@ -160,18 +229,17 @@ let AuthService = class AuthService {
     }
     normalizeAddress(address) {
         try {
-            return ethers.getAddress(address).toLowerCase();
+            return ethers_1.ethers.getAddress(address).toLowerCase();
         }
         catch {
-            throw new BadRequestException("Invalid Ethereum address");
+            throw new common_1.BadRequestException("Invalid Ethereum address");
         }
     }
 };
-AuthService = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [PrismaService,
-        JwtService,
-        ConfigService])
+exports.AuthService = AuthService;
+exports.AuthService = AuthService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
-export { AuthService };
-//# sourceMappingURL=auth.service.js.map

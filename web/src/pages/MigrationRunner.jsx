@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -43,11 +43,10 @@ export default function MigrationRunner() {
     enabled: !!user?.email
   });
 
-  // Allow access if: super_admin, admin, or owner (bikilad@gmail.com)
+  // Allow access if: super_admin, admin, or owner
   const isAdmin = profile?.platform_role === 'super_admin' || 
                   profile?.platform_role === 'admin' ||
-                  user?.role === 'admin' ||
-                  user?.email === 'bikilad@gmail.com';
+                  user?.role === 'admin';
 
   const runMigration = async (dryRun = true) => {
     if (!isAdmin) {

@@ -1,9 +1,9 @@
 import React from 'react';
-import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { adminApi } from "@/api/admin";
 import { 
   Users,
   ArrowLeftRight,
@@ -14,73 +14,61 @@ import {
   TrendingDown,
   Activity
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function PlatformStats() {
   const { t } = useTranslation();
-  const { data: trades = [] } = useQuery({
-    queryKey: ['all-trades'],
-    queryFn: () => base44.entities.Trade.list()
+  
+  const { data: statsData, isLoading } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: adminApi.getStats
   });
   
-  const { data: profiles = [] } = useQuery({
-    queryKey: ['all-profiles'],
-    queryFn: () => base44.entities.UserProfile.list()
-  });
+  if (isLoading || !statsData) {
+    return <div className="p-8 text-center text-slate-400">Loading stats...</div>;
+  }
   
-  const { data: disputes = [] } = useQuery({
-    queryKey: ['all-disputes'],
-    queryFn: () => base44.entities.Dispute.list()
-  });
-  
-  const { data: policies = [] } = useQuery({
-    queryKey: ['all-policies'],
-    queryFn: () => base44.entities.InsurancePolicy.list()
-  });
-  
-  // Calculate stats
-  const totalUsers = profiles.length;
-  const totalTrades = trades.length;
-  const completedTrades = trades.filter(t => t.status === 'completed').length;
-  const activeTrades = trades.filter(t => ['pending', 'funded', 'in_progress'].includes(t.status)).length;
-  const disputedTrades = trades.filter(t => t.status === 'disputed').length;
-  const totalVolume = trades.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const insuredTrades = trades.filter(t => t.is_insured).length;
-  const activeDisputes = disputes.filter(d => !['resolved', 'rejected'].includes(d.status)).length;
-  
-  // Trade status distribution
-  const statusData = [
-    { name: t('adminStats.completed'), value: completedTrades, color: '#10b981' },
-    { name: t('adminStats.active'), value: activeTrades, color: '#3b82f6' },
-    { name: t('adminStats.disputed'), value: disputedTrades, color: '#ef4444' },
-    { name: t('adminStats.other'), value: totalTrades - completedTrades - activeTrades - disputedTrades, color: '#64748b' }
-  ];
-  
-  // Token distribution
-  const tokenData = Object.entries(
-    trades.reduce((acc, t) => {
-      acc[t.token_symbol] = (acc[t.token_symbol] || 0) + 1;
-      return acc;
-    }, {})
-  ).map(([token, count]) => ({ token, count }));
-  
-  // Chain distribution
-  const chainData = Object.entries(
-    trades.reduce((acc, t) => {
-      acc[t.chain] = (acc[t.chain] || 0) + 1;
-      return acc;
-    }, {})
-  ).map(([chain, count]) => ({ chain, count }));
+  const {
+    totalUsers,
+    totalTrades,
+    totalVolume,
+    activeDisputes,
+    insuredTrades,
+    completedTrades,
+    activeTrades,
+    disputedTrades,
+    tradeStatusDistribution,
+    tokenDistribution,
+    chainDistribution
+  } = statsData;
+
+  const successRate = totalTrades ? Math.round((completedTrades / totalTrades) * 100) : 0;
   
   const stats = [
     { label: t('adminStats.totalUsers'), value: totalUsers, icon: Users, color: 'from-blue-500 to-cyan-500', change: '+12%' },
     { label: t('adminStats.totalTrades'), value: totalTrades, icon: ArrowLeftRight, color: 'from-purple-500 to-pink-500', change: '+8%' },
-    { label: t('adminStats.totalVolume'), value: `${totalVolume.toLocaleString()}`, icon: DollarSign, color: 'from-emerald-500 to-teal-500', change: '+15%' },
+    { label: t('adminStats.totalVolume'), value: `$${Number(totalVolume).toLocaleString()}`, icon: DollarSign, color: 'from-emerald-500 to-teal-500', change: '+15%' },
     { label: t('adminStats.activeDisputes'), value: activeDisputes, icon: AlertTriangle, color: 'from-amber-500 to-orange-500', change: '-5%' },
     { label: t('adminStats.insuredTrades'), value: insuredTrades, icon: Shield, color: 'from-indigo-500 to-purple-500', change: '+20%' },
-    { label: t('adminStats.successRate'), value: `${totalTrades ? Math.round((completedTrades / totalTrades) * 100) : 0}%`, icon: Activity, color: 'from-green-500 to-emerald-500', change: '+3%' }
+    { label: t('adminStats.successRate'), value: `${successRate}%`, icon: Activity, color: 'from-green-500 to-emerald-500', change: '+3%' }
   ];
   
+  // Trade status distribution colors
+  const statusColors = {
+    'COMPLETED': '#10b981',
+    'AWAITING_PAYMENT': '#3b82f6',
+    'AWAITING_DELIVERY': '#3b82f6',
+    'DISPUTED': '#ef4444',
+    'RESOLVED': '#8b5cf6',
+    'CANCELED': '#64748b'
+  };
+
+  const statusData = tradeStatusDistribution.map(item => ({
+    name: item.name,
+    value: item.value,
+    color: statusColors[item.name] || '#64748b'
+  }));
+
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -97,6 +85,7 @@ export default function PlatformStats() {
                 <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
                   <stat.icon className="w-5 h-5 text-white" />
                 </div>
+                {/* Change indicator mocked for now as we don't have historical data in this API call yet */}
                 <div className={`flex items-center gap-1 text-xs ${stat.change.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
                   {stat.change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                   {stat.change}
@@ -149,7 +138,7 @@ export default function PlatformStats() {
         <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 p-6">
           <h3 className="text-lg font-semibold text-white mb-4">{t('adminStats.tradesByToken')}</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={tokenData}>
+            <BarChart data={tokenDistribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
               <XAxis dataKey="token" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
@@ -166,7 +155,7 @@ export default function PlatformStats() {
         <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 p-6">
           <h3 className="text-lg font-semibold text-white mb-4">{t('adminStats.tradesByChain')}</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={chainData}>
+            <BarChart data={chainDistribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
               <XAxis dataKey="chain" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
@@ -185,7 +174,7 @@ export default function PlatformStats() {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50">
               <span className="text-slate-400">{t('adminStats.completionRate')}</span>
-              <span className="text-white font-semibold">{totalTrades ? Math.round((completedTrades / totalTrades) * 100) : 0}%</span>
+              <span className="text-white font-semibold">{successRate}%</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50">
               <span className="text-slate-400">{t('adminStats.disputeRate')}</span>
@@ -197,7 +186,7 @@ export default function PlatformStats() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50">
               <span className="text-slate-400">{t('adminStats.activeUsers')}</span>
-              <span className="text-white font-semibold">{profiles.filter(p => p.total_trades > 0).length}</span>
+              <span className="text-white font-semibold">{totalUsers}</span>
             </div>
           </div>
         </Card>

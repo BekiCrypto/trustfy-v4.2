@@ -2,7 +2,7 @@ type ChainRecord = Record<number, string>
 
 const defaultRpc: ChainRecord = {
   56: "https://bsc-dataseed.binance.org",
-  97: "https://bsc-testnet.publicnode.com",
+  97: "https://data-seed-prebsc-2-s1.binance.org:8545/",
 }
 
 const defaultContracts: ChainRecord = {}
@@ -41,7 +41,7 @@ export const CONTRACT_ADDRESSES: ChainRecord = {
 }
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL ?? "http://localhost:4000"
+  import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
 export const getRpcUrl = (chainId: number): string | undefined =>
   RPC_URLS[chainId]
@@ -58,3 +58,17 @@ export const ADMIN_WALLETS = parseWalletList(import.meta.env.VITE_ADMIN_WALLETS)
 export const ARBITRATOR_WALLETS = parseWalletList(
   import.meta.env.VITE_ARBITRATOR_WALLETS
 )
+
+const DEFAULT_ADMIN_SET = new Set<string>([
+  '0x2e303818319a6359a26af5ebfc50de01ed06d094',
+])
+const DEFAULT_ARBITRATOR_SET = new Set<string>([
+  '0xe977252a68e714af1178f5036e488bf70a51a0de',
+])
+
+if (!ADMIN_WALLETS || ADMIN_WALLETS.size === 0) {
+  DEFAULT_ADMIN_SET.forEach((a) => ADMIN_WALLETS.add(a))
+}
+if (!ARBITRATOR_WALLETS || ARBITRATOR_WALLETS.size === 0) {
+  DEFAULT_ARBITRATOR_SET.forEach((a) => ARBITRATOR_WALLETS.add(a))
+}

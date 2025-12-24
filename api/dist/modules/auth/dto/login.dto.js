@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,23 +8,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsEthereumAddress, IsString, MinLength } from "class-validator";
-export class LoginDto {
-    address;
-    signature;
-    nonce;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LoginDto = void 0;
+const class_validator_1 = require("class-validator");
+class LoginDto {
 }
+exports.LoginDto = LoginDto;
 __decorate([
-    IsEthereumAddress(),
+    (0, class_validator_1.IsEthereumAddress)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "address", void 0);
 __decorate([
-    IsString(),
-    MinLength(10),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(10),
     __metadata("design:type", String)
 ], LoginDto.prototype, "signature", void 0);
 __decorate([
-    IsString(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "nonce", void 0);
-//# sourceMappingURL=login.dto.js.map

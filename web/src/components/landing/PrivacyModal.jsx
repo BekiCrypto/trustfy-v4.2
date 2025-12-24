@@ -1,16 +1,22 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, Eye, Lock, AlertTriangle, Globe } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export default function PrivacyModal({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const noCollectItems = t('landing.privacy.sections.privacyDefaults.noCollect', { returnObjects: true });
-  const optionalItems = t('landing.privacy.sections.privacyDefaults.optional', { returnObjects: true });
-  const infoReceiveItems = t('landing.privacy.sections.infoReceive.items', { returnObjects: true });
-  const cookiesItems = t('landing.privacy.sections.cookies.items', { returnObjects: true });
+
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const noCollectItems = getArray('landing.privacy.sections.privacyDefaults.noCollect');
+  const optionalItems = getArray('landing.privacy.sections.privacyDefaults.optional');
+  const infoReceiveItems = getArray('landing.privacy.sections.infoReceive.items');
+  const cookiesItems = getArray('landing.privacy.sections.cookies.items');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -20,7 +26,9 @@ export default function PrivacyModal({ open, onOpenChange }) {
             <Shield className="w-6 h-6 text-blue-400" />
             {t('landing.privacy.title')}
           </DialogTitle>
-          <p className="text-slate-400 text-sm">{t('landing.privacy.effectiveDate')}</p>
+          <DialogDescription className="text-slate-400 text-sm">
+            {t('landing.privacy.effectiveDate')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[65vh] pr-4">

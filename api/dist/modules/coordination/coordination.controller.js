@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,15 +11,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { CoordinationService } from "./coordination.service";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { CreateMessageDto } from "./dto/create-message.dto";
-import { PaymentInstructionDto } from "./dto/payment-instruction.dto";
-import { FiatStatusDto } from "./dto/fiat-status.dto";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CoordinationController = void 0;
+const common_1 = require("@nestjs/common");
+const coordination_service_1 = require("./coordination.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
+const create_message_dto_1 = require("./dto/create-message.dto");
+const payment_instruction_dto_1 = require("./dto/payment-instruction.dto");
+const fiat_status_dto_1 = require("./dto/fiat-status.dto");
 let CoordinationController = class CoordinationController {
-    service;
     constructor(service) {
         this.service = service;
     }
@@ -38,53 +40,52 @@ let CoordinationController = class CoordinationController {
         return this.service.recordFiatStatus(escrowId, payload, user);
     }
 };
+exports.CoordinationController = CoordinationController;
 __decorate([
-    Get(":escrowId/messages"),
-    __param(0, Param("escrowId")),
-    __param(1, CurrentUser()),
+    (0, common_1.Get)(":escrowId/messages"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CoordinationController.prototype, "listMessages", null);
 __decorate([
-    Post(":escrowId/messages"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, common_1.Post)(":escrowId/messages"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, CreateMessageDto, Object]),
+    __metadata("design:paramtypes", [String, create_message_dto_1.CreateMessageDto, Object]),
     __metadata("design:returntype", void 0)
 ], CoordinationController.prototype, "createMessage", null);
 __decorate([
-    Get(":escrowId/payment-instructions"),
-    __param(0, Param("escrowId")),
-    __param(1, CurrentUser()),
+    (0, common_1.Get)(":escrowId/payment-instructions"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CoordinationController.prototype, "paymentInstructions", null);
 __decorate([
-    Post(":escrowId/payment-instructions"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, common_1.Post)(":escrowId/payment-instructions"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, PaymentInstructionDto, Object]),
+    __metadata("design:paramtypes", [String, payment_instruction_dto_1.PaymentInstructionDto, Object]),
     __metadata("design:returntype", void 0)
 ], CoordinationController.prototype, "updatePaymentInstructions", null);
 __decorate([
-    Post(":escrowId/fiat-status"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, common_1.Post)(":escrowId/fiat-status"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, FiatStatusDto, Object]),
+    __metadata("design:paramtypes", [String, fiat_status_dto_1.FiatStatusDto, Object]),
     __metadata("design:returntype", void 0)
 ], CoordinationController.prototype, "recordFiatStatus", null);
-CoordinationController = __decorate([
-    UseGuards(JwtAuthGuard),
-    Controller("v1/escrows"),
-    __metadata("design:paramtypes", [CoordinationService])
+exports.CoordinationController = CoordinationController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Controller)("v1/escrows"),
+    __metadata("design:paramtypes", [coordination_service_1.CoordinationService])
 ], CoordinationController);
-export { CoordinationController };
-//# sourceMappingURL=coordination.controller.js.map

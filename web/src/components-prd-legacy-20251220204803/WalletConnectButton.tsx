@@ -6,7 +6,7 @@ const truncateAddress = (address: string) =>
   `${address.slice(0, 6)}…${address.slice(-4)}`
 
 export const WalletConnectButton = () => {
-  const { connectors, mutateAsync, status } = useConnect()
+  const { connectors, connect, status } = useConnect()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
   const { session, isAuthenticating, logout } = useAuthContext()
@@ -54,7 +54,7 @@ export const WalletConnectButton = () => {
               ? "btn-primary"
               : "cursor-not-allowed border border-[color:var(--line)] text-[color:var(--muted)]"
           )}
-          onClick={() => mutateAsync({ connector })}
+          onClick={() => connect({ connector })}
         >
           {connector.name}
         </button>

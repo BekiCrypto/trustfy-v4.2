@@ -9,7 +9,7 @@ import { AdminWithdrawDto } from "./dto/withdraw.dto"
 import { AdminRoleDto } from "./dto/admin-role.dto"
 import { AdminTokenDto } from "./dto/admin-token.dto"
 
-@Roles("ADMIN")
+@Roles("ADMIN", "SUPER_ADMIN")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("v1/admin")
 export class AdminController {
@@ -18,6 +18,38 @@ export class AdminController {
   @Get("pools")
   listPools(@Query("tokenKey") tokenKey?: string) {
     return this.service.listPools(tokenKey)
+  }
+
+  @Get("stats")
+  getStats() {
+    return this.service.getStats();
+  }
+
+  @Get("users")
+  listUsers(
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
+    @Query("search") search?: string
+  ) {
+    return this.service.listUsers(Number(page) || 1, Number(limit) || 20, search);
+  }
+
+  @Get("trades")
+  listTrades(
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
+    @Query("status") status?: string
+  ) {
+    return this.service.listTrades(Number(page) || 1, Number(limit) || 20, status);
+  }
+
+  @Get("disputes")
+  listDisputes(
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
+    @Query("status") status?: string
+  ) {
+    return this.service.listDisputes(Number(page) || 1, Number(limit) || 20, status);
   }
 
   @Post("withdraw")

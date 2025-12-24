@@ -45,12 +45,12 @@ export class IndexerService {
 
         try {
           const client = createPublicClient({
-            transport: http(rpcUrl, { timeout: 1500 }),
+            transport: http(rpcUrl, { timeout: 5000 }),
           })
           const headBlock = await Promise.race([
             client.getBlockNumber(),
             new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("rpc timeout")), 2000)
+              setTimeout(() => reject(new Error("rpc timeout")), 6000)
             ),
           ])
           const lag = Math.max(0, Number(headBlock) - lastSynced - confirmations)

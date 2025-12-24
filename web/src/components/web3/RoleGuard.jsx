@@ -1,54 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useWallet } from './WalletContext';
-import { ethers } from 'ethers';
-import { ESCROW_ABI, CONTRACT_ADDRESSES } from './contractABI';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield } from "lucide-react";
-
-// Role hashes from contract
-const ROLES = {
-  DEFAULT_ADMIN_ROLE: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  ARBITRATOR_ROLE: ethers.keccak256(ethers.toUtf8Bytes('ARBITRATOR_ROLE'))
-};
+import { ADMIN_WALLETS, ARBITRATOR_WALLETS } from "@/lib/config";
 
 export default function RoleGuard({ children, requiredRole, fallback = null }) {
-  const { provider, account } = useWallet();
-  const [hasRole, setHasRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { account } = useWallet();
+  const addr = account?.toLowerCase();
 
-  useEffect(() => {
-    const checkRole = async () => {
-      if (!provider || !account) {
-        setHasRole(false);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const escrowAddress = CONTRACT_ADDRESSES.BSC.escrow;
-        const contract = new ethers.Contract(escrowAddress, ESCROW_ABI, provider);
-        
-        const roleHash = ROLES[requiredRole] || requiredRole;
-        const result = await contract.hasRole(roleHash, account);
-        setHasRole(result);
-      } catch (error) {
-        console.error('Error checking role:', error);
-        setHasRole(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkRole();
-  }, [provider, account, requiredRole]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-      </div>
-    );
-  }
+  const hasRole =
+    requiredRole === 'DEFAULT_ADMIN_ROLE'
+      ? !!addr && ADMIN_WALLETS.has(addr)
+      : requiredRole === 'ARBITRATOR_ROLE'
+      ? !!addr && ARBITRATOR_WALLETS.has(addr)
+      : !!addr;
 
   if (!hasRole) {
     return fallback || (
@@ -63,5 +28,3 @@ export default function RoleGuard({ children, requiredRole, fallback = null }) {
 
   return <>{children}</>;
 }
-
-export { ROLES };

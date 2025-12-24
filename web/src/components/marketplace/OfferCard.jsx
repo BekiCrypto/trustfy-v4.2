@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import WalletAddress from "../common/WalletAddress";
 import ChainBadge from "../common/ChainBadge";
 import ConfirmDialog from "../common/ConfirmDialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function OfferCard({ offer, index, onViewMatches, onAcceptOffer, showCancel = false, isMyOffer = false, matchCount }) {
   const { t } = useTranslation();
@@ -114,16 +115,26 @@ export default function OfferCard({ offer, index, onViewMatches, onAcceptOffer, 
         
         {fillPercentage > 0 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span>{t('cards.offer.filled')}</span>
-              <span>{fillPercentage.toFixed(0)}%</span>
-            </div>
-            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                style={{ width: `${fillPercentage}%` }}
-              />
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="cursor-help">
+                  <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <span>{t('cards.offer.filled')}</span>
+                    <span>{fillPercentage.toFixed(0)}%</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                      style={{ width: `${fillPercentage}%` }}
+                    />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                <p>Filled: {(offer.filled_amount || 0).toLocaleString()} {offer.token_symbol}</p>
+                <p>Total: {offer.amount.toLocaleString()} {offer.token_symbol}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
         
@@ -154,9 +165,16 @@ export default function OfferCard({ offer, index, onViewMatches, onAcceptOffer, 
           )}
           
           {offer.requirements?.min_reputation > 0 && (
-            <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">
-              {t('cards.offer.minRep')}: {offer.requirements.min_reputation}
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400 cursor-help w-fit">
+                  {t('cards.offer.minRep')}: {offer.requirements.min_reputation}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                <p>Minimum Reputation Score required to accept this offer</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
         
@@ -173,15 +191,22 @@ export default function OfferCard({ offer, index, onViewMatches, onAcceptOffer, 
               </Button>
               
               {showCancel && offer.status === 'open' && (
-                <Button
-                  onClick={() => setShowCancelDialog(true)}
-                  variant="destructive"
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700"
-                  disabled={cancelOffer.isPending}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => setShowCancelDialog(true)}
+                      variant="destructive"
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700"
+                      disabled={cancelOffer.isPending}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>Cancel this ad (AdBond will be forfeited)</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </>
           ) : (

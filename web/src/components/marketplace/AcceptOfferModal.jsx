@@ -28,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 import WalletAddress from "../common/WalletAddress";
 import ReputationBadge from "../common/ReputationBadge";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useWallet } from "@/components/web3/WalletContext";
 
 /**
@@ -143,12 +143,6 @@ export default function AcceptOfferModal({ offer, open, onOpenChange }) {
         }
       }
 
-      // Check KYC requirements
-      if (offer.requirements?.kyc_required && myProfile) {
-        if (myProfile.kyc_status !== 'verified') {
-          errors.kyc = t('marketplace.accept.errors.kycRequired');
-        }
-      }
 
       if (Object.keys(errors).length > 0) {
         setValidationErrors(errors);
@@ -330,9 +324,9 @@ export default function AcceptOfferModal({ offer, open, onOpenChange }) {
           </Card>
 
           {/* Eligibility Checks */}
-          {(offer.requirements?.min_reputation > 0 || offer.requirements?.kyc_required) && (
+          {(offer.requirements?.min_reputation > 0) && (
             <Alert className={`${
-              validationErrors.reputation || validationErrors.kyc 
+              validationErrors.reputation 
                 ? 'bg-red-500/10 border-red-500/30' 
                 : 'bg-blue-500/10 border-blue-500/30'
             }`}>
@@ -348,16 +342,6 @@ export default function AcceptOfferModal({ offer, open, onOpenChange }) {
                         <AlertTriangle className="w-3 h-3 text-red-400" />
                       )}
                       <span>{t('marketplace.accept.minimumReputation', { minReputation: offer.requirements.min_reputation })}</span>
-                    </li>
-                  )}
-                  {offer.requirements?.kyc_required && (
-                    <li className="flex items-center gap-2">
-                      {myProfile?.kyc_status === 'verified' ? (
-                        <CheckCircle className="w-3 h-3 text-emerald-400" />
-                      ) : (
-                        <AlertTriangle className="w-3 h-3 text-red-400" />
-                      )}
-                      <span>{t('marketplace.accept.kycRequired')}</span>
                     </li>
                   )}
                 </ul>

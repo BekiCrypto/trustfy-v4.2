@@ -50,7 +50,7 @@ export class RbacService {
         actorAddress: actor ? this.normalizeAddress(actor) : null,
         action,
         target,
-        metadata: metadata ?? {},
+        metadata: (metadata ?? {}) as any,
       },
     })
   }

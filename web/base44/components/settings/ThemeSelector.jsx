@@ -15,6 +15,16 @@ export default function ThemeSelector() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     applyTheme(savedTheme);
+    const mm = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = () => {
+      if ((localStorage.getItem('theme') || 'dark') === 'system') {
+        applyTheme('system');
+      }
+    };
+    mm.addEventListener('change', handleSystemChange);
+    return () => {
+      mm.removeEventListener('change', handleSystemChange);
+    };
   }, []);
 
   const applyTheme = (newTheme) => {
@@ -27,13 +37,13 @@ export default function ThemeSelector() {
       root.classList.remove('light');
       root.classList.add('dark');
     } else {
-      // System theme
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       root.classList.remove('light', 'dark');
       root.classList.add(prefersDark ? 'dark' : 'light');
     }
     
     localStorage.setItem('theme', newTheme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: newTheme } }));
   };
 
   const changeTheme = (newTheme) => {

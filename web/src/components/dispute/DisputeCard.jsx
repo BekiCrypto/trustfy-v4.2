@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { AlertTriangle, Clock, User, FileText, ArrowRight, Shield } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";

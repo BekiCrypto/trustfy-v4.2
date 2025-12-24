@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { userApi } from "@/api/user";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -28,18 +31,16 @@ import {
   Palette,
   Globe,
   Bot,
-  Sparkles
+  Sparkles,
+  Crown
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import TwoFactorSetup from "../components/auth/TwoFactorSetup";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import LanguageSwitcher from "../components/settings/LanguageSwitcher";
 import ThemeSelector from "../components/settings/ThemeSelector";
-import KYCStatus from "../components/kyc/KYCStatus";
-import KYCSubmissionModal from "../components/kyc/KYCSubmissionModal";
-import PrimeUpgrade from "../components/settings/PrimeUpgrade";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+const PrimeUpgrade = React.lazy(() => import("../components/settings/PrimeUpgrade"));
 
 const KYC_STATUS_CONFIG = {
   none: { labelKey: 'kyc.notVerified', color: 'text-slate-400', bg: 'bg-slate-500/10', icon: Shield },
@@ -50,11 +51,10 @@ const KYC_STATUS_CONFIG = {
 
 export default function Settings() {
   const { t } = useTranslation();
+  const { address: connectedAddress } = useAccount();
   const queryClient = useQueryClient();
   const [newPaymentMethod, setNewPaymentMethod] = useState('');
   const [customPaymentMethod, setCustomPaymentMethod] = useState('');
-  const [show2FAModal, setShow2FAModal] = useState(false);
-  const [showKYCModal, setShowKYCModal] = useState(false);
   const paymentMethodOptions = [
     { value: 'bank_transfer', label: t('settings.paymentMethodsOptions.bankTransfer') },
     { value: 'mobile_money', label: t('settings.paymentMethodsOptions.mobileMoney') },
@@ -74,39 +74,20 @@ export default function Settings() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me()
   });
+
+  const targetAddress = user?.address || connectedAddress;
   
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['user-profile', user?.email],
+    queryKey: ['user-profile', targetAddress],
     queryFn: async () => {
-      const walletAddress = user.email; // email field stores wallet_address
-      const profiles = await base44.entities.UserProfile.filter({ wallet_address: walletAddress });
-      if (profiles.length === 0) {
-        // Create profile if it doesn't exist
-        return await base44.entities.UserProfile.create({
-          wallet_address: walletAddress,
-          kyc_level: 'none',
-          is_prime: false,
-          reputation_score: 500,
-          notification_preferences: {
-            email_enabled: true,
-            trade_match: true,
-            status_change: true,
-            messages: false,
-            disputes: true,
-            insurance: true,
-            min_priority: 'medium'
-          },
-          preferred_payment_methods: [],
-          preferred_chain: 'BSC'
-        });
-      }
-      return profiles[0] ?? null;
+      if (!targetAddress) return null;
+      return userApi.getProfile(targetAddress);
     },
-    enabled: !!user?.email
+    enabled: !!targetAddress
   });
   
   const updateProfile = useMutation({
-    mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
+    mutationFn: (data) => userApi.updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
       toast.success(t('settings.toast.updated'));
@@ -120,15 +101,17 @@ export default function Settings() {
     const method = customPaymentMethod || newPaymentMethod;
     if (!method) return;
     
-    const updated = [...(profile.preferred_payment_methods || []), method];
-    updateProfile.mutate({ preferred_payment_methods: updated });
+    const currentMethods = profile?.paymentMethods || [];
+    const updated = [...currentMethods, method];
+    updateProfile.mutate({ paymentMethods: updated });
     setNewPaymentMethod('');
     setCustomPaymentMethod('');
   };
   
   const handleRemovePaymentMethod = (method) => {
-    const updated = profile.preferred_payment_methods.filter(m => m !== method);
-    updateProfile.mutate({ preferred_payment_methods: updated });
+    const currentMethods = profile?.paymentMethods || [];
+    const updated = currentMethods.filter(m => m !== method);
+    updateProfile.mutate({ paymentMethods: updated });
   };
   
   const handleNotificationToggle = (key, value) => {
@@ -151,9 +134,16 @@ export default function Settings() {
     );
   }
   
-  const kycConfig = KYC_STATUS_CONFIG[profile?.kyc_status || 'none'];
-  const KycIcon = kycConfig.icon;
   
+  
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'account');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
       <div className="fixed inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40 pointer-events-none" />
@@ -171,11 +161,11 @@ export default function Settings() {
           <p className="text-slate-400 mt-1">{t('settings.subtitle')}</p>
         </motion.div>
 
-        <Tabs defaultValue="prime" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-slate-800/50 border border-slate-700 w-full justify-start overflow-x-auto">
-            <TabsTrigger value="prime" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-purple-600">
-              <Sparkles className="w-4 h-4 mr-2" />
-              {t('settingsTabs.prime')}
+            <TabsTrigger value="account" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-purple-600">
+              <User className="w-4 h-4 mr-2" />
+              {t('settingsTabs.account', 'Account')}
             </TabsTrigger>
             <TabsTrigger value="notifications" className="data-[state=active]:bg-slate-700">
               <Bell className="w-4 h-4 mr-2" />
@@ -186,14 +176,10 @@ export default function Settings() {
               {t('settingsTabs.appearance')}
             </TabsTrigger>
           </TabsList>
-          {/* Prime Tab - Unified Account Management */}
-          <TabsContent value="prime" className="space-y-6">
-            {/* Prime Upgrade Overview */}
-            <PrimeUpgrade />
-
-            <Separator className="bg-slate-700/50" />
-
-            {/* Profile Section */}
+          {/* Account Tab - Unified Account Management */}
+          <TabsContent value="account" className="space-y-6">
+            
+            {/* Account Info & Bio */}
             <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-blue-500/10">
@@ -208,36 +194,50 @@ export default function Settings() {
               <Separator className="my-4 bg-slate-700/50" />
               
               <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-slate-300 mb-2 block">{t('settingsContent.displayName')}</Label>
+                    <Input
+                      value={profile?.displayName || ''}
+                      onChange={(e) => updateProfile.mutate({ 
+                        displayName: e.target.value
+                      })}
+                      className="bg-slate-800/50 border-slate-600 text-white"
+                      placeholder={t('settingsContent.yourDisplayName')}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 mb-2 block">{t('settingsContent.walletAddress')}</Label>
+                    <div className="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700">
+                      <p className="text-white font-mono text-sm truncate">{targetAddress}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
-                  <Label className="text-slate-300 mb-2 block">{t('settingsContent.displayName')}</Label>
-                  <Input
-                    value={profile?.display_name || ''}
-                    onChange={(e) => updateProfile.mutate({ display_name: e.target.value })}
-                    className="bg-slate-800/50 border-slate-600 text-white"
-                    placeholder={t('settingsContent.yourDisplayName')}
+                  <Label className="text-slate-300 mb-2 block">{t('settingsContent.bio')}</Label>
+                  <Textarea 
+                    value={profile?.bio || ''}
+                    onChange={(e) => updateProfile.mutate({ bio: e.target.value })}
+                    className="bg-slate-800/50 border-slate-600 text-white h-24"
+                    placeholder={t('settingsContent.bioPlaceholder', 'Tell other traders about yourself...')}
                   />
                 </div>
 
-                <div>
-                  <Label className="text-slate-300 mb-2 block">{t('settingsContent.walletAddress')}</Label>
-                  <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
-                    <p className="text-white font-mono text-sm">{user?.email}</p>
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-slate-700 text-slate-400">
+                      {profile?.platform_role || 'User'}
+                    </Badge>
                   </div>
+                  
+                  <RouterLink to={createPageUrl('Profile')}>
+                    <Button variant="outline" size="sm" className="border-slate-600">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      {t('settingsContent.viewFullProfile')}
+                    </Button>
+                  </RouterLink>
                 </div>
-
-                <div>
-                  <Label className="text-slate-300 mb-2 block">{t('settingsContent.role')}</Label>
-                  <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
-                    <p className="text-white capitalize">{profile?.platform_role || t('settingsContent.roleDefault')}</p>
-                  </div>
-                </div>
-
-                <RouterLink to={createPageUrl('Profile')}>
-                  <Button variant="outline" className="w-full border-slate-600">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    {t('settingsContent.viewFullProfile')}
-                  </Button>
-                </RouterLink>
               </div>
             </Card>
 
@@ -255,9 +255,9 @@ export default function Settings() {
               
               <Separator className="my-4 bg-slate-700/50" />
               
-              {profile?.preferred_payment_methods && profile.preferred_payment_methods.length > 0 ? (
+              {profile?.paymentMethods && profile.paymentMethods.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {profile.preferred_payment_methods.map((method, idx) => (
+                  {profile.paymentMethods.map((method, idx) => (
                     <Badge 
                       key={idx}
                       className="bg-slate-800 border-slate-600 text-slate-200 px-3 py-1.5 text-sm"
@@ -277,102 +277,58 @@ export default function Settings() {
               )}
               
               <div className="space-y-3">
-                <Label className="text-slate-300">{t('settings.addPaymentMethod')}</Label>
-                <div className="flex gap-2">
-                  <Select value={newPaymentMethod} onValueChange={setNewPaymentMethod}>
-                    <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white">
-                      <SelectValue placeholder={t('settings.selectMethod')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      {paymentMethodOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value} className="text-slate-300">
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button 
-                    onClick={handleAddPaymentMethod}
-                    disabled={!newPaymentMethod || updateProfile.isPending}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Input
-                    placeholder={t('settings.accountDetails')}
-                    value={customPaymentMethod}
-                    onChange={(e) => setCustomPaymentMethod(e.target.value)}
-                    className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-500"
-                  />
-                  <Button 
-                    onClick={handleAddPaymentMethod}
-                    disabled={!customPaymentMethod || updateProfile.isPending}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex gap-2">
+                    <Select value={newPaymentMethod} onValueChange={setNewPaymentMethod}>
+                      <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white w-full">
+                        <SelectValue placeholder={t('settings.selectMethod')} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {paymentMethodOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value} className="text-slate-300">
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      onClick={handleAddPaymentMethod}
+                      disabled={!newPaymentMethod || updateProfile.isPending}
+                      className="bg-blue-600 hover:bg-blue-700 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={t('settings.accountDetails')}
+                      value={customPaymentMethod}
+                      onChange={(e) => setCustomPaymentMethod(e.target.value)}
+                      className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-500"
+                    />
+                    <Button 
+                      onClick={handleAddPaymentMethod}
+                      disabled={!customPaymentMethod || updateProfile.isPending}
+                      className="bg-blue-600 hover:bg-blue-700 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </Card>
 
-            {/* KYC & Security Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* KYC Verification */}
-              <KYCStatus 
-                kycStatus={profile?.kyc_status || 'none'} 
-                onStartKYC={() => setShowKYCModal(true)}
-              />
-              
-              {/* Two-Factor Authentication */}
-              <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-purple-500/10">
-                    <Shield className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">{t('settings.twoFactorAuth')}</h2>
-                    <p className="text-sm text-slate-400">{t('settings.twoFactorDesc')}</p>
-                  </div>
-                </div>
-                
-                <Separator className="my-4 bg-slate-700/50" />
-                
-                <div className={`p-4 rounded-lg ${profile?.two_factor_enabled ? 'bg-emerald-500/10' : 'bg-slate-800/50'} border border-slate-700/50 mb-4`}>
-                  <div className="flex items-center gap-3">
-                    {profile?.two_factor_enabled ? (
-                      <CheckCircle className="w-6 h-6 text-emerald-400" />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-slate-500" />
-                    )}
-                    <div>
-                      <p className="text-sm text-slate-400">{t('settings.status2FA')}</p>
-                      <p className={`font-semibold ${profile?.two_factor_enabled ? 'text-emerald-400' : 'text-slate-400'}`}>
-                        {profile?.two_factor_enabled ? t('settings.enabled') : t('settings.disabled')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {!profile?.two_factor_enabled ? (
-                  <Button 
-                    onClick={() => setShow2FAModal(true)}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    {t('settings.enable2FA')}
-                  </Button>
-                ) : (
-                  <div className="text-center">
-                    <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-400">{t('settings.twoFactorDesc')}</p>
-                  </div>
-                )}
-              </Card>
+            {/* Trustfy Rewards (Formerly Prime) */}
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Crown className="w-5 h-5 text-amber-400" />
+                <h2 className="text-xl font-semibold text-white">{t('primeUpgrade.title', 'Trustfy Rewards')}</h2>
+              </div>
+              <React.Suspense fallback={<div className="p-6 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300">Loading Rewards…</div>}>
+                <PrimeUpgrade />
+              </React.Suspense>
             </div>
-
 
           </TabsContent>
 
@@ -395,8 +351,8 @@ export default function Settings() {
               {/* Email Enabled */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
                 <div>
-                  <Label className="text-slate-200 font-medium">{t('settings.emailNotifications')}</Label>
-                  <p className="text-xs text-slate-500 mt-1">{t('settings.receiveEmailNotifs')}</p>
+                  <Label className="text-slate-200 font-medium">{t('settings.notifications')}</Label>
+                  <p className="text-xs text-slate-500 mt-1">Receive in-app notifications</p>
                 </div>
                 <Switch
                   checked={profile?.notification_preferences?.email_enabled ?? true}
@@ -460,10 +416,17 @@ export default function Settings() {
                       <Label className="text-slate-300">{t('insurance.myClaims')}</Label>
                       <p className="text-xs text-slate-500 mt-1">{t('settings.notifyInsurance')}</p>
                     </div>
-                    <Switch
-                      checked={profile?.notification_preferences?.insurance ?? true}
-                      onCheckedChange={(checked) => handleNotificationToggle('insurance', checked)}
-                    />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Switch
+                          checked={profile?.notification_preferences?.insurance ?? true}
+                          onCheckedChange={(checked) => handleNotificationToggle('insurance', checked)}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                        <p>Get notified about insurance claim status</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   
                   {/* Minimum Priority */}
@@ -512,25 +475,6 @@ export default function Settings() {
               
               <ThemeSelector />
             </Card>
-
-            {/* Language */}
-            <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-blue-500/10">
-                  <Globe className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-white">{t('settings.language')}</h2>
-                  <p className="text-sm text-slate-400">{t('settings.selectLanguage')}</p>
-                </div>
-              </div>
-              
-              <Separator className="my-4 bg-slate-700/50" />
-              
-              <div className="flex justify-center">
-                <LanguageSwitcher size="lg" />
-              </div>
-            </Card>
           </div>
         </TabsContent>
 
@@ -538,17 +482,7 @@ export default function Settings() {
       </Tabs>
       </div>
 
-      <TwoFactorSetup 
-        open={show2FAModal} 
-        onOpenChange={setShow2FAModal}
-        userProfile={profile}
-      />
       
-      <KYCSubmissionModal 
-        open={showKYCModal} 
-        onOpenChange={setShowKYCModal}
-        profile={profile}
-      />
     </div>
   );
 }

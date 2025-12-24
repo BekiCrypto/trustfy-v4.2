@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,24 +21,41 @@ import {
   Eye
 } from "lucide-react";
 
-export default function DocumentationModal({ open, onOpenChange }) {
+export default function DocumentationModal({ open, onOpenChange, defaultTab = "overview" }) {
   const { t } = useTranslation();
-  const overviewNonCustodial = t('landing.docs.overview.nonCustodial.items', { returnObjects: true });
-  const overviewEliminates = t('landing.docs.overview.nonCustodial.eliminates', { returnObjects: true });
-  const overviewNoSurveillance = t('landing.docs.overview.noSurveillance.items', { returnObjects: true });
-  const overviewGlobal = t('landing.docs.overview.global.items', { returnObjects: true });
-  const overviewComparison = t('landing.docs.overview.comparison.rows', { returnObjects: true });
-  const quickStartSteps = t('landing.docs.quickStart.steps', { returnObjects: true });
-  const quickStartNetworks = t('landing.docs.quickStart.networks', { returnObjects: true });
-  const quickStartListing = t('landing.docs.quickStart.listing.items', { returnObjects: true });
-  const quickStartWorkflow = t('landing.docs.quickStart.workflow', { returnObjects: true });
-  const bondCalc = t('landing.docs.bonds.calculation', { returnObjects: true });
-  const disputeChecklist = t('landing.docs.disputes.review.items', { returnObjects: true });
-  const securityPlatform = t('landing.docs.security.platform.items', { returnObjects: true });
-  const securityContracts = t('landing.docs.security.contracts.items', { returnObjects: true });
-  const securityWallet = t('landing.docs.security.wallet.items', { returnObjects: true });
-  const securityGuidelines = t('landing.docs.security.guidelines.items', { returnObjects: true });
-  const securityWarnings = t('landing.docs.security.warnings', { returnObjects: true });
+
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const overviewNonCustodial = getArray('landing.docs.overview.nonCustodial.items');
+  const overviewEliminates = getArray('landing.docs.overview.nonCustodial.eliminates');
+  const overviewNoSurveillance = getArray('landing.docs.overview.noSurveillance.items');
+  const overviewGlobal = getArray('landing.docs.overview.global.items');
+  const overviewComparison = getArray('landing.docs.overview.comparison.rows');
+  
+  // Beginner/Quick Start Data
+  const accessNeeds = getArray('landing.beginner.access.option1.needs');
+  const accessNoNeed = getArray('landing.beginner.access.option1.noNeed');
+  const quickStartSteps = getArray('landing.docs.quickStart.steps');
+  const quickStartNetworks = getArray('landing.docs.quickStart.networks');
+  const quickStartListing = getArray('landing.docs.quickStart.listing.items');
+  const quickStartWorkflow = getArray('landing.docs.quickStart.workflow');
+  const bondCalcData = t('landing.docs.bonds.calculation');
+  const bondCalc = (bondCalcData && typeof bondCalcData === 'object' && bondCalcData.seller && bondCalcData.buyer) 
+    ? bondCalcData 
+    : { 
+        seller: { label: 'Seller Bond', formula: '10% of trade amount' }, 
+        buyer: { label: 'Buyer Bond', formula: '5% of trade amount' }, 
+        note: 'Bonds are fully refundable upon successful trade completion.' 
+      };
+  const disputeChecklist = getArray('landing.docs.disputes.review.items');
+  const securityPlatform = getArray('landing.docs.security.platform.items');
+  const securityContracts = getArray('landing.docs.security.contracts.items');
+  const securityWallet = getArray('landing.docs.security.wallet.items');
+  const securityGuidelines = getArray('landing.docs.security.guidelines.items');
+  const securityWarnings = getArray('landing.docs.security.warnings');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,9 +65,12 @@ export default function DocumentationModal({ open, onOpenChange }) {
             <BookOpen className="w-6 h-6 text-blue-400" />
             {t('landing.docs.title')}
           </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {t('landing.docs.overview.subtitle')}
+          </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="overview" className="mt-4">
+        <Tabs defaultValue={defaultTab} className="mt-4">
           <TabsList className="bg-slate-800/50 border border-slate-700 w-full grid grid-cols-5">
             <TabsTrigger value="overview" className="data-[state=active]:bg-slate-700 text-xs">
               {t('landing.docs.tabs.overview')}
@@ -194,6 +214,35 @@ export default function DocumentationModal({ open, onOpenChange }) {
                   {t('landing.docs.quickStart.title')}
                 </h3>
                 
+                {/* Requirements Section (from Beginner Guide) */}
+                <Card className="bg-slate-800/50 border-slate-700 p-5 mb-6">
+                  <h4 className="text-lg font-semibold text-white mb-3">Requirements</h4>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="text-sm font-semibold text-slate-300 mb-2">{t('landing.beginner.access.option1.needTitle')}</h5>
+                      <ul className="space-y-2">
+                        {accessNeeds.map((item) => (
+                          <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-semibold text-slate-300 mb-2">{t('landing.beginner.access.option1.noNeedTitle')}</h5>
+                      <ul className="space-y-2">
+                        {accessNoNeed.map((item) => (
+                          <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
+                            <AlertTriangle className="w-4 h-4 text-slate-500" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </Card>
+
                 <div className="space-y-4">
                   <Card className="bg-slate-800/50 border-slate-700 p-5">
                     <div className="flex items-start gap-4">
@@ -450,10 +499,10 @@ export default function DocumentationModal({ open, onOpenChange }) {
                     {t('landing.docs.security.guidelines.title')}
                   </h4>
                   <div className="space-y-3">
-                    {securityGuidelines.map((item) => (
-                      <div key={item.title} className="p-3 rounded-lg bg-slate-900/50 border border-slate-700">
-                        <p className="font-semibold text-white text-sm mb-1">{item.title}</p>
-                        <p className="text-xs text-slate-400">{item.description}</p>
+                    {securityGuidelines.map((item, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5" />
+                        <span className="text-slate-300">{item}</span>
                       </div>
                     ))}
                   </div>
@@ -464,11 +513,14 @@ export default function DocumentationModal({ open, onOpenChange }) {
                     <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                     <div className="text-sm">
                       <p className="text-red-300 font-semibold mb-1">{t('landing.docs.security.warningsTitle')}</p>
-                      <ul className="space-y-1 text-slate-300">
+                      <div className="space-y-3 mt-2">
                         {securityWarnings.map((item) => (
-                          <li key={item}>• {item}</li>
+                          <div key={item.title} className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/50">
+                            <p className="font-semibold text-red-300 text-sm mb-1">{item.title}</p>
+                            <p className="text-xs text-slate-300">{item.description}</p>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   </div>
                 </div>

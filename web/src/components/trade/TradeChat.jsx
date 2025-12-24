@@ -8,7 +8,7 @@ import { Send, Image, Loader2, Check, CheckCheck, MessageSquare } from "lucide-r
 import { format, isToday, isYesterday } from "date-fns";
 import { toast } from "sonner";
 import { createNotification, NotificationTemplates } from "../notifications/notificationHelpers";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TradeChat({ trade, messages, currentUser = '0x...YourWallet' }) {
   const { t } = useTranslation();

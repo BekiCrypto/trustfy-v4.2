@@ -1,10 +1,15 @@
 import path from 'path'
 import { defineConfig } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), visualizer({ filename: 'dist/stats.html', template: 'treemap', gzipSize: true, brotliSize: true })],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -17,20 +22,18 @@ export default defineConfig({
     exclude: ["@base44/sdk"],
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return
-          if (id.includes('react')) return 'react-vendor'
-          if (id.includes('wagmi') || id.includes('viem') || id.includes('ethers')) {
-            return 'web3-vendor'
-          }
-          if (id.includes('@tanstack') || id.includes('axios')) return 'data-vendor'
-          if (id.includes('lucide-react') || id.includes('date-fns')) return 'ui-vendor'
-          return 'vendor'
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
         },
       },
     },
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
+    host: true,
   },
 })

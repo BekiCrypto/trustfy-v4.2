@@ -38,8 +38,36 @@ export class EscrowReadService {
       const normalized = this.normalizeAddress(callerAddress)
       if (query.role === "seller") {
         where.seller = normalized
-      } else {
+      } else if (query.role === "buyer") {
         where.buyer = normalized
+      } else if (query.role === "participant") {
+        where.OR = [
+          { seller: normalized },
+          { buyer: normalized }
+        ]
+      }
+    }
+
+    if (query.participant) {
+      const normalized = this.normalizeAddress(query.participant)
+      // Allow public filtering by participant (no auth required if just viewing public history)
+      // If we want to restrict this, we can add checks here.
+      // For now, allow filtering by any participant address.
+      // Merge with existing OR if role=participant was also set (though unlikely to mix)
+      if (where.OR) {
+        // If OR already exists, we must ensure BOTH conditions are met (which might be impossible if conflicting)
+        // or just let this override. For simplicity, assume queries don't mix `role` and `participant`.
+        // If they do, we'll AND them effectively by nesting.
+        where.AND = [
+          { OR: where.OR },
+          { OR: [{ seller: normalized }, { buyer: normalized }] }
+        ]
+        delete where.OR
+      } else {
+        where.OR = [
+          { seller: normalized },
+          { buyer: normalized }
+        ]
       }
     }
 
@@ -153,7 +181,9 @@ export class EscrowReadService {
     const hasParticipant =
       escrow.seller === normalized || escrow.buyer === normalized
     const privileged =
-      caller.roles.includes("ADMIN") || caller.roles.includes("ARBITRATOR")
+      caller.roles.includes("ADMIN") ||
+      caller.roles.includes("ARBITRATOR") ||
+      caller.roles.includes("SUPER_ADMIN")
 
     if (!hasParticipant && !privileged) {
       throw new ForbiddenException("insufficient permissions to view escrow")

@@ -1,4 +1,5 @@
-import "dotenv/config"
+import dotenv from "dotenv"
+dotenv.config({ path: "../.env" })
 import { PrismaClient } from "@prisma/client"
 import { loadWorkerConfig } from "./config"
 import { IndexerWorker } from "./indexer.service"
@@ -7,6 +8,7 @@ const prisma = new PrismaClient()
 
 async function bootstrap() {
   const config = loadWorkerConfig()
+  console.log("Config loaded:", JSON.stringify(config, null, 2))
   const worker = new IndexerWorker(prisma, config)
   await worker.run()
 }

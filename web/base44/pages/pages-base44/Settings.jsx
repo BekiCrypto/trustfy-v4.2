@@ -175,7 +175,7 @@ export default function Settings() {
           <TabsList className="bg-slate-800/50 border border-slate-700 w-full justify-start overflow-x-auto">
             <TabsTrigger value="prime" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-purple-600">
               <Sparkles className="w-4 h-4 mr-2" />
-              Prime Account
+              Prime Club
             </TabsTrigger>
             <TabsTrigger value="notifications" className="data-[state=active]:bg-slate-700">
               <Bell className="w-4 h-4 mr-2" />

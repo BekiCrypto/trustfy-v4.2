@@ -1,5 +1,8 @@
-import { createParamDecorator } from "@nestjs/common";
-export const CurrentUser = createParamDecorator((data, context) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurrentUser = void 0;
+const common_1 = require("@nestjs/common");
+exports.CurrentUser = (0, common_1.createParamDecorator)((data, context) => {
     const request = context.switchToHttp().getRequest();
     if (!request.user) {
         return null;
@@ -9,4 +12,3 @@ export const CurrentUser = createParamDecorator((data, context) => {
     }
     return request.user[data];
 });
-//# sourceMappingURL=current-user.decorator.js.map

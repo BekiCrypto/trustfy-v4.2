@@ -1,9 +1,13 @@
-import { useAccount, usePublicClient, useWalletClient, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, usePublicClient, useWalletClient, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseUnits, formatUnits, getAddress } from 'viem';
 import { toast } from 'sonner';
-import { ESCROW_ABI, ERC20_ABI } from './contractABI';
+import { ERC20_ABI } from './contractABI';
+import { escrowAbi, selectEscrowAddress } from '../../lib/contract';
 
-const ESCROW_ADDRESS = '0x79DA3a1E93fDEB9C99A840009ec184132e74Ad79';
+const useEscrowAddress = () => {
+  const chainId = useChainId();
+  return selectEscrowAddress(chainId);
+};
 
 /**
  * Custom hook for interacting with TrustfyEscrowV3 contract
@@ -13,17 +17,19 @@ export function useEscrowContract() {
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const { writeContractAsync } = useWriteContract();
+  const escrowAddress = useEscrowAddress();
 
   /**
    * Create escrow on-chain
    */
   const createEscrow = async (tradeId, buyer, tokenAddress, amount, timeout, makerFeeBps, takerFeeBps, isNative) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const amountWei = parseUnits(amount.toString(), 18);
       
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'createEscrow',
         args: [tradeId, buyer, tokenAddress, amountWei, timeout, makerFeeBps, takerFeeBps, isNative]
       });
@@ -42,9 +48,10 @@ export function useEscrowContract() {
    */
   const fundEscrow = async (tradeId, isNative, amount) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'fundEscrow',
         args: [tradeId],
         value: isNative ? parseUnits(amount.toString(), 18) : undefined
@@ -64,9 +71,10 @@ export function useEscrowContract() {
    */
   const confirmPayment = async (tradeId, isNative, bondAmount) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'confirmPayment',
         args: [tradeId],
         value: isNative ? parseUnits(bondAmount.toString(), 18) : undefined
@@ -86,9 +94,10 @@ export function useEscrowContract() {
    */
   const releaseFunds = async (tradeId) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'releaseFunds',
         args: [tradeId]
       });
@@ -107,9 +116,10 @@ export function useEscrowContract() {
    */
   const refundIfUnconfirmed = async (tradeId) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'refundIfUnconfirmed',
         args: [tradeId]
       });
@@ -128,9 +138,10 @@ export function useEscrowContract() {
    */
   const initiateDispute = async (tradeId, reason) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'initiateDispute',
         args: [tradeId, reason]
       });
@@ -149,12 +160,13 @@ export function useEscrowContract() {
    */
   const resolveDispute = async (tradeId, ruling) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       // ruling: 0=NONE, 1=BUYER_WINS, 2=SELLER_WINS
       const rulingCode = ruling === 'favor_buyer' ? 1 : ruling === 'favor_seller' ? 2 : 0;
       
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'resolveDispute',
         args: [tradeId, rulingCode]
       });
@@ -173,11 +185,12 @@ export function useEscrowContract() {
    */
   const withdrawBondCredit = async (tokenAddress, amount) => {
     try {
+      if (!escrowAddress) throw new Error('Contract not configured for current chain');
       const amountWei = parseUnits(amount.toString(), 18);
       
       const hash = await writeContractAsync({
-        address: ESCROW_ADDRESS,
-        abi: ESCROW_ABI,
+        address: escrowAddress,
+        abi: escrowAbi,
         functionName: 'withdrawBondCredit',
         args: [tokenAddress, amountWei]
       });
@@ -207,12 +220,13 @@ export function useEscrowContract() {
  * Hook to read contract data
  */
 export function useEscrowData(tradeId) {
+  const escrowAddress = useEscrowAddress();
   const { data: escrowStatus, isLoading, refetch } = useReadContract({
-    address: ESCROW_ADDRESS,
-    abi: ESCROW_ABI,
+    address: escrowAddress,
+    abi: escrowAbi,
     functionName: 'getEscrowStatus',
     args: tradeId ? [tradeId] : undefined,
-    enabled: !!tradeId
+    enabled: !!tradeId && !!escrowAddress
   });
 
   return {
@@ -226,12 +240,13 @@ export function useEscrowData(tradeId) {
  * Hook to read bond credits
  */
 export function useBondCredits(userAddress, tokenAddress) {
+  const escrowAddress = useEscrowAddress();
   const { data: bondCredits, isLoading, refetch } = useReadContract({
-    address: ESCROW_ADDRESS,
-    abi: ESCROW_ABI,
+    address: escrowAddress,
+    abi: escrowAbi,
     functionName: 'bondCredits',
     args: userAddress && tokenAddress ? [userAddress, tokenAddress] : undefined,
-    enabled: !!(userAddress && tokenAddress)
+    enabled: !!(userAddress && tokenAddress && escrowAddress)
   });
 
   return {
@@ -245,12 +260,13 @@ export function useBondCredits(userAddress, tokenAddress) {
  * Hook to read platform fee pool
  */
 export function usePlatformFeePool(tokenAddress) {
+  const escrowAddress = useEscrowAddress();
   const { data: feePool, isLoading } = useReadContract({
-    address: ESCROW_ADDRESS,
-    abi: ESCROW_ABI,
+    address: escrowAddress,
+    abi: escrowAbi,
     functionName: 'platformFeePool',
     args: tokenAddress ? [tokenAddress] : undefined,
-    enabled: !!tokenAddress
+    enabled: !!tokenAddress && !!escrowAddress
   });
 
   return {

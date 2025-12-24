@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { userApi } from "@/api/user";
+import { tradesApi } from "@/api/trades";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAccount } from "wagmi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,63 +32,77 @@ import TradeCard from "../components/trade/TradeCard";
 import TierBadge from "../components/tiers/TierBadge";
 import TierProgress from "../components/tiers/TierProgress";
 import { calculateTier, TIER_BENEFITS } from "../components/tiers/TierConfig";
-import KYCStatus from "../components/kyc/KYCStatus";
-import KYCSubmissionModal from "../components/kyc/KYCSubmissionModal";
 
 export default function Profile() {
   const { t } = useTranslation();
-  const [showKYCModal, setShowKYCModal] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const [currentUser, setCurrentUser] = useState(null);
   const { address } = useAccount();
   
   React.useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => setCurrentUser(null));
+    userApi.me().then(setCurrentUser).catch(() => setCurrentUser(null));
   }, []);
   
-  const walletAddress = urlParams.get('address') || address || currentUser?.email || '';
+  const walletAddress = urlParams.get('address') || address || currentUser?.address || '';
   
   const { data: profile } = useQuery({
     queryKey: ['profile', walletAddress],
     queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ wallet_address: walletAddress });
-      return profiles[0] ?? {
-        wallet_address: walletAddress,
-        display_name: 'Anonymous User',
-        reputation_score: 500,
-        total_trades: 0,
-        successful_trades: 0,
-        disputed_trades: 0,
-        total_volume: 0,
-        average_completion_time: 0,
-        kyc_status: 'none'
+      if (!walletAddress) return null;
+      const user = await userApi.getProfile(walletAddress);
+      return user ?? {
+        address: walletAddress,
+        displayName: 'Anonymous User',
+        reputationScore: 500,
+        successfulTrades: 0,
+        totalVolume: 0,
+        roles: [],
+        prime: null
       };
-    }
+    },
+    enabled: !!walletAddress
   });
   
   const { data: trades = [] } = useQuery({
     queryKey: ['userTrades', walletAddress],
     queryFn: async () => {
-      const sellerTrades = await base44.entities.Trade.filter({ seller_address: walletAddress });
-      const buyerTrades = await base44.entities.Trade.filter({ buyer_address: walletAddress });
-      return [...sellerTrades, ...buyerTrades].sort((a, b) => 
-        new Date(b.created_date) - new Date(a.created_date)
-      );
-    }
+      if (!walletAddress) return [];
+      // Use the 'participant' filter to get trades where this user is buyer OR seller
+      const response = await tradesApi.listEscrows({ participant: walletAddress });
+      
+      const rawTrades = response.items || [];
+      return rawTrades.map(t => ({
+        id: t.escrowId,
+        trade_id: t.escrowId,
+        seller_address: t.seller,
+        buyer_address: t.buyer,
+        amount: parseFloat(t.amount),
+        token_symbol: t.tokenKey,
+        status: t.state.toLowerCase(),
+        created_date: t.updatedAt
+      })).sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!walletAddress
   });
   
   const { data: reviews = [] } = useQuery({
     queryKey: ['user-reviews', walletAddress],
-    queryFn: () => base44.entities.TradeReview.filter({ reviewed_address: walletAddress })
+    queryFn: async () => {
+      if (!walletAddress) return [];
+      return await userApi.getReviews(walletAddress);
+    },
+    enabled: !!walletAddress
   });
   
   const { data: preferredPayments = [] } = useQuery({
     queryKey: ['preferred-payments', walletAddress],
-    queryFn: () => profile?.preferred_payment_methods || []
+    queryFn: () => profile?.preferredPaymentMethods || [] // Backend should provide this in user profile
   });
   
-  const successRate = profile?.total_trades > 0 
-    ? ((profile.successful_trades / profile.total_trades) * 100).toFixed(1) 
+  // Stats calculation
+  const totalTrades = trades.length;
+  const successRate = totalTrades > 0 
+    ? ((profile?.successfulTrades / totalTrades) * 100).toFixed(1) 
     : 0;
   
   const currentTier = profile ? calculateTier(profile) : 'new';
@@ -121,7 +136,7 @@ export default function Profile() {
               <div className="flex-1 space-y-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                    {profile?.display_name || t('profilePage.anonymousUser')}
+                    {profile?.displayName || t('profilePage.anonymousUser')}
                   </h1>
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg">
@@ -133,13 +148,6 @@ export default function Profile() {
                         <Copy className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    
-                    {profile?.kyc_status === 'verified' && (
-                      <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-lg text-sm">
-                        <CheckCircle className="w-4 h-4" />
-                        {t('profilePage.kycVerified')}
-                      </div>
-                    )}
                     
                     {profile?.is_arbitrator && (
                       <div className="flex items-center gap-1 bg-purple-500/10 text-purple-400 px-3 py-1.5 rounded-lg text-sm">
@@ -153,7 +161,7 @@ export default function Profile() {
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <ReputationScore score={profile?.reputation_score || 500} size="lg" />
+                  <ReputationScore score={profile?.reputationScore || 500} size="lg" />
                   <Link to={createPageUrl('Tiers')}>
                     <Button variant="outline" size="sm" className="border-slate-600">
                       <Trophy className="w-4 h-4 mr-2" />
@@ -170,25 +178,20 @@ export default function Profile() {
           <TabsList className="bg-slate-800/50 border border-slate-700 w-full justify-start">
             <TabsTrigger value="overview" className="data-[state=active]:bg-slate-700">
               <Shield className="w-4 h-4 mr-2" />
-              Overview
+              {t('profilePage.overview')}
             </TabsTrigger>
             <TabsTrigger value="stats" className="data-[state=active]:bg-slate-700">
               <TrendingUp className="w-4 h-4 mr-2" />
-              Statistics
+              {t('profilePage.statistics')}
             </TabsTrigger>
             <TabsTrigger value="trades" className="data-[state=active]:bg-slate-700">
               <Clock className="w-4 h-4 mr-2" />
-              Escrow History
+              {t('profilePage.escrowHistory')}
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* KYC Status */}
-            <KYCStatus 
-              kycStatus={profile?.kyc_status || 'none'} 
-              onStartKYC={() => setShowKYCModal(true)}
-            />
             
             {/* Tier Progress */}
             <TierProgress profile={profile} currentTier={currentTier} />
@@ -199,21 +202,21 @@ export default function Profile() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-3 rounded-lg bg-slate-800/50">
                   <p className="text-slate-400 text-xs mb-1">{t('profilePage.trustTier')}</p>
-                  <p className="text-white font-bold">{currentTier?.label || t('profilePage.trustTierDefault')}</p>
+                  <p className="text-white font-bold">{t(tierConfig.name) || t('profilePage.trustTierDefault')}</p>
                   <p className="text-emerald-400 text-xs">{t('profilePage.reputationBased')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-800/50">
                   <p className="text-slate-400 text-xs mb-1">{t('profilePage.completionRate')}</p>
-                  <p className="text-white font-bold">{successRate || 0}%</p>
+                  <p className="text-white font-bold">{successRate}%</p>
                   <p className="text-emerald-400 text-xs">{t('profilePage.verifiedHistory')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-800/50">
                   <p className="text-slate-400 text-xs mb-1">{t('profilePage.escrowsCompleted')}</p>
-                  <p className="text-white font-bold text-sm">{profile?.successful_trades || 0}</p>
+                  <p className="text-white font-bold text-sm">{profile?.successfulTrades || 0}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-800/50">
                   <p className="text-slate-400 text-xs mb-1">{t('profilePage.support')}</p>
-                  <p className="text-white font-bold text-xs">{tierConfig.benefits.prioritySupport ? t('tiersPage.priority') : t('tiersPage.standard')}</p>
+                  <p className="text-white font-bold text-xs">{tierConfig.benefits.prioritySupport ? t('tiersPage.prioritySupport') : t('tierBenefits.basicSupport')}</p>
                 </div>
               </div>
             </Card>
@@ -226,7 +229,7 @@ export default function Profile() {
               <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Star className="w-5 h-5 text-amber-400" />
-                  User Ratings & Reviews
+                  {t('profilePage.userRatingsReviews')}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -247,7 +250,7 @@ export default function Profile() {
                             />
                           ))}
                         </div>
-                        <p className="text-slate-400 text-sm">{reviews.length} reviews</p>
+                        <p className="text-slate-400 text-sm">{t('profilePage.reviewsCount', { count: reviews.length })}</p>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -256,7 +259,7 @@ export default function Profile() {
                         const percentage = (count / reviews.length) * 100;
                         return (
                           <div key={rating} className="flex items-center gap-3">
-                            <span className="text-slate-400 text-sm w-12">{rating} star</span>
+                            <span className="text-slate-400 text-sm w-12">{rating} {t('profilePage.star')}</span>
                             <Progress value={percentage} className="h-2 flex-1" />
                             <span className="text-slate-400 text-sm w-8">{count}</span>
                           </div>
@@ -278,9 +281,9 @@ export default function Profile() {
                               />
                             ))}
                           </div>
-                          {review.review_tags?.length > 0 && (
+                          {review.reviewTags?.length > 0 && (
                             <div className="flex gap-1">
-                              {review.review_tags.slice(0, 2).map((tag) => (
+                              {review.reviewTags.slice(0, 2).map((tag) => (
                                 <span key={tag} className="text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
                                   {tag}
                                 </span>
@@ -288,8 +291,8 @@ export default function Profile() {
                             </div>
                           )}
                         </div>
-                        {review.review_text && (
-                          <p className="text-slate-300 text-sm">{review.review_text}</p>
+                        {review.reviewText && (
+                          <p className="text-slate-300 text-sm">{review.reviewText}</p>
                         )}
                       </div>
                     ))}
@@ -308,7 +311,7 @@ export default function Profile() {
                 <span className="text-slate-400 text-sm">{t('profilePage.totalVolume')}</span>
               </div>
               <p className="text-2xl font-bold text-white">
-                ${(profile?.total_volume || 0).toLocaleString()}
+                ${(profile?.totalVolume || 0).toLocaleString()}
               </p>
             </Card>
             
@@ -330,7 +333,7 @@ export default function Profile() {
                 </div>
                 <span className="text-slate-400 text-sm">{t('profilePage.totalEscrows')}</span>
               </div>
-              <p className="text-2xl font-bold text-white">{profile?.total_trades || 0}</p>
+              <p className="text-2xl font-bold text-white">{profile?.successfulTrades || 0}</p>
             </Card>
             
             <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 p-5">
@@ -341,17 +344,17 @@ export default function Profile() {
                 <span className="text-slate-400 text-sm">{t('profilePage.avgTime')}</span>
               </div>
               <p className="text-2xl font-bold text-white">
-                {profile?.average_completion_time || 0}h
+                {profile?.averageCompletionTime || 0}h
               </p>
             </Card>
           </div>
           
           {/* Preferred Payment Methods */}
-          {profile?.preferred_payment_methods?.length > 0 && (
+          {profile?.preferredPaymentMethods?.length > 0 && (
             <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 p-6">
               <h3 className="text-lg font-semibold text-white mb-4">{t('profilePage.preferredPaymentMethods')}</h3>
               <div className="flex flex-wrap gap-2">
-                {profile.preferred_payment_methods.map((method) => (
+                {profile.preferredPaymentMethods.map((method) => (
                   <div key={method} className="px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg">
                     {method}
                   </div>
@@ -423,11 +426,6 @@ export default function Profile() {
       </Tabs>
     </div>
       
-      <KYCSubmissionModal 
-        open={showKYCModal} 
-        onOpenChange={setShowKYCModal}
-        profile={profile}
-      />
     </div>
   );
 }

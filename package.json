@@ -2,13 +2,23 @@
   "name": "trustfy-v4.2",
   "version": "1.0.0",
   "private": true,
-  "workspaces": ["api", "worker", "web", "shared"],
+  "workspaces": [
+    "api",
+    "worker",
+    "web",
+    "shared"
+  ],
   "scripts": {
-    "web:dev": "cd web && npm run dev",
-    "web:build": "cd web && npm run build",
-    "web:lint": "cd web && npm run lint",
-    "web:test": "cd web && npm run test",
-    "bootstrap": "npm install"
+    "bootstrap": "npm install",
+    "build": "npm run build -w @trustfy/shared && npm run build -w @trustfy/api && npm run build -w @trustfy/worker && npm run build -w @trustfy/web",
+    "dev": "npm run dev -w @trustfy/api",
+    "api:dev": "npm run dev -w @trustfy/api",
+    "api:build": "npm run build -w @trustfy/api",
+    "worker:dev": "npm run dev -w @trustfy/worker",
+    "worker:build": "npm run build -w @trustfy/worker",
+    "web:dev": "npm run dev -w @trustfy/web",
+    "web:build": "npm run build -w @trustfy/web",
+    "verify": "node scripts/verify-full-stack.js"
   },
   "keywords": [],
   "license": "ISC",

@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,21 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { BadRequestException, ForbiddenException, Injectable, } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { formatEscrowId, parseEscrowId } from "../../utils/escrow-id.util";
-import { createHash } from "node:crypto";
-import { ethers } from "ethers";
-import { NotificationsService } from "../notifications/notifications.service";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CoordinationService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const escrow_id_util_1 = require("../../utils/escrow-id.util");
+const node_crypto_1 = require("node:crypto");
+const ethers_1 = require("ethers");
+const notifications_service_1 = require("../notifications/notifications.service");
 let CoordinationService = class CoordinationService {
-    prisma;
-    notifications;
     constructor(prisma, notifications) {
         this.prisma = prisma;
         this.notifications = notifications;
     }
     async listMessages(escrowId, caller) {
-        const escrow = await this.ensureEscrow(parseEscrowId(escrowId));
+        const escrow = await this.ensureEscrow((0, escrow_id_util_1.parseEscrowId)(escrowId));
         this.ensureAccess(escrow, caller);
         const messages = await this.prisma.escrowMessage.findMany({
             where: { escrowId: escrow.escrowId },
@@ -30,9 +31,9 @@ let CoordinationService = class CoordinationService {
         return messages.map((message) => this.toMessageItem(message));
     }
     async createMessage(escrowId, payload, caller) {
-        const escrow = await this.ensureEscrow(parseEscrowId(escrowId));
+        const escrow = await this.ensureEscrow((0, escrow_id_util_1.parseEscrowId)(escrowId));
         this.ensureAccess(escrow, caller);
-        const hash = createHash("sha256")
+        const hash = (0, node_crypto_1.createHash)("sha256")
             .update(payload.text)
             .update(payload.attachmentUri ?? "")
             .digest("hex");
@@ -46,18 +47,24 @@ let CoordinationService = class CoordinationService {
                 hash,
             },
         });
-        await this.notifications.queueEvent({
-            type: "escrow/message",
-            escrowId,
-            sender: normalizedSender,
-            payload: {
-                text: payload.text,
-            },
-        });
+        const recipient = this.getOtherParty(escrow, normalizedSender);
+        if (recipient) {
+            await this.notifications.queueEvent({
+                userAddress: recipient,
+                title: "New Message",
+                message: `New message in escrow ${(0, escrow_id_util_1.formatEscrowId)(escrow.escrowId)}`,
+                type: "escrow/message",
+                escrowId,
+                sender: normalizedSender,
+                payload: {
+                    text: payload.text,
+                },
+            });
+        }
         return this.toMessageItem(message);
     }
     async getPaymentInstructions(escrowId, caller) {
-        const escrow = await this.ensureEscrow(parseEscrowId(escrowId));
+        const escrow = await this.ensureEscrow((0, escrow_id_util_1.parseEscrowId)(escrowId));
         this.ensureAccess(escrow, caller);
         const instruction = await this.prisma.escrowPaymentInstruction.findUnique({
             where: { escrowId: escrow.escrowId },
@@ -72,7 +79,7 @@ let CoordinationService = class CoordinationService {
         };
     }
     async updatePaymentInstructions(escrowId, payload, caller) {
-        const escrow = await this.ensureEscrow(parseEscrowId(escrowId));
+        const escrow = await this.ensureEscrow((0, escrow_id_util_1.parseEscrowId)(escrowId));
         this.ensureSellerOrAdmin(escrow, caller);
         const normalizedSeller = this.normalizeAddress(caller.address);
         const instruction = await this.prisma.escrowPaymentInstruction.upsert({
@@ -87,14 +94,19 @@ let CoordinationService = class CoordinationService {
                 content: (payload.contentJson ?? {}),
             },
         });
-        await this.notifications.queueEvent({
-            type: "escrow/payment-instruction",
-            escrowId,
-            sender: normalizedSeller,
-            payload: {
-                updatedAt: instruction.updatedAt.toISOString(),
-            },
-        });
+        if (escrow.buyer) {
+            await this.notifications.queueEvent({
+                userAddress: escrow.buyer,
+                title: "Payment Instructions Updated",
+                message: `Payment instructions updated for escrow ${(0, escrow_id_util_1.formatEscrowId)(escrow.escrowId)}`,
+                type: "escrow/payment-instruction",
+                escrowId,
+                sender: normalizedSeller,
+                payload: {
+                    updatedAt: instruction.updatedAt.toISOString(),
+                },
+            });
+        }
         return {
             seller: instruction.seller,
             contentJson: instruction.content,
@@ -102,7 +114,7 @@ let CoordinationService = class CoordinationService {
         };
     }
     async recordFiatStatus(escrowId, payload, caller) {
-        const escrow = await this.ensureEscrow(parseEscrowId(escrowId));
+        const escrow = await this.ensureEscrow((0, escrow_id_util_1.parseEscrowId)(escrowId));
         this.ensureAccess(escrow, caller);
         const normalized = this.normalizeAddress(caller.address);
         const record = await this.prisma.escrowFiatStatus.create({
@@ -113,14 +125,20 @@ let CoordinationService = class CoordinationService {
                 note: payload.note,
             },
         });
-        await this.notifications.queueEvent({
-            type: "escrow/fiat-status",
-            escrowId,
-            sender: normalized,
-            payload: {
-                status: payload.status,
-            },
-        });
+        const recipient = this.getOtherParty(escrow, normalized);
+        if (recipient) {
+            await this.notifications.queueEvent({
+                userAddress: recipient,
+                title: "Fiat Status Update",
+                message: `Fiat status updated to ${payload.status}`,
+                type: "escrow/fiat-status",
+                escrowId,
+                sender: normalized,
+                payload: {
+                    status: payload.status,
+                },
+            });
+        }
         return {
             id: record.id.toString(),
             status: record.status,
@@ -132,7 +150,7 @@ let CoordinationService = class CoordinationService {
     toMessageItem(message) {
         return {
             id: message.id,
-            escrowId: formatEscrowId(message.escrowId),
+            escrowId: (0, escrow_id_util_1.formatEscrowId)(message.escrowId),
             sender: message.sender,
             text: message.text,
             attachmentUri: message.attachment ?? undefined,
@@ -145,38 +163,48 @@ let CoordinationService = class CoordinationService {
             include: { dispute: true },
         });
         if (!escrow) {
-            throw new BadRequestException("escrow not found");
+            throw new common_1.BadRequestException("escrow not found");
         }
         return escrow;
     }
     ensureAccess(record, caller) {
         const normalized = this.normalizeAddress(caller.address);
         const participant = record.seller === normalized || record.buyer === normalized;
-        const privileged = caller.roles.includes("ADMIN") || caller.roles.includes("ARBITRATOR");
+        const privileged = caller.roles.includes("ADMIN") ||
+            caller.roles.includes("ARBITRATOR") ||
+            caller.roles.includes("SUPER_ADMIN");
         if (!participant && !privileged) {
-            throw new ForbiddenException("not authorized for this escrow");
+            throw new common_1.ForbiddenException("not authorized for this escrow");
         }
     }
     ensureSellerOrAdmin(record, caller) {
         this.ensureAccess(record, caller);
         const normalized = this.normalizeAddress(caller.address);
-        if (record.seller !== normalized && !caller.roles.includes("ADMIN")) {
-            throw new ForbiddenException("only seller can update payment notes");
+        if (record.seller !== normalized &&
+            !caller.roles.includes("ADMIN") &&
+            !caller.roles.includes("SUPER_ADMIN")) {
+            throw new common_1.ForbiddenException("only seller can update payment notes");
         }
+    }
+    getOtherParty(escrow, sender) {
+        if (escrow.seller === sender)
+            return escrow.buyer;
+        if (escrow.buyer === sender)
+            return escrow.seller;
+        return null;
     }
     normalizeAddress(address) {
         try {
-            return ethers.getAddress(address).toLowerCase();
+            return ethers_1.ethers.getAddress(address).toLowerCase();
         }
         catch {
-            throw new BadRequestException("invalid ethereum address");
+            throw new common_1.BadRequestException("invalid ethereum address");
         }
     }
 };
-CoordinationService = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [PrismaService,
-        NotificationsService])
+exports.CoordinationService = CoordinationService;
+exports.CoordinationService = CoordinationService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], CoordinationService);
-export { CoordinationService };
-//# sourceMappingURL=coordination.service.js.map

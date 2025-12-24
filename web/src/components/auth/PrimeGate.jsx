@@ -67,7 +67,6 @@ export default function PrimeGate({
 
   // Check if user has Prime access
   const isPrime = profile?.is_prime === true;
-  const hasKYC = profile?.kyc_level && profile.kyc_level !== 'none';
 
   // If Prime, render the children
   if (isPrime) {
@@ -96,12 +95,10 @@ export default function PrimeGate({
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Current Status */}
           <Alert className="bg-blue-500/10 border-blue-500/30">
             <Shield className="h-4 w-4 text-blue-400" />
             <AlertDescription className="text-blue-300">
-              <strong>Your Access:</strong> Basic (Wallet Only)
-              {!hasKYC && " - KYC verification required for Prime"}
+              <strong>Your Access:</strong> Basic (Wallet Only). Upgrade via referrals to unlock Prime. No KYC or 2FA required.
             </AlertDescription>
           </Alert>
 
@@ -130,30 +127,8 @@ export default function PrimeGate({
                 <span className="text-slate-300">Active Wallet Session ✓</span>
               </div>
               <div className="flex items-center gap-2">
-                {hasKYC ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span className="text-slate-300">KYC Verification ✓</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4 text-slate-500" />
-                    <span className="text-slate-500">KYC Verification Required</span>
-                  </>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {isPrime ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span className="text-slate-300">Prime Subscription ✓</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4 text-slate-500" />
-                    <span className="text-slate-500">Prime Subscription Required</span>
-                  </>
-                )}
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span className="text-slate-300">Referral-based Prime unlock ✓</span>
               </div>
             </div>
           </div>
@@ -172,7 +147,7 @@ export default function PrimeGate({
           </div>
 
           <p className="text-xs text-center text-slate-500">
-            Prime includes KYC verification, advanced trading tools, and priority support
+            Prime unlocks via referrals. No KYC or 2FA required.
           </p>
         </CardContent>
       </Card>
@@ -202,7 +177,6 @@ export function usePrimeAccess() {
 
   return {
     isPrime: profile?.is_prime === true,
-    hasKYC: profile?.kyc_level && profile.kyc_level !== 'none',
     profile,
     user
   };

@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,14 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { CreateNonceDto } from "./dto/create-nonce.dto";
-import { LoginDto } from "./dto/login.dto";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import { CurrentUser } from "./decorators/current-user.decorator";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthController = void 0;
+const common_1 = require("@nestjs/common");
+const auth_service_1 = require("./auth.service");
+const create_nonce_dto_1 = require("./dto/create-nonce.dto");
+const login_dto_1 = require("./dto/login.dto");
+const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
+const current_user_decorator_1 = require("./decorators/current-user.decorator");
 let AuthController = class AuthController {
-    authService;
     constructor(authService) {
         this.authService = authService;
     }
@@ -27,36 +29,45 @@ let AuthController = class AuthController {
     async login(payload) {
         return this.authService.login(payload);
     }
-    async logout(address) {
-        await this.authService.logout(address);
-        return { success: true };
+    async logout(res) {
+        res.clearCookie("access_token");
+        return res.send({ success: true });
+    }
+    async me(user) {
+        return this.authService.getProfile(user.address);
     }
 };
+exports.AuthController = AuthController;
 __decorate([
-    Post("nonce"),
-    __param(0, Body()),
+    (0, common_1.Post)("nonce"),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CreateNonceDto]),
+    __metadata("design:paramtypes", [create_nonce_dto_1.CreateNonceDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "createNonce", null);
 __decorate([
-    Post("login"),
-    __param(0, Body()),
+    (0, common_1.Post)("login"),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [LoginDto]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    Post("logout"),
-    UseGuards(JwtAuthGuard),
-    __param(0, CurrentUser("address")),
+    (0, common_1.Post)("logout"),
+    __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
-AuthController = __decorate([
-    Controller("v1/auth"),
-    __metadata("design:paramtypes", [AuthService])
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)("me"),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "me", null);
+exports.AuthController = AuthController = __decorate([
+    (0, common_1.Controller)("v1/auth"),
+    __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
-export { AuthController };
-//# sourceMappingURL=auth.controller.js.map

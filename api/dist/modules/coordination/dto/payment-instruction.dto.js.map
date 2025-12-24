@@ -1,1 +1,0 @@
-{"version":3,"file":"payment-instruction.dto.js","sourceRoot":"","sources":["../../../../src/modules/coordination/dto/payment-instruction.dto.ts"],"names":[],"mappings":";;;;;;;;;AAAA,OAAO,EAAE,UAAU,EAAE,QAAQ,EAAE,MAAM,iBAAiB,CAAA;AAEtD,MAAM,OAAO,qBAAqB;IAGhC,WAAW,CAA0B;CACtC;AADC;IAFC,UAAU,EAAE;IACZ,QAAQ,EAAE;;0DAC0B"}

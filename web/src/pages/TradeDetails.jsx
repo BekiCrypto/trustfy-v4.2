@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from "@/api/base44Client";
+import { reviewsApi } from "@/api/reviews";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,7 +41,7 @@ import TradeFlowManager from "../components/trade/TradeFlowManager";
 import PaymentInstructionsCard from "../components/trade/PaymentInstructionsCard";
 import { useWallet } from "../components/web3/WalletContext";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TradeDetails() {
   const { t } = useTranslation();
@@ -103,32 +104,47 @@ export default function TradeDetails() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
   
-  const { data: profiles = [] } = useQuery({
-    queryKey: ['user-profiles'],
-    queryFn: () => base44.entities.UserProfile.list(),
-    staleTime: 60000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+  const { data: sellerStats } = useQuery({
+    queryKey: ['reputation', trade?.seller_address],
+    queryFn: () => reviewsApi.getStats(trade?.seller_address),
+    enabled: !!trade?.seller_address
   });
-  
-  const sellerProfile = profiles.find(p => p.wallet_address === trade?.seller_address);
-  const buyerProfile = profiles.find(p => p.wallet_address === trade?.buyer_address);
+
+  const { data: buyerStats } = useQuery({
+    queryKey: ['reputation', trade?.buyer_address],
+    queryFn: () => reviewsApi.getStats(trade?.buyer_address),
+    enabled: !!trade?.buyer_address
+  });
+
+  const sellerProfile = sellerStats ? {
+    wallet_address: trade?.seller_address,
+    reputation_score: sellerStats.reputationScore,
+    total_trades: sellerStats.successfulTrades
+  } : null;
+
+  const buyerProfile = buyerStats ? {
+    wallet_address: trade?.buyer_address,
+    reputation_score: buyerStats.reputationScore,
+    total_trades: buyerStats.successfulTrades
+  } : null;
 
   const effectiveStatus = escrowStatus?.status !== undefined
     ? mapChainStatus(escrowStatus.status)
     : trade?.status;
 
   const { data: existingReview } = useQuery({
-    queryKey: ['my-review', tradeId],
+    queryKey: ['my-review', trade?.trade_id],
     queryFn: async () => {
       const user = await base44.auth.me();
-      const reviews = await base44.entities.TradeReview.filter({ 
-        trade_id: tradeId,
-        reviewer_address: user.email
+      if (!trade?.trade_id) return null;
+      
+      const reviews = await reviewsApi.listReviews({ 
+        tradeId: trade.trade_id,
+        reviewer: user.email
       });
       return reviews[0];
     },
-    enabled: !!tradeId && effectiveStatus === 'completed'
+    enabled: !!trade?.trade_id && effectiveStatus === 'completed'
   });
   
   const { data: dispute } = useQuery({
@@ -512,11 +528,14 @@ export default function TradeDetails() {
                     <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
                       <p className="text-sm text-slate-400 mb-2">{t('tradeDetails.paymentMethods')}</p>
                       <div className="flex flex-wrap gap-2">
-                        {trade.payment_methods.map((method, idx) => (
-                          <div key={idx} className="text-sm text-white bg-slate-700/50 px-3 py-1 rounded">
-                            {method}
-                          </div>
-                        ))}
+                        {trade.payment_methods.map((method, idx) => {
+                          const label = (method || '').split(':')[0];
+                          return (
+                            <div key={idx} className="text-sm text-white bg-slate-700/50 px-3 py-1 rounded">
+                              {label}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -556,7 +575,7 @@ export default function TradeDetails() {
               <TradeChat 
                 trade={trade} 
                 messages={messages} 
-                currentUser="0x...YourWallet"
+                currentUser={currentUser?.email || '0x...YourWallet'}
               />
             </motion.div>
           </div>
@@ -737,11 +756,17 @@ export default function TradeDetails() {
                       {trade.payment_methods && trade.payment_methods.length > 0 && (
                         <div className="mt-2">
                           <p className="text-xs text-slate-400 mb-1">{t('tradeDetails.payTo')}:</p>
-                          {trade.payment_methods.map((method, idx) => (
-                            <p key={idx} className="text-xs text-white bg-slate-800/50 px-2 py-1 rounded mt-1">
-                              {method}
-                            </p>
-                          ))}
+                          {trade.payment_methods.map((method, idx) => {
+                            const parts = (method || '').split(':');
+                            const label = parts[0];
+                            const details = parts[1]?.trim();
+                            const canViewDetails = currentUser?.email === trade.buyer_address;
+                            return (
+                              <p key={idx} className="text-xs text-white bg-slate-800/50 px-2 py-1 rounded mt-1">
+                                {canViewDetails ? (details ? `${label}: ${details}` : label) : label}
+                              </p>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

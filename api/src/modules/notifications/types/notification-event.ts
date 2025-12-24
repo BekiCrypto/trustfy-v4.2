@@ -1,6 +1,12 @@
 export interface NotificationEvent {
+  userAddress: string
   type: string
-  escrowId: string
-  sender: string
-  payload: Record<string, unknown>
+  title: string
+  message: string
+  link?: string
+  metadata?: Record<string, unknown>
+  // Legacy fields (optional)
+  escrowId?: string
+  sender?: string
+  payload?: Record<string, unknown>
 }

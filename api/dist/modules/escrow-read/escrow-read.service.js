@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,12 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { formatEscrowId, parseEscrowId } from "../../utils/escrow-id.util";
-import { ethers } from "ethers";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EscrowReadService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const escrow_id_util_1 = require("../../utils/escrow-id.util");
+const ethers_1 = require("ethers");
 let EscrowReadService = class EscrowReadService {
-    prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
@@ -22,18 +24,47 @@ let EscrowReadService = class EscrowReadService {
             where.state = query.status;
         }
         if (query.tokenKey) {
-            where.tokenKey = ethers.getAddress(query.tokenKey).toLowerCase();
+            where.tokenKey = ethers_1.ethers.getAddress(query.tokenKey).toLowerCase();
         }
         if (query.role) {
             if (!callerAddress) {
-                throw new ForbiddenException("role filter requires authentication");
+                throw new common_1.ForbiddenException("role filter requires authentication");
             }
             const normalized = this.normalizeAddress(callerAddress);
             if (query.role === "seller") {
                 where.seller = normalized;
             }
-            else {
+            else if (query.role === "buyer") {
                 where.buyer = normalized;
+            }
+            else if (query.role === "participant") {
+                where.OR = [
+                    { seller: normalized },
+                    { buyer: normalized }
+                ];
+            }
+        }
+        if (query.participant) {
+            const normalized = this.normalizeAddress(query.participant);
+            // Allow public filtering by participant (no auth required if just viewing public history)
+            // If we want to restrict this, we can add checks here.
+            // For now, allow filtering by any participant address.
+            // Merge with existing OR if role=participant was also set (though unlikely to mix)
+            if (where.OR) {
+                // If OR already exists, we must ensure BOTH conditions are met (which might be impossible if conflicting)
+                // or just let this override. For simplicity, assume queries don't mix `role` and `participant`.
+                // If they do, we'll AND them effectively by nesting.
+                where.AND = [
+                    { OR: where.OR },
+                    { OR: [{ seller: normalized }, { buyer: normalized }] }
+                ];
+                delete where.OR;
+            }
+            else {
+                where.OR = [
+                    { seller: normalized },
+                    { buyer: normalized }
+                ];
             }
         }
         const page = Math.max(query.page ?? 1, 1);
@@ -102,7 +133,7 @@ let EscrowReadService = class EscrowReadService {
         return this.buildParticipants(escrow);
     }
     async findEscrowRecord(escrowId) {
-        const bytes = parseEscrowId(escrowId);
+        const bytes = (0, escrow_id_util_1.parseEscrowId)(escrowId);
         const escrow = await this.prisma.escrow.findUnique({
             where: { escrowId: bytes },
             include: {
@@ -112,24 +143,26 @@ let EscrowReadService = class EscrowReadService {
             },
         });
         if (!escrow) {
-            throw new NotFoundException("escrow not found");
+            throw new common_1.NotFoundException("escrow not found");
         }
         return escrow;
     }
     ensureAccess(escrow, caller) {
         if (!caller) {
-            throw new ForbiddenException("authentication required");
+            throw new common_1.ForbiddenException("authentication required");
         }
         const normalized = this.normalizeAddress(caller.address);
         const hasParticipant = escrow.seller === normalized || escrow.buyer === normalized;
-        const privileged = caller.roles.includes("ADMIN") || caller.roles.includes("ARBITRATOR");
+        const privileged = caller.roles.includes("ADMIN") ||
+            caller.roles.includes("ARBITRATOR") ||
+            caller.roles.includes("SUPER_ADMIN");
         if (!hasParticipant && !privileged) {
-            throw new ForbiddenException("insufficient permissions to view escrow");
+            throw new common_1.ForbiddenException("insufficient permissions to view escrow");
         }
     }
     mapSummary(escrow) {
         return {
-            escrowId: formatEscrowId(escrow.escrowId),
+            escrowId: (0, escrow_id_util_1.formatEscrowId)(escrow.escrowId),
             chainId: escrow.chainId,
             tokenKey: escrow.tokenKey,
             amount: escrow.amount.toString(),
@@ -146,7 +179,7 @@ let EscrowReadService = class EscrowReadService {
     mapTimeline(entry) {
         return {
             id: entry.id.toString(),
-            escrowId: formatEscrowId(entry.escrowId),
+            escrowId: (0, escrow_id_util_1.formatEscrowId)(entry.escrowId),
             eventName: entry.eventName,
             stateAfter: entry.stateAfter,
             txHash: entry.txHash,
@@ -165,16 +198,15 @@ let EscrowReadService = class EscrowReadService {
     }
     normalizeAddress(address) {
         try {
-            return ethers.getAddress(address).toLowerCase();
+            return ethers_1.ethers.getAddress(address).toLowerCase();
         }
         catch {
-            throw new BadRequestException("invalid ethereum address");
+            throw new common_1.BadRequestException("invalid ethereum address");
         }
     }
 };
-EscrowReadService = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [PrismaService])
+exports.EscrowReadService = EscrowReadService;
+exports.EscrowReadService = EscrowReadService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], EscrowReadService);
-export { EscrowReadService };
-//# sourceMappingURL=escrow-read.service.js.map

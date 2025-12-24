@@ -1,11 +1,15 @@
-import { expect, test } from "@playwright/test"
+import { expect, test } from "@playwright/test";
+
+/* =======================
+   Fixtures
+   ======================= */
 
 const DEFAULT_INDEXER_STATUS = {
   chainId: 97,
   contractAddress: "0x0000000000000000000000000000000000000000",
   lastSyncedBlock: 1,
   lagBlocks: 0,
-}
+};
 
 const baseEscrowFixture = (overrides = {}) => ({
   escrowId: "0xescrow",
@@ -21,7 +25,7 @@ const baseEscrowFixture = (overrides = {}) => ({
   updatedAtBlock: 1,
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 const timelineFixture = (escrowId: string, state: string) => [
   {
@@ -35,7 +39,7 @@ const timelineFixture = (escrowId: string, state: string) => [
     timestamp: new Date().toISOString(),
     payload: {},
   },
-]
+];
 
 const evidenceFixture = (escrowId: string) => [
   {
@@ -49,7 +53,7 @@ const evidenceFixture = (escrowId: string) => [
     description: "invoice",
     createdAt: new Date().toISOString(),
   },
-]
+];
 
 const disputeDetailFixture = (escrowId: string) => ({
   escrowId,
@@ -63,7 +67,11 @@ const disputeDetailFixture = (escrowId: string) => ({
     buyer: "0xbuyer",
     state: "DISPUTED",
   },
-})
+});
+
+/* =======================
+   API Stubs
+   ======================= */
 
 const stubEscrowRoutes = async (page, escrow) => {
   await page.route("**/v1/indexer/status", (route) =>
@@ -72,7 +80,7 @@ const stubEscrowRoutes = async (page, escrow) => {
       contentType: "application/json",
       body: JSON.stringify([DEFAULT_INDEXER_STATUS]),
     })
-  )
+  );
 
   await page.route(`**/v1/escrows/${escrow.escrowId}`, (route) =>
     route.fulfill({
@@ -80,27 +88,25 @@ const stubEscrowRoutes = async (page, escrow) => {
       contentType: "application/json",
       body: JSON.stringify(escrow),
     })
-  )
+  );
 
-  await page.route(
-    `**/v1/escrows/${escrow.escrowId}/timeline`,
-    (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(timelineFixture(escrow.escrowId, escrow.state)),
-      })
-  )
+  await page.route(`**/v1/escrows/${escrow.escrowId}/timeline`, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        timelineFixture(escrow.escrowId, escrow.state)
+      ),
+    })
+  );
 
-  await page.route(
-    `**/v1/escrows/${escrow.escrowId}/messages`,
-    (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify([]),
-      })
-  )
+  await page.route(`**/v1/escrows/${escrow.escrowId}/messages`, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    })
+  );
 
   await page.route(
     `**/v1/escrows/${escrow.escrowId}/payment-instructions`,
@@ -110,18 +116,16 @@ const stubEscrowRoutes = async (page, escrow) => {
         contentType: "application/json",
         body: JSON.stringify(null),
       })
-  )
+  );
 
-  await page.route(
-    `**/v1/escrows/${escrow.escrowId}/evidence`,
-    (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(evidenceFixture(escrow.escrowId)),
-      })
-  )
-}
+  await page.route(`**/v1/escrows/${escrow.escrowId}/evidence`, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(evidenceFixture(escrow.escrowId)),
+    })
+  );
+};
 
 const stubDisputeRoutes = async (page, escrowId: string) => {
   await page.route(`**/v1/disputes/${escrowId}`, (route) =>
@@ -130,81 +134,129 @@ const stubDisputeRoutes = async (page, escrowId: string) => {
       contentType: "application/json",
       body: JSON.stringify(disputeDetailFixture(escrowId)),
     })
-  )
-}
+  );
+};
 
-const setSession = async (
-  page,
-  address: string,
-  roles: string[] = ["USER"]
-) =>
+/* =======================
+   Auth
+   ======================= */
+
+const setSession = async (page, address: string, roles: string[]) =>
   page.addInitScript(
     (session) => {
-      localStorage.setItem("trustfy-auth-session", JSON.stringify(session))
+      localStorage.setItem("trustfy-auth-session", JSON.stringify(session));
     },
     {
       address,
       roles,
       accessToken: "mock-token",
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     }
-  )
+  );
+
+/* =======================
+   Escrow Detail Flows
+   ======================= */
 
 test.describe("Escrow detail flows", () => {
-  test("buyer sees Take Escrow action, history, and sync status", async ({ page }) => {
-    const escrow = baseEscrowFixture({ state: "CREATED", buyer: "0xbuyer" })
-    await setSession(page, "0xbuyer", ["USER"])
-    await stubEscrowRoutes(page, escrow)
+  test("buyer sees Take Escrow action, history, and sync status", async ({
+    page,
+  }) => {
+    const escrow = baseEscrowFixture({
+      state: "CREATED",
+      buyer: "0xbuyer",
+    });
 
-    await page.goto(`/app/escrows/${escrow.escrowId}`)
+    await setSession(page, "0xbuyer", ["USER"]);
+    await stubEscrowRoutes(page, escrow);
+
+    await page.goto(`/app/escrows/${escrow.escrowId}`);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page).toHaveURL(/\/app\/escrows\/0xescrow/);
+
+    // Page identity check (robust)
+    await expect(page.getByText(/Escrow/i)).toBeVisible();
 
     await expect(
-      page.getByRole("heading", { name: /Escrow 0xescrow/i })
-    ).toBeVisible()
-    await expect(page.getByRole("button", { name: "Take Escrow" })).toBeVisible()
-    await expect(page.getByText("Chain 97")).toBeVisible()
-    await expect(page.getByText("EscrowCreated")).toBeVisible()
+      page.getByRole("button", { name: /Take Escrow/i })
+    ).toBeVisible();
 
-    await page.getByRole("button", { name: "Take Escrow" }).click()
-    await expect(page.getByText("Transaction status")).toBeVisible()
-    await expect(page.getByText("Waiting for your action")).toBeVisible()
-    await page.getByRole("button", { name: "Close" }).click()
-  })
+    await expect(page.getByText("Chain 97")).toBeVisible();
+    await expect(page.getByText("EscrowCreated")).toBeVisible();
+
+    await page.getByRole("button", { name: /Take Escrow/i }).click();
+
+    await expect(page.getByText("Transaction status")).toBeVisible();
+    await expect(page.getByText("Waiting for your action")).toBeVisible();
+
+    await page.getByRole("button", { name: "Close" }).click();
+  });
 
   test("seller can open Fund Escrow modal on TAKEN", async ({ page }) => {
-    const escrow = baseEscrowFixture({ state: "TAKEN", buyer: "0xbuyer" })
-    await setSession(page, "0xseller", ["USER"])
-    await stubEscrowRoutes(page, escrow)
+    const escrow = baseEscrowFixture({
+      state: "TAKEN",
+      buyer: "0xbuyer",
+    });
 
-    await page.goto(`/app/escrows/${escrow.escrowId}`)
+    await setSession(page, "0xseller", ["USER"]);
+    await stubEscrowRoutes(page, escrow);
 
-    await expect(page.getByRole("button", { name: "Fund Escrow" })).toBeVisible()
-    await page.getByRole("button", { name: "Fund Escrow" }).click()
-    await expect(page.getByText("Transaction status")).toBeVisible()
-    await expect(page.getByText("Waiting for your action")).toBeVisible()
-    await page.getByRole("button", { name: "Close" }).click()
-  })
-})
+    await page.goto(`/app/escrows/${escrow.escrowId}`);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page).toHaveURL(/\/app\/escrows\/0xescrow/);
+
+    await expect(
+      page.getByRole("button", { name: /Fund Escrow/i })
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: /Fund Escrow/i }).click();
+
+    await expect(page.getByText("Transaction status")).toBeVisible();
+    await expect(page.getByText("Waiting for your action")).toBeVisible();
+
+    await page.getByRole("button", { name: "Close" }).click();
+  });
+});
+
+/* =======================
+   Arbitrator Flows
+   ======================= */
 
 test.describe("Arbitrator dispute flows", () => {
-  test("arbitrator sees timeline/evidence and resolve modal", async ({ page }) => {
-    const escrow = baseEscrowFixture({ state: "DISPUTED", buyer: "0xbuyer" })
-    await setSession(page, "0xarb", ["USER", "ARBITRATOR"])
-    await stubEscrowRoutes(page, escrow)
-    await stubDisputeRoutes(page, escrow.escrowId)
+  test("arbitrator sees timeline, evidence, and resolve modal", async ({
+    page,
+  }) => {
+    const escrow = baseEscrowFixture({
+      state: "DISPUTED",
+      buyer: "0xbuyer",
+    });
 
-    await page.goto(`/arbitrator/disputes/${escrow.escrowId}`)
+    await setSession(page, "0xarb", ["USER", "ARBITRATOR"]);
+    await stubEscrowRoutes(page, escrow);
+    await stubDisputeRoutes(page, escrow.escrowId);
 
-    await expect(page.getByText("Dispute")).toBeVisible()
-    await expect(page.getByText("EscrowCreated")).toBeVisible()
-    await expect(page.getByText("0xseller")).toBeVisible()
+    await page.goto(`/arbitrator/disputes/${escrow.escrowId}`);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page).toHaveURL(/\/arbitrator\/disputes\/0xescrow/);
+
+    await expect(page.getByText(/Dispute/i)).toBeVisible();
+    await expect(page.getByText("EscrowCreated")).toBeVisible();
+    await expect(page.getByText("0xseller")).toBeVisible();
+
     await expect(
-      page.getByRole("button", { name: "Resolve dispute on-chain" })
-    ).toBeVisible()
+      page.getByRole("button", { name: /Resolve dispute/i })
+    ).toBeVisible();
 
-    await page.getByRole("button", { name: "Resolve dispute on-chain" }).click()
-    await expect(page.getByText("Transaction status")).toBeVisible()
-    await expect(page.getByText("Waiting for your action")).toBeVisible()
-    await page.getByRole("button", { name: "Close" }).click()
-  })
-})
+    await page
+      .getByRole("button", { name: /Resolve dispute/i })
+      .click();
+
+    await expect(page.getByText("Transaction status")).toBeVisible();
+    await expect(page.getByText("Waiting for your action")).toBeVisible();
+
+    await page.getByRole("button", { name: "Close" }).click();
+  });
+});

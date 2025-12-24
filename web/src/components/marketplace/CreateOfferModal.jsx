@@ -7,18 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Plus, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { validateTradeOffer, sanitizeInput } from "@/components/utils/validation";
 import ConfirmDialog from "../common/ConfirmDialog";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useWallet } from "@/components/web3/WalletContext";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
+import { SUPPORTED_TOKENS } from "../web3/contractABI";
 
 // BEP20 Tokens (BSC Only - MVP)
-const TOKENS = ['USDT', 'USDC', 'BUSD', 'BNB'];
+const TOKENS = SUPPORTED_TOKENS;
 const CHAINS = ['BSC']; // MVP: BSC only
 const FIAT_CURRENCIES = [
   // Americas
@@ -210,7 +210,6 @@ export default function CreateOfferModal({ open, onOpenChange }) {
     max_trade_amount: '',
     expires_in_hours: '24',
     min_reputation: '0',
-    kyc_required: false,
     notes: ''
   });
   
@@ -225,8 +224,7 @@ export default function CreateOfferModal({ open, onOpenChange }) {
   
   const createOffer = useMutation({
     mutationFn: async (data) => {
-      const user = await base44.auth.me();
-      if (!user?.email) {
+      if (!account) {
         throw new Error(t('dashboard.connectWalletAction'));
       }
       
@@ -236,7 +234,7 @@ export default function CreateOfferModal({ open, onOpenChange }) {
       
       return base44.entities.TradeOffer.create({
         offer_id: offerId,
-        creator_address: user.email,
+        creator_address: account.toLowerCase(),
         offer_type: data.offer_type,
         token_symbol: data.token_symbol,
         amount: parseFloat(data.amount),
@@ -255,7 +253,6 @@ export default function CreateOfferModal({ open, onOpenChange }) {
         }),
         requirements: {
           min_reputation: parseInt(data.min_reputation) || 0,
-          kyc_required: data.kyc_required || false
         },
         notes: data.notes || '',
         matched_trade_ids: []
@@ -289,7 +286,6 @@ export default function CreateOfferModal({ open, onOpenChange }) {
         max_trade_amount: '',
         expires_in_hours: '24',
         min_reputation: '0',
-        kyc_required: false,
         notes: ''
       });
       setSelectedPaymentMethods([]);
@@ -764,15 +760,6 @@ export default function CreateOfferModal({ open, onOpenChange }) {
               </div>
             </div>
           )}
-          
-          {/* KYC & Notes - Compact */}
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/50 border border-slate-700">
-            <Label className="text-sm text-slate-300">{t('createOffer.requireKYC')}</Label>
-            <Switch
-              checked={formData.kyc_required}
-              onCheckedChange={(checked) => setFormData({...formData, kyc_required: checked})}
-            />
-          </div>
           
           <div>
             <Label className="text-sm text-slate-300 mb-2 block">{t('createOffer.notes')}</Label>

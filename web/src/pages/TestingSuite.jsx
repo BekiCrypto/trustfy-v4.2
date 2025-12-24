@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,7 @@ export default function TestingSuite() {
           const user = await base44.auth.me();
           if (!user) throw new Error(t('testingSuite.tests.userJourney.auth.errorNotAuthenticated'));
           
-          const profiles = await base44.entities.UserProfile.filter({ wallet_address: user.email });
-          if (profiles.length === 0) throw new Error(t('testingSuite.tests.userJourney.auth.errorProfileNotFound'));
-          
-          return { user, profile: profiles[0] };
+          return { user };
         }
       },
       {

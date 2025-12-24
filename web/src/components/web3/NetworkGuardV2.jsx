@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { TARGET_CHAIN_ID, SUPPORTED_CHAINS } from './wagmiConfig';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 /**
  * Network Guard Component - Ensures user is on the correct network

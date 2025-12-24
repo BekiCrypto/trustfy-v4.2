@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scale, AlertTriangle, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -9,12 +9,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function LegalDisclaimerModal({ open, onOpenChange }) {
   const { t } = useTranslation();
 
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
   const sections = [
     {
       id: 'noFinancial',
       title: t('landing.legalDisclaimer.sections.noFinancial.title'),
       intro: t('landing.legalDisclaimer.sections.noFinancial.intro'),
-      bullets: t('landing.legalDisclaimer.sections.noFinancial.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.noFinancial.bullets'),
       note: t('landing.legalDisclaimer.sections.noFinancial.note')
     },
     {
@@ -28,7 +33,7 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       id: 'noGuarantee',
       title: t('landing.legalDisclaimer.sections.noGuarantee.title'),
       intro: t('landing.legalDisclaimer.sections.noGuarantee.intro'),
-      bullets: t('landing.legalDisclaimer.sections.noGuarantee.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.noGuarantee.bullets'),
       note: t('landing.legalDisclaimer.sections.noGuarantee.note'),
       noteClass: 'text-red-300'
     },
@@ -36,7 +41,7 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       id: 'smartContractRisks',
       title: t('landing.legalDisclaimer.sections.smartContractRisks.title'),
       intro: t('landing.legalDisclaimer.sections.smartContractRisks.intro'),
-      bullets: t('landing.legalDisclaimer.sections.smartContractRisks.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.smartContractRisks.bullets'),
       note: t('landing.legalDisclaimer.sections.smartContractRisks.note'),
       tone: 'danger'
     },
@@ -44,7 +49,7 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       id: 'userDecisions',
       title: t('landing.legalDisclaimer.sections.userDecisions.title'),
       intro: t('landing.legalDisclaimer.sections.userDecisions.intro'),
-      bullets: t('landing.legalDisclaimer.sections.userDecisions.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.userDecisions.bullets'),
       note: t('landing.legalDisclaimer.sections.userDecisions.note'),
       noteClass: 'text-amber-300'
     },
@@ -52,7 +57,7 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       id: 'walletRisks',
       title: t('landing.legalDisclaimer.sections.walletRisks.title'),
       intro: t('landing.legalDisclaimer.sections.walletRisks.intro'),
-      bullets: t('landing.legalDisclaimer.sections.walletRisks.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.walletRisks.bullets'),
       note: t('landing.legalDisclaimer.sections.walletRisks.note'),
       noteClass: 'text-slate-400 text-xs'
     },
@@ -60,7 +65,7 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       id: 'regulatory',
       title: t('landing.legalDisclaimer.sections.regulatory.title'),
       intro: t('landing.legalDisclaimer.sections.regulatory.intro'),
-      bullets: t('landing.legalDisclaimer.sections.regulatory.bullets', { returnObjects: true }),
+      bullets: getArray('landing.legalDisclaimer.sections.regulatory.bullets'),
       note: t('landing.legalDisclaimer.sections.regulatory.note'),
       noteClass: 'text-slate-400 text-xs'
     },
@@ -81,10 +86,12 @@ export default function LegalDisclaimerModal({ open, onOpenChange }) {
       <DialogContent className="bg-slate-900 border-slate-700/50 text-white max-w-4xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-            <Scale className="w-6 h-6 text-amber-400" />
+            <Scale className="w-6 h-6 text-red-400" />
             {t('landing.legalDisclaimer.title')}
           </DialogTitle>
-          <p className="text-slate-400 text-sm">{t('landing.legalDisclaimer.subtitle')}</p>
+          <DialogDescription className="sr-only">
+            {t('landing.legalDisclaimer.title')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[65vh] pr-4">

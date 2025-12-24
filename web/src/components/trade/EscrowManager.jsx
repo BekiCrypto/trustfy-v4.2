@@ -19,7 +19,7 @@ import { EXPLORERS, CONTRACT_ADDRESSES } from "../web3/contractABI";
 import { BEP20Helper } from "../web3/BEP20Helper";
 import ErrorRecovery from "./ErrorRecovery";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EscrowManager({ trade, onUpdate, onBondAmountLoaded, onEscrowStatusLoaded }) {
   const { t } = useTranslation();

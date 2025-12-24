@@ -1,7 +1,7 @@
 import React from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function WalletAddress({ address, truncate = true, showCopy = true }) {
   const [copied, setCopied] = React.useState(false);

@@ -1,13 +1,18 @@
 FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
-COPY tsconfig*.json ./
-COPY vite.config.ts ./
-COPY public ./public
-COPY src ./src
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/package.json
+COPY worker/package.json ./worker/package.json
+COPY web/package.json ./web/package.json
+COPY shared/package.json ./shared/package.json
 
-RUN npm install
+RUN npm ci
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+COPY shared ./shared
+COPY web ./web
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "-w", "@trustfy/web", "--", "--host", "0.0.0.0", "--port", "5173"]

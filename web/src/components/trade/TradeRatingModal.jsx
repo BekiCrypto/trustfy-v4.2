@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
+import { reviewsApi } from "@/api/reviews";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TradeRatingModal({ open, onOpenChange, trade, counterpartyProfile }) {
   const { t } = useTranslation();
@@ -27,24 +28,17 @@ export default function TradeRatingModal({ open, onOpenChange, trade, counterpar
       const isUserSeller = trade.seller_address === user.email;
       
       // Create the review
-      await base44.entities.TradeReview.create({
-        trade_id: trade.id,
-        reviewer_address: user.email,
-        reviewed_address: isUserSeller ? trade.buyer_address : trade.seller_address,
+      await reviewsApi.createReview({
+        escrowId: trade.trade_id,
         rating,
-        review_text: reviewText,
-        review_tags: selectedTags,
-        trade_role: isUserSeller ? 'buyer' : 'seller'
-      });
-
-      // Update counterparty's reputation using backend function
-      await base44.functions.invoke('calculateReputationScore', {
-        wallet_address: counterpartyProfile.wallet_address
+        reviewText,
+        reviewTags: selectedTags
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trade-reviews'] });
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['my-review'] });
       toast.success(t('trade.tradeRating.toastThanks'));
       onOpenChange(false);
       setRating(0);

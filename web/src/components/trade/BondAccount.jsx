@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, TrendingUp, Wallet, ArrowDownToLine, Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const DEFAULT_TOKENS = ['USDT', 'USDC', 'BNB'];
 

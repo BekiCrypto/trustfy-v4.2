@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - link "Trustfy TRUSTFY Decentralized P2P" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "Trustfy" [ref=e9]
+        - generic [ref=e10]:
+          - heading "TRUSTFY" [level=1] [ref=e11]
+          - paragraph [ref=e12]: Decentralized P2P
+      - navigation [ref=e13]:
+        - link "Dashboard" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e15]
+          - generic [ref=e20]: Dashboard
+        - link "Explore" [ref=e21] [cursor=pointer]:
+          - /url: /explore
+          - img [ref=e22]
+          - generic [ref=e25]: Explore
+        - link "Post Ad" [ref=e26] [cursor=pointer]:
+          - /url: /explore?create=1
+          - img [ref=e27]
+          - generic [ref=e30]: Post Ad
+        - link "Escrows" [ref=e31] [cursor=pointer]:
+          - /url: /escrows
+          - img [ref=e32]
+          - generic [ref=e35]: Escrows
+        - link "Disputes" [ref=e36] [cursor=pointer]:
+          - /url: /disputes
+          - img [ref=e37]
+          - generic [ref=e39]: Disputes
+        - link "Smart Bond" [ref=e40] [cursor=pointer]:
+          - /url: /bond-credits
+          - img [ref=e41]
+          - generic [ref=e43]: Smart Bond
+        - link "Trading Bots" [ref=e44] [cursor=pointer]:
+          - /url: /trading-api
+          - img [ref=e45]
+          - generic [ref=e48]: Trading Bots
+        - link "Settings" [ref=e49] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e50]
+          - generic [ref=e53]: Settings
+      - generic [ref=e54]:
+        - button "Connect Wallet" [ref=e55] [cursor=pointer]:
+          - img
+          - text: Connect Wallet
+        - generic [ref=e56]:
+          - button "🇺🇸 English" [ref=e57] [cursor=pointer]:
+            - img
+            - generic [ref=e58]: 🇺🇸
+            - generic [ref=e59]: English
+          - button [ref=e60] [cursor=pointer]:
+            - img
+  - main [ref=e61]
+```

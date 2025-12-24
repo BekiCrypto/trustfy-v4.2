@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,22 +11,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
-import { AdminService } from "./admin.service";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { RolesGuard } from "../rbac/guards/roles.guard";
-import { Roles } from "../rbac/decorators/roles.decorator";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { AdminWithdrawDto } from "./dto/withdraw.dto";
-import { AdminRoleDto } from "./dto/admin-role.dto";
-import { AdminTokenDto } from "./dto/admin-token.dto";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminController = void 0;
+const common_1 = require("@nestjs/common");
+const admin_service_1 = require("./admin.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../rbac/guards/roles.guard");
+const roles_decorator_1 = require("../rbac/decorators/roles.decorator");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
+const withdraw_dto_1 = require("./dto/withdraw.dto");
+const admin_role_dto_1 = require("./dto/admin-role.dto");
+const admin_token_dto_1 = require("./dto/admin-token.dto");
 let AdminController = class AdminController {
-    service;
     constructor(service) {
         this.service = service;
     }
     listPools(tokenKey) {
         return this.service.listPools(tokenKey);
+    }
+    getStats() {
+        return this.service.getStats();
+    }
+    listUsers(page, limit, search) {
+        return this.service.listUsers(Number(page) || 1, Number(limit) || 20, search);
+    }
+    listTrades(page, limit, status) {
+        return this.service.listTrades(Number(page) || 1, Number(limit) || 20, status);
+    }
+    listDisputes(page, limit, status) {
+        return this.service.listDisputes(Number(page) || 1, Number(limit) || 20, status);
     }
     withdraw(payload, user) {
         return this.service.recordWithdraw(payload, user);
@@ -44,58 +58,90 @@ let AdminController = class AdminController {
         return this.service.upsertToken(payload, user);
     }
 };
+exports.AdminController = AdminController;
 __decorate([
-    Get("pools"),
-    __param(0, Query("tokenKey")),
+    (0, common_1.Get)("pools"),
+    __param(0, (0, common_1.Query)("tokenKey")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "listPools", null);
 __decorate([
-    Post("withdraw"),
-    __param(0, Body()),
-    __param(1, CurrentUser()),
+    (0, common_1.Get)("stats"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [AdminWithdrawDto, Object]),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getStats", null);
+__decorate([
+    (0, common_1.Get)("users"),
+    __param(0, (0, common_1.Query)("page")),
+    __param(1, (0, common_1.Query)("limit")),
+    __param(2, (0, common_1.Query)("search")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "listUsers", null);
+__decorate([
+    (0, common_1.Get)("trades"),
+    __param(0, (0, common_1.Query)("page")),
+    __param(1, (0, common_1.Query)("limit")),
+    __param(2, (0, common_1.Query)("status")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "listTrades", null);
+__decorate([
+    (0, common_1.Get)("disputes"),
+    __param(0, (0, common_1.Query)("page")),
+    __param(1, (0, common_1.Query)("limit")),
+    __param(2, (0, common_1.Query)("status")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "listDisputes", null);
+__decorate([
+    (0, common_1.Post)("withdraw"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [withdraw_dto_1.AdminWithdrawDto, Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "withdraw", null);
 __decorate([
-    Post("roles/arbitrators"),
-    __param(0, Body()),
-    __param(1, CurrentUser()),
+    (0, common_1.Post)("roles/arbitrators"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [AdminRoleDto, Object]),
+    __metadata("design:paramtypes", [admin_role_dto_1.AdminRoleDto, Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "addArbitrator", null);
 __decorate([
-    Post("roles/admins"),
-    __param(0, Body()),
-    __param(1, CurrentUser()),
+    (0, common_1.Post)("roles/admins"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [AdminRoleDto, Object]),
+    __metadata("design:paramtypes", [admin_role_dto_1.AdminRoleDto, Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "addAdmin", null);
 __decorate([
-    Get("tokens"),
-    __param(0, Query("chainId")),
-    __param(1, Query("tokenKey")),
+    (0, common_1.Get)("tokens"),
+    __param(0, (0, common_1.Query)("chainId")),
+    __param(1, (0, common_1.Query)("tokenKey")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "listTokens", null);
 __decorate([
-    Post("tokens"),
-    __param(0, Body()),
-    __param(1, CurrentUser()),
+    (0, common_1.Post)("tokens"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [AdminTokenDto, Object]),
+    __metadata("design:paramtypes", [admin_token_dto_1.AdminTokenDto, Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "upsertToken", null);
-AdminController = __decorate([
-    Roles("ADMIN"),
-    UseGuards(JwtAuthGuard, RolesGuard),
-    Controller("v1/admin"),
-    __metadata("design:paramtypes", [AdminService])
+exports.AdminController = AdminController = __decorate([
+    (0, roles_decorator_1.Roles)("ADMIN", "SUPER_ADMIN"),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.Controller)("v1/admin"),
+    __metadata("design:paramtypes", [admin_service_1.AdminService])
 ], AdminController);
-export { AdminController };
-//# sourceMappingURL=admin.controller.js.map

@@ -1,25 +1,31 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Shield, AlertTriangle, Scale, Globe, Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export default function TermsModal({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const eligibilityItems = t('landing.terms.sections.eligibility.items', { returnObjects: true });
-  const nonCustodialItems = t('landing.terms.sections.nonCustodial.items', { returnObjects: true });
-  const walletItems = t('landing.terms.sections.wallet.items', { returnObjects: true });
-  const platformRoleItems = t('landing.terms.sections.platformRole.items', { returnObjects: true });
-  const escrowProcessItems = t('landing.terms.sections.escrowProcess.items', { returnObjects: true });
-  const bondItems = t('landing.terms.sections.bonds.items', { returnObjects: true });
-  const disputeItems = t('landing.terms.sections.disputes.items', { returnObjects: true });
-  const pricingItems = t('landing.terms.sections.pricing.items', { returnObjects: true });
-  const responsibilityItems = t('landing.terms.sections.responsibilities.items', { returnObjects: true });
-  const prohibitedItems = t('landing.terms.sections.prohibited.items', { returnObjects: true });
-  const risksItems = t('landing.terms.sections.risks.items', { returnObjects: true });
-  const warrantiesItems = t('landing.terms.sections.warranties.items', { returnObjects: true });
-  const liabilityItems = t('landing.terms.sections.liability.items', { returnObjects: true });
+
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const eligibilityItems = getArray('landing.terms.sections.eligibility.items');
+  const nonCustodialItems = getArray('landing.terms.sections.nonCustodial.items');
+  const walletItems = getArray('landing.terms.sections.wallet.items');
+  const platformRoleItems = getArray('landing.terms.sections.platformRole.items');
+  const escrowProcessItems = getArray('landing.terms.sections.escrowProcess.items');
+  const bondItems = getArray('landing.terms.sections.bonds.items');
+  const disputeItems = getArray('landing.terms.sections.disputes.items');
+  const pricingItems = getArray('landing.terms.sections.pricing.items');
+  const responsibilityItems = getArray('landing.terms.sections.responsibilities.items');
+  const prohibitedItems = getArray('landing.terms.sections.prohibited.items');
+  const risksItems = getArray('landing.terms.sections.risks.items');
+  const warrantiesItems = getArray('landing.terms.sections.warranties.items');
+  const liabilityItems = getArray('landing.terms.sections.liability.items');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -29,7 +35,9 @@ export default function TermsModal({ open, onOpenChange }) {
             <FileText className="w-6 h-6 text-blue-400" />
             {t('landing.terms.title')}
           </DialogTitle>
-          <p className="text-slate-400 text-sm">{t('landing.terms.effectiveDate')}</p>
+          <DialogDescription className="text-slate-400 text-sm">
+            {t('landing.terms.effectiveDate')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[65vh] pr-4">

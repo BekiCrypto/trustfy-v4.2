@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -83,7 +83,7 @@ export default function ProductionChecklist() {
       if (profiles.length > 0) {
         const profile = profiles[0];
         // Check if owner has super_admin role
-        if (user.email === 'bikilad@gmail.com' && profile.platform_role === 'super_admin') {
+        if (profile.platform_role === 'super_admin') {
           setChecks(prev => ({ ...prev, userProfile: 'pass' }));
         } else if (profiles.length > 0) {
           setChecks(prev => ({ ...prev, userProfile: 'warning' }));
@@ -164,7 +164,7 @@ export default function ProductionChecklist() {
       const user = await base44.auth.me();
       const profiles = await base44.entities.UserProfile.filter({ wallet_address: user.email });
       
-      if (profiles.length > 0 && user.email === 'bikilad@gmail.com') {
+      if (profiles.length > 0) {
         setChecks(prev => ({ 
           ...prev, 
           roleSystem: profiles[0].platform_role === 'super_admin' ? 'pass' : 'warning' 

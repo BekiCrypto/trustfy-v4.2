@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
 import { TIER_BENEFITS } from './TierConfig';
@@ -20,7 +20,7 @@ export default function TierCard({ tier, isCurrentTier = false }) {
           <Icon className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className={`text-xl font-bold ${config.textColor}`}>{config.name}</h3>
+          <h3 className={`text-xl font-bold ${config.textColor}`}>{t(config.name)}</h3>
           {isCurrentTier && (
             <p className="text-xs text-slate-500">{t('cards.tier.yourCurrentTier')}</p>
           )}
@@ -53,7 +53,7 @@ export default function TierCard({ tier, isCurrentTier = false }) {
           {config.perks.map((perk, idx) => (
             <li key={idx} className="flex items-start gap-2 text-sm text-slate-400">
               <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <span>{perk}</span>
+              <span>{t(perk)}</span>
             </li>
           ))}
         </ul>

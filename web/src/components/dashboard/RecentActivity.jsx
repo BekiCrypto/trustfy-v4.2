@@ -1,22 +1,29 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { format } from "date-fns";
-import { ArrowUpRight, ArrowDownLeft, AlertTriangle, CheckCircle, Clock, XCircle } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
+import { format } from 'date-fns';
+import { 
+  ArrowUpRight, 
+  ArrowDownLeft, 
+  RefreshCw, 
+  Shield, 
+  CheckCircle2, 
+  XCircle, 
+  AlertTriangle 
+} from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const activityIcons = {
-  trade_created: { icon: ArrowUpRight, color: 'text-blue-400', bg: 'bg-blue-500/10', labelKey: 'trade_created' },
-  trade_funded: { icon: ArrowDownLeft, color: 'text-emerald-400', bg: 'bg-emerald-500/10', labelKey: 'trade_funded' },
-  trade_in_progress: { icon: CheckCircle, color: 'text-purple-400', bg: 'bg-purple-500/10', labelKey: 'trade_in_progress' },
-  trade_completed: { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-500/10', labelKey: 'trade_completed' },
-  dispute_opened: { icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-500/10', labelKey: 'dispute_opened' },
-  dispute_resolved: { icon: CheckCircle, color: 'text-purple-400', bg: 'bg-purple-500/10', labelKey: 'dispute_resolved' },
-  trade_expired: { icon: Clock, color: 'text-slate-400', bg: 'bg-slate-500/10', labelKey: 'trade_expired' },
-  trade_cancelled: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10', labelKey: 'trade_cancelled' }
+  trade_created: { icon: RefreshCw, color: 'text-blue-400', bg: 'bg-blue-500/10', labelKey: 'created' },
+  trade_completed: { icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-500/10', labelKey: 'completed' },
+  trade_cancelled: { icon: XCircle, color: 'text-slate-400', bg: 'bg-slate-500/10', labelKey: 'cancelled' },
+  dispute_opened: { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10', labelKey: 'dispute' },
+  trade_funded: { icon: ArrowUpRight, color: 'text-purple-400', bg: 'bg-purple-500/10', labelKey: 'funded' },
+  trade_in_progress: { icon: ArrowDownLeft, color: 'text-amber-400', bg: 'bg-amber-500/10', labelKey: 'inProgress' },
+  trade_expired: { icon: XCircle, color: 'text-orange-400', bg: 'bg-orange-500/10', labelKey: 'expired' }
 };
 
-const generateMockActivity = (trades, disputes, t) => {
+const generateActivity = (trades, disputes, t) => {
   const activities = [];
   
   trades?.slice(0, 5).forEach((trade) => {
@@ -33,6 +40,7 @@ const generateMockActivity = (trades, disputes, t) => {
     activities.push({
       id: trade.id,
       type,
+      label,
       description: t('dashboard.recentActivity.description', {
         label,
         amount: trade.amount,
@@ -49,52 +57,60 @@ const generateMockActivity = (trades, disputes, t) => {
 
 export default function RecentActivity({ trades, disputes }) {
   const { t } = useTranslation();
-  const activities = generateMockActivity(trades, disputes, t);
+  const activities = generateActivity(trades, disputes, t);
   
   return (
     <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-xl p-6">
-      <h3 className="text-lg font-semibold text-white mb-4">
-        {t('dashboard.recentActivity.title')}
-      </h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-white">
+          {t('dashboard.recentActivity.title')}
+        </h3>
+        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+          {t('dashboard.recentActivity.viewAll')}
+        </button>
+      </div>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         {activities.length === 0 ? (
-          <p className="text-slate-500 text-sm text-center py-8">
-            {t('dashboard.recentActivity.empty')}
-          </p>
+          <div className="text-center py-8 text-slate-500">
+            {t('dashboard.recentActivity.noActivity')}
+          </div>
         ) : (
-          activities.map((activity, index) => {
+          activities.map((activity) => {
             const config = activityIcons[activity.type] || activityIcons.trade_created;
             const Icon = config.icon;
             
             return (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors"
+              <div 
+                key={activity.id} 
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-800/50 transition-colors group cursor-default"
               >
-                <div className={`p-2 rounded-lg ${config.bg}`}>
-                  <Icon className={`w-4 h-4 ${config.color}`} />
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className={`p-2 rounded-full ${config.bg} cursor-help`}>
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-300">
+                    <p>{activity.label}</p>
+                  </TooltipContent>
+                </Tooltip>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-300 truncate">{activity.description}</p>
+                  <p className="text-sm text-slate-200 truncate font-medium">
+                    {activity.description}
+                  </p>
                   <p className="text-xs text-slate-500">
-                    {activity.timestamp && format(new Date(activity.timestamp), "MMM d, HH:mm")}
+                    {format(new Date(activity.timestamp), 'MMM d, HH:mm')}
                   </p>
                 </div>
                 
-                {activity.amount && (
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-white">
-                      {activity.amount.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-slate-500">{activity.token}</p>
-                  </div>
-                )}
-              </motion.div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-white">
+                    {activity.amount} <span className="text-xs text-slate-500">{activity.token}</span>
+                  </p>
+                </div>
+              </div>
             );
           })
         )}

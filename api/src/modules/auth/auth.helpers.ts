@@ -26,7 +26,11 @@ export function hashNonce(nonce: string) {
 }
 
 export function signatureMatchesMessage(signature: string, message: string, address: string) {
-  const digest = hashMessage(message)
-  const recovered = recoverAddress(digest, signature)
-  return recovered.toLowerCase() === address.toLowerCase()
+  try {
+    const digest = hashMessage(message)
+    const recovered = recoverAddress(digest, signature)
+    return recovered.toLowerCase() === address.toLowerCase()
+  } catch (error) {
+    return false
+  }
 }

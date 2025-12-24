@@ -2,7 +2,7 @@ import { Shield, Star, Crown, Gem, Sparkles } from "lucide-react";
 
 export const TIER_BENEFITS = {
   new: {
-    name: 'New',
+    name: 'tierNames.new',
     icon: Shield,
     color: 'from-slate-500 to-slate-600',
     textColor: 'text-slate-400',
@@ -20,14 +20,14 @@ export const TIER_BENEFITS = {
       disputePriority: 'standard'
     },
     perks: [
-      'Standard platform experience',
-      'Basic support',
-      'Standard listing limits',
-      'Wallet-first access'
+      'tierBenefits.standardExperience',
+      'tierBenefits.basicSupport',
+      'tierBenefits.standardLimits',
+      'tierBenefits.walletAccess'
     ]
   },
   bronze: {
-    name: 'Bronze',
+    name: 'tierNames.bronze',
     icon: Shield,
     color: 'from-orange-700 to-orange-900',
     textColor: 'text-orange-400',
@@ -45,14 +45,14 @@ export const TIER_BENEFITS = {
       disputePriority: 'standard'
     },
     perks: [
-      'Verified badge',
-      'Higher listing limits',
-      'Enhanced account visibility',
-      'Requires KYC for full access'
+      'tierBenefits.verifiedBadge',
+      'tierBenefits.higherLimits',
+      'tierBenefits.enhancedVisibility',
+      'tierBenefits.requiresKyc'
     ]
   },
   silver: {
-    name: 'Silver',
+    name: 'tierNames.silver',
     icon: Star,
     color: 'from-slate-400 to-slate-600',
     textColor: 'text-slate-300',
@@ -70,14 +70,14 @@ export const TIER_BENEFITS = {
       disputePriority: 'elevated'
     },
     perks: [
-      'Elevated dispute priority',
-      'Higher listing limits',
-      'Custom profile badge',
-      'Requires KYC verification'
+      'tierBenefits.elevatedDispute',
+      'tierBenefits.higherLimits',
+      'tierBenefits.customBadge',
+      'tierBenefits.requiresKyc'
     ]
   },
   gold: {
-    name: 'Gold',
+    name: 'tierNames.gold',
     icon: Crown,
     color: 'from-yellow-500 to-amber-600',
     textColor: 'text-yellow-400',
@@ -95,15 +95,15 @@ export const TIER_BENEFITS = {
       disputePriority: 'priority'
     },
     perks: [
-      'Priority support',
-      'Priority dispute resolution',
-      'Higher listing limits',
-      'Exclusive Gold badge',
-      'KYC verified required'
+      'tierBenefits.prioritySupport',
+      'tierBenefits.priorityDispute',
+      'tierBenefits.higherLimits',
+      'tierBenefits.exclusiveGoldBadge',
+      'tierBenefits.kycVerified'
     ]
   },
   platinum: {
-    name: 'Platinum',
+    name: 'tierNames.platinum',
     icon: Gem,
     color: 'from-cyan-400 to-blue-600',
     textColor: 'text-cyan-300',
@@ -121,12 +121,12 @@ export const TIER_BENEFITS = {
       disputePriority: 'express'
     },
     perks: [
-      'VIP support',
-      'Express dispute resolution',
-      'Highest listing limits',
-      'Exclusive Platinum badge',
-      'Early access to new features',
-      'Full KYC verification required'
+      'tierBenefits.vipSupport',
+      'tierBenefits.expressDispute',
+      'tierBenefits.highestLimits',
+      'tierBenefits.exclusivePlatinumBadge',
+      'tierBenefits.earlyAccess',
+      'tierBenefits.fullKyc'
     ]
   }
 };
@@ -170,19 +170,19 @@ export const getTierProgress = (profile, currentTier) => {
   
   const requirements = [
     {
-      label: 'Reputation Score',
+      label: 'tiersPage.reputationScoreLabel',
       current: reputation_score,
       required: nextConfig.minReputation,
       progress: Math.min((reputation_score / nextConfig.minReputation) * 100, 100)
     },
     {
-      label: 'Total Trades',
+      label: 'tiersPage.successfulTradesLabel',
       current: total_trades,
       required: nextConfig.minTrades,
       progress: Math.min((total_trades / nextConfig.minTrades) * 100, 100)
     },
     {
-      label: 'Trading Volume',
+      label: 'tiersPage.tradingVolumeLabel',
       current: total_volume,
       required: nextConfig.minVolume,
       progress: Math.min((total_volume / nextConfig.minVolume) * 100, 100)

@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,25 +11,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
-import { DisputeService } from "./dispute.service";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { Roles } from "../rbac/decorators/roles.decorator";
-import { RolesGuard } from "../rbac/guards/roles.guard";
-import { OpenDisputeDto } from "./dto/open-dispute.dto";
-import { RecommendationDto } from "./dto/recommendation.dto";
-import { ResolveDisputeDto } from "./dto/resolve-dispute.dto";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DisputeController = void 0;
+const common_1 = require("@nestjs/common");
+const dispute_service_1 = require("./dispute.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_decorator_1 = require("../rbac/decorators/roles.decorator");
+const roles_guard_1 = require("../rbac/guards/roles.guard");
+const open_dispute_dto_1 = require("./dto/open-dispute.dto");
+const recommendation_dto_1 = require("./dto/recommendation.dto");
+const resolve_dispute_dto_1 = require("./dto/resolve-dispute.dto");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 let DisputeController = class DisputeController {
-    service;
     constructor(service) {
         this.service = service;
     }
     open(escrowId, payload, user) {
         return this.service.openDispute(escrowId, payload, user);
     }
-    list(status) {
-        return this.service.listDisputes(status);
+    list(status, assignee) {
+        return this.service.listDisputes(status, assignee);
+    }
+    claim(escrowId, user) {
+        return this.service.claimDispute(escrowId, user);
+    }
+    escalate(escrowId, body, user) {
+        return this.service.escalateDispute(escrowId, body.level, body.status, user);
+    }
+    saveAnalysis(escrowId, body) {
+        return this.service.saveAIAnalysis(escrowId, body.analysis, body.tier);
     }
     detail(escrowId) {
         return this.service.getDispute(escrowId);
@@ -40,55 +51,81 @@ let DisputeController = class DisputeController {
         return this.service.resolveDispute(escrowId, payload, user);
     }
 };
+exports.DisputeController = DisputeController;
 __decorate([
-    Post("escrows/:escrowId/dispute/open"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, common_1.Post)("escrows/:escrowId/dispute/open"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, OpenDisputeDto, Object]),
+    __metadata("design:paramtypes", [String, open_dispute_dto_1.OpenDisputeDto, Object]),
     __metadata("design:returntype", void 0)
 ], DisputeController.prototype, "open", null);
 __decorate([
-    Roles("ADMIN", "ARBITRATOR"),
-    Get("disputes"),
-    __param(0, Query("status")),
+    (0, roles_decorator_1.Roles)("ADMIN", "ARBITRATOR", "SUPER_ADMIN"),
+    (0, common_1.Get)("disputes"),
+    __param(0, (0, common_1.Query)("status")),
+    __param(1, (0, common_1.Query)("assignee")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], DisputeController.prototype, "list", null);
 __decorate([
-    Roles("ADMIN", "ARBITRATOR"),
-    Get("disputes/:escrowId"),
-    __param(0, Param("escrowId")),
+    (0, roles_decorator_1.Roles)("ARBITRATOR", "SUPER_ADMIN"),
+    (0, common_1.Post)("disputes/:escrowId/claim"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], DisputeController.prototype, "claim", null);
+__decorate([
+    (0, common_1.Post)("disputes/:escrowId/escalate"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], DisputeController.prototype, "escalate", null);
+__decorate([
+    (0, common_1.Post)("disputes/:escrowId/analysis"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], DisputeController.prototype, "saveAnalysis", null);
+__decorate([
+    (0, roles_decorator_1.Roles)("ADMIN", "ARBITRATOR", "SUPER_ADMIN"),
+    (0, common_1.Get)("disputes/:escrowId"),
+    __param(0, (0, common_1.Param)("escrowId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], DisputeController.prototype, "detail", null);
 __decorate([
-    Roles("ADMIN", "ARBITRATOR"),
-    Post("disputes/:escrowId/recommendation"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, roles_decorator_1.Roles)("ADMIN", "ARBITRATOR", "SUPER_ADMIN"),
+    (0, common_1.Post)("disputes/:escrowId/recommendation"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, RecommendationDto, Object]),
+    __metadata("design:paramtypes", [String, recommendation_dto_1.RecommendationDto, Object]),
     __metadata("design:returntype", void 0)
 ], DisputeController.prototype, "recommend", null);
 __decorate([
-    Roles("ARBITRATOR"),
-    Post("disputes/:escrowId/resolve"),
-    __param(0, Param("escrowId")),
-    __param(1, Body()),
-    __param(2, CurrentUser()),
+    (0, roles_decorator_1.Roles)("ARBITRATOR", "SUPER_ADMIN"),
+    (0, common_1.Post)("disputes/:escrowId/resolve"),
+    __param(0, (0, common_1.Param)("escrowId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, ResolveDisputeDto, Object]),
+    __metadata("design:paramtypes", [String, resolve_dispute_dto_1.ResolveDisputeDto, Object]),
     __metadata("design:returntype", void 0)
 ], DisputeController.prototype, "resolve", null);
-DisputeController = __decorate([
-    UseGuards(JwtAuthGuard, RolesGuard),
-    Controller("v1"),
-    __metadata("design:paramtypes", [DisputeService])
+exports.DisputeController = DisputeController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.Controller)("v1"),
+    __metadata("design:paramtypes", [dispute_service_1.DisputeService])
 ], DisputeController);
-export { DisputeController };
-//# sourceMappingURL=dispute.controller.js.map

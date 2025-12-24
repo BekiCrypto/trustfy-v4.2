@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
+import { userApi } from "@/api/user";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const typeConfig = {
   trade_match: { icon: ArrowRightLeft, color: 'text-blue-400', bg: 'bg-blue-500/10' },
@@ -152,17 +153,7 @@ export default function NotificationCenter({ trigger }) {
             </div>
           </div>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-            onClick={(e) => {
-              e.stopPropagation();
-              deleteNotification.mutate(notification.id);
-            }}
-          >
-            <Trash2 className="w-4 h-4 text-slate-500" />
-          </Button>
+          {/* Delete button removed as backend does not support it yet */}
         </div>
       </motion.div>
     );

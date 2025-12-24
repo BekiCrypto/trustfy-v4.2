@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Loader2, Store, Shield } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import CreateOfferModal from "../components/marketplace/CreateOfferModal";
 import MatchedOffersModal from "../components/marketplace/MatchedOffersModal";
 import OfferCard from "../components/marketplace/OfferCard";

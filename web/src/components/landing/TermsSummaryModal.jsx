@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Shield, Lock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function TermsSummaryModal({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const sections = t('landing.termsSummary.sections', { returnObjects: true });
+
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const sections = getArray('landing.termsSummary.sections');
   const iconMap = {
     control: CheckCircle2,
     wallet: Lock,
@@ -25,7 +31,9 @@ export default function TermsSummaryModal({ open, onOpenChange }) {
             <FileText className="w-6 h-6 text-blue-400" />
             {t('landing.termsSummary.title')}
           </DialogTitle>
-          <p className="text-slate-400 text-sm">{t('landing.termsSummary.subtitle')}</p>
+          <DialogDescription className="text-slate-400 text-sm">
+            {t('landing.termsSummary.subtitle')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[65vh] pr-4">

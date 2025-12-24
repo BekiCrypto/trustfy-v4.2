@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,40 +8,36 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsBoolean, IsEthereumAddress, IsInt, IsOptional, IsString, Min, } from "class-validator";
-export class AdminTokenDto {
-    chainId;
-    tokenKey;
-    symbol;
-    name;
-    decimals;
-    enabled;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminTokenDto = void 0;
+const class_validator_1 = require("class-validator");
+class AdminTokenDto {
 }
+exports.AdminTokenDto = AdminTokenDto;
 __decorate([
-    IsInt(),
-    Min(0),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], AdminTokenDto.prototype, "chainId", void 0);
 __decorate([
-    IsEthereumAddress(),
+    (0, class_validator_1.IsEthereumAddress)(),
     __metadata("design:type", String)
 ], AdminTokenDto.prototype, "tokenKey", void 0);
 __decorate([
-    IsString(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], AdminTokenDto.prototype, "symbol", void 0);
 __decorate([
-    IsString(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], AdminTokenDto.prototype, "name", void 0);
 __decorate([
-    IsInt(),
-    Min(0),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], AdminTokenDto.prototype, "decimals", void 0);
 __decorate([
-    IsOptional(),
-    IsBoolean(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], AdminTokenDto.prototype, "enabled", void 0);
-//# sourceMappingURL=admin-token.dto.js.map

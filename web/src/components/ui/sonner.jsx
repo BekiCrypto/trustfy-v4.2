@@ -1,11 +1,37 @@
 "use client";
-import { useTheme } from "next-themes"
+import { useEffect, useMemo, useState } from "react"
 import { Toaster as Sonner } from "sonner"
 
 const Toaster = ({
   ...props
 }) => {
-  const { theme = "system" } = useTheme()
+  const [setting, setSetting] = useState(() => localStorage.getItem("theme") || "dark")
+
+  useEffect(() => {
+    const onThemeChange = (e) => {
+      const next = e?.detail?.theme ?? localStorage.getItem("theme") ?? "dark"
+      setSetting(next)
+    }
+    const onStorage = (e) => {
+      if (e.key === "theme") {
+        setSetting(e.newValue || "dark")
+      }
+    }
+    window.addEventListener("themechange", onThemeChange)
+    window.addEventListener("storage", onStorage)
+    return () => {
+      window.removeEventListener("themechange", onThemeChange)
+      window.removeEventListener("storage", onStorage)
+    }
+  }, [])
+
+  const theme = useMemo(() => {
+    if (setting === "system") {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      return prefersDark ? "dark" : "light"
+    }
+    return setting === "dark" ? "dark" : "light"
+  }, [setting])
 
   return (
     (<Sonner

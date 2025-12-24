@@ -1,13 +1,19 @@
 FROM node:20-alpine
 
-WORKDIR /usr/src/worker
+WORKDIR /app
 
-COPY worker/package*.json ./
-COPY worker/tsconfig*.json ./
-COPY worker/src ./src
-COPY shared/src/contracts ../shared/src/contracts
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/package.json
+COPY worker/package.json ./worker/package.json
+COPY web/package.json ./web/package.json
+COPY shared/package.json ./shared/package.json
 
-RUN npm install
-RUN npm run build
+RUN npm ci
 
-CMD ["node", "dist/index.js"]
+COPY shared ./shared
+COPY worker ./worker
+
+RUN npm run build -w @trustfy/shared
+RUN npm run build -w @trustfy/worker
+
+CMD ["npm", "run", "start", "-w", "@trustfy/worker"]

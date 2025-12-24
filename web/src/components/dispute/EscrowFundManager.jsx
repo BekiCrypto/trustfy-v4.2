@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Lock, Unlock, ArrowRight, DollarSign, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EscrowFundManager({ trade, dispute, onRelease }) {
   const { t } = useTranslation();

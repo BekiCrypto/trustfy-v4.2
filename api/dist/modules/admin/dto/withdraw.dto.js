@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,33 +8,31 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsEthereumAddress, IsInt, IsOptional, IsString, Matches, Min, } from "class-validator";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminWithdrawDto = void 0;
+const class_validator_1 = require("class-validator");
 const DECIMAL_PATTERN = /^\d+(\.\d+)?$/;
-export class AdminWithdrawDto {
-    chainId;
-    tokenKey;
-    feeAmount;
-    bondAmount;
+class AdminWithdrawDto {
 }
+exports.AdminWithdrawDto = AdminWithdrawDto;
 __decorate([
-    IsInt(),
-    Min(0),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], AdminWithdrawDto.prototype, "chainId", void 0);
 __decorate([
-    IsEthereumAddress(),
+    (0, class_validator_1.IsEthereumAddress)(),
     __metadata("design:type", String)
 ], AdminWithdrawDto.prototype, "tokenKey", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
-    Matches(DECIMAL_PATTERN),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(DECIMAL_PATTERN),
     __metadata("design:type", String)
 ], AdminWithdrawDto.prototype, "feeAmount", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
-    Matches(DECIMAL_PATTERN),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(DECIMAL_PATTERN),
     __metadata("design:type", String)
 ], AdminWithdrawDto.prototype, "bondAmount", void 0);
-//# sourceMappingURL=withdraw.dto.js.map

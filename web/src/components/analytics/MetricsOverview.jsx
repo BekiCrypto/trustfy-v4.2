@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { motion } from "framer-motion";
 import StatsCard from "../common/StatsCard";
 import { 

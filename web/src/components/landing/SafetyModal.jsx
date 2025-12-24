@@ -1,10 +1,11 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,17 +23,30 @@ import {
 
 export default function SafetyModal({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const guidelineCards = t('landing.safety.guidelines.cards', { returnObjects: true });
-  const disputeWhenItems = t('landing.safety.disputes.when.items', { returnObjects: true });
-  const disputeProcess = t('landing.safety.disputes.process', { returnObjects: true });
-  const disputeEvidence = t('landing.safety.disputes.evidence', { returnObjects: true });
-  const disputeOutcomes = t('landing.safety.disputes.outcomes', { returnObjects: true });
-  const antifraudThreats = t('landing.safety.antifraud.threats', { returnObjects: true });
-  const antifraudMitigations = t('landing.safety.antifraud.mitigations', { returnObjects: true });
-  const riskFinancial = t('landing.safety.risks.financial', { returnObjects: true });
-  const riskTechnical = t('landing.safety.risks.technical', { returnObjects: true });
-  const riskLegal = t('landing.safety.risks.legal', { returnObjects: true });
-  const riskUser = t('landing.safety.risks.user', { returnObjects: true });
+  
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const guidelineCards = getArray('landing.safety.guidelines.cards');
+  const disputeWhenItems = getArray('landing.safety.disputes.when.items');
+  const disputeProcess = getArray('landing.safety.disputes.process');
+  const disputeEvidence = getArray('landing.safety.disputes.evidence');
+  
+  const disputeOutcomesRaw = t('landing.safety.disputes.outcomes', { returnObjects: true });
+  const disputeOutcomes = {
+    buyer: Array.isArray(disputeOutcomesRaw?.buyer) ? disputeOutcomesRaw.buyer : [],
+    seller: Array.isArray(disputeOutcomesRaw?.seller) ? disputeOutcomesRaw.seller : []
+  };
+
+  const antifraudThreats = getArray('landing.safety.antifraud.threats');
+  const antifraudMitigations = getArray('landing.safety.antifraud.mitigations');
+  
+  const riskFinancial = getArray('landing.safety.risks.financial');
+  const riskTechnical = getArray('landing.safety.risks.technical');
+  const riskLegal = getArray('landing.safety.risks.legal');
+  const riskUser = getArray('landing.safety.risks.user');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,12 +56,13 @@ export default function SafetyModal({ open, onOpenChange }) {
             <Shield className="w-8 h-8 text-emerald-400" />
             {t('landing.safety.title')}
           </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {t('landing.safety.subtitle')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[calc(90vh-120px)] pr-4">
           <div className="space-y-6">
-            <p className="text-slate-400">{t('landing.safety.subtitle')}</p>
-
             <Tabs defaultValue="guidelines" className="space-y-6">
               <TabsList className="bg-slate-800/50 border border-slate-700 w-full grid grid-cols-4">
                 <TabsTrigger value="guidelines">{t('landing.safety.tabs.guidelines')}</TabsTrigger>

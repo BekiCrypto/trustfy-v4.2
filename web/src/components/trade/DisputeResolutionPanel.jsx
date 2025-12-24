@@ -16,11 +16,11 @@ import { EXPLORERS } from "../web3/contractABI";
 export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
   if (!dispute) return null;
 
-  const isResolved = dispute.status === 'resolved';
-  const ruling = dispute.ruling;
+  const isResolved = dispute.status === 'RESOLVED' || dispute.status === 'resolved';
+  const ruling = dispute.outcome || dispute.ruling;
 
   const getRulingDisplay = () => {
-    if (!isResolved || ruling === 'pending') {
+    if (!isResolved || !ruling || ruling === 'pending') {
       return {
         icon: Scale,
         color: 'text-amber-400',
@@ -53,6 +53,17 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
       };
     }
 
+    if (ruling === 'split') {
+        return {
+          icon: Scale,
+          color: 'text-purple-400',
+          bg: 'bg-purple-500/10',
+          border: 'border-purple-500/30',
+          label: 'Funds Split',
+          description: 'Funds divided between parties; DisputeBonds refunded'
+        };
+      }
+
     return {
       icon: AlertTriangle,
       color: 'text-slate-400',
@@ -65,6 +76,7 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
 
   const rulingDisplay = getRulingDisplay();
   const Icon = rulingDisplay.icon;
+  const createdDate = new Date(dispute.createdAt || dispute.created_date);
 
   return (
     <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700/50 p-6">
@@ -76,7 +88,7 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">Dispute Resolution</h3>
-            <p className="text-slate-400 text-xs">Case ID: {dispute.id}</p>
+            <p className="text-slate-400 text-xs">Case ID: {dispute.escrowId || dispute.id}</p>
           </div>
         </div>
         <Badge className={`${rulingDisplay.bg} ${rulingDisplay.color} ${rulingDisplay.border}`}>
@@ -89,16 +101,16 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
         {/* Initiator */}
         <div className="p-3 rounded-lg bg-slate-800/50">
           <p className="text-slate-400 text-xs mb-1">Initiated By</p>
-          <WalletAddress address={dispute.initiator_address} />
+          <WalletAddress address={dispute.openedBy || dispute.initiator_address} />
           <p className="text-xs text-slate-500 mt-1">
-            {format(new Date(dispute.created_date), 'MMM d, yyyy HH:mm')}
+            {format(createdDate, 'MMM d, yyyy HH:mm')}
           </p>
         </div>
 
         {/* Reason */}
         <div className="p-3 rounded-lg bg-slate-800/50">
           <p className="text-slate-400 text-xs mb-2">Dispute Reason</p>
-          <p className="text-white text-sm">{dispute.reason || 'No reason provided'}</p>
+          <p className="text-white text-sm">{dispute.reasonCode || dispute.reason || 'No reason provided'}</p>
         </div>
 
         {/* Financial Stakes */}
@@ -111,31 +123,31 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-400">Seller DisputeBond:</span>
-                <span className="text-white font-semibold">{bondAmount} {trade.token_symbol}</span>
+                <span className="text-white font-semibold">{bondAmount} {trade.tokenKey || trade.token_symbol}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Buyer DisputeBond:</span>
-                <span className="text-white font-semibold">{bondAmount} {trade.token_symbol}</span>
+                <span className="text-white font-semibold">{bondAmount} {trade.tokenKey || trade.token_symbol}</span>
               </div>
               <div className="h-px bg-red-500/30 my-2" />
               <div className="flex justify-between text-red-300 font-bold">
                 <span>Total at Stake:</span>
-                <span>{(parseFloat(bondAmount) * 2).toFixed(4)} {trade.token_symbol}</span>
+                <span>{(parseFloat(bondAmount) * 2).toFixed(4)} {trade.tokenKey || trade.token_symbol}</span>
               </div>
             </div>
           </div>
         )}
 
         {/* Arbitrator */}
-        {dispute.arbitrator_address && (
+        {(dispute.arbitratorAssigned || dispute.arbitrator_address) && (
           <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
             <p className="text-blue-400 text-xs mb-1">Assigned Arbitrator</p>
-            <WalletAddress address={dispute.arbitrator_address} />
+            <WalletAddress address={dispute.arbitratorAssigned || dispute.arbitrator_address} />
           </div>
         )}
 
         {/* Ruling Details */}
-        {isResolved && ruling !== 'pending' && (
+        {isResolved && ruling && ruling !== 'pending' && (
           <div className={`p-4 rounded-lg ${rulingDisplay.bg} border ${rulingDisplay.border}`}>
             <h4 className={`text-sm font-semibold ${rulingDisplay.color} mb-2`}>
               Final Decision
@@ -170,18 +182,18 @@ export default function DisputeResolutionPanel({ dispute, trade, bondAmount }) {
               )}
             </div>
 
-            {dispute.resolved_at && (
+            {(dispute.updatedAt || dispute.resolved_at) && (
               <p className="text-slate-400 text-xs mt-3 pt-3 border-t border-slate-700/50">
-                Resolved: {format(new Date(dispute.resolved_at), 'MMM d, yyyy HH:mm')}
+                Resolved: {format(new Date(dispute.updatedAt || dispute.resolved_at), 'MMM d, yyyy HH:mm')}
               </p>
             )}
           </div>
         )}
 
         {/* View on Explorer */}
-        {trade.tx_hash && (
+        {trade.txHash && (
           <a
-            href={`${EXPLORERS[trade.chain]}/tx/${trade.tx_hash}`}
+            href={`${EXPLORERS[trade.chain || 'ETH']}/tx/${trade.txHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors text-blue-400 hover:text-blue-300 text-sm"

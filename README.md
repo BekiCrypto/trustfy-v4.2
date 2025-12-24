@@ -25,7 +25,15 @@ The UI connects to `http://localhost:4000` by default and the indexer worker str
 
 Use the provided `docker-compose.yml` to orchestrate the API, worker, web, Postgres, Redis, and MinIO. See [docs/docker-compose.md](docs/docker-compose.md) for details.
 
-## Docs & governance
+## Project Specifications & Documentation
+
+Key documentation is organized into specific directories:
+
+- **Product & User Guides**: [Amendments/](Amendments/) contains the PRD, User Guide, and UI/BE specifications.
+- **System Wiring**: [Wiring/](Wiring/) contains instructions for backend indexer, UI wiring, and migration guides.
+- **Web3 & Authentication**: [docs/base44/](docs/base44/) contains guides on the Hybrid Authentication Model, WalletConnect, and Smart Contract deployment.
+
+## Technical Docs & Governance
 
 - Canonical terms: [docs/canonical-language-map.md](docs/canonical-language-map.md)
 - RBAC rules: [docs/rbac-matrix.md](docs/rbac-matrix.md)

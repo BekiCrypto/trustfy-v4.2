@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
+import { reviewsApi } from "@/api/reviews";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -36,10 +37,16 @@ export default function TiersPage() {
   });
   
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['user-profile', user?.email],
+    queryKey: ['user-reputation', user?.email],
     queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ wallet_address: user?.email });
-      return profiles[0] ?? null;
+      const stats = await reviewsApi.getStats(user?.email);
+      // Map API response to profile structure expected by UI
+      return {
+        reputation_score: stats.reputationScore,
+        successful_trades: stats.successfulTrades,
+        total_volume: parseFloat(stats.totalVolume),
+        total_trades: stats.successfulTrades // fallback
+      };
     },
     enabled: !!user?.email
   });

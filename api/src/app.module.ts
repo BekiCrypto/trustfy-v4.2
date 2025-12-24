@@ -11,6 +11,10 @@ import { AdminModule } from "./modules/admin/admin.module"
 import { NotificationsModule } from "./modules/notifications/notifications.module"
 import { HealthModule } from "./modules/health/health.module"
 import { PrismaModule } from "./modules/prisma/prisma.module"
+import { ReferralsModule } from "./modules/referrals/referrals.module"
+import { ReviewsModule } from "./modules/reviews/reviews.module"
+import { OffersModule } from "./modules/offers/offers.module"
+import { UsersModule } from "./modules/users/users.module"
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { PrismaModule } from "./modules/prisma/prisma.module"
     AdminModule,
     NotificationsModule,
     HealthModule,
+    ReferralsModule,
+    ReviewsModule,
+    OffersModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

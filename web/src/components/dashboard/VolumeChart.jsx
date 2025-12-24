@@ -1,15 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { useTranslation } from 'react-i18next';
-
-const generateMockData = (days) => {
-  return days.map((day) => ({
-    name: day,
-    volume: Math.floor(Math.random() * 50000) + 10000,
-    trades: Math.floor(Math.random() * 50) + 10
-  }));
-};
+import { useTranslation } from '@/hooks/useTranslation';
+import { format, subDays, startOfDay, isSameDay } from 'date-fns';
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (active && payload && payload.length) {
@@ -32,18 +25,27 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   return null;
 };
 
-export default function VolumeChart() {
+export default function VolumeChart({ trades = [] }) {
   const { t } = useTranslation();
-  const days = [
-    t('dashboard.volumeChart.days.mon'),
-    t('dashboard.volumeChart.days.tue'),
-    t('dashboard.volumeChart.days.wed'),
-    t('dashboard.volumeChart.days.thu'),
-    t('dashboard.volumeChart.days.fri'),
-    t('dashboard.volumeChart.days.sat'),
-    t('dashboard.volumeChart.days.sun')
-  ];
-  const data = generateMockData(days);
+
+  const data = useMemo(() => {
+    const days = Array.from({ length: 7 }, (_, i) => subDays(new Date(), 6 - i));
+    
+    return days.map(day => {
+      const dayStart = startOfDay(day);
+      const dayTrades = trades.filter(t => {
+        const tradeDate = new Date(t.created_date || t.timestamp);
+        return isSameDay(tradeDate, dayStart);
+      });
+
+      return {
+        name: format(day, 'EEE'), // Mon, Tue
+        fullDate: format(day, 'MMM d, yyyy'),
+        volume: dayTrades.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0),
+        trades: dayTrades.length
+      };
+    });
+  }, [trades]);
   
   return (
     <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border-slate-700/50 backdrop-blur-xl p-6">

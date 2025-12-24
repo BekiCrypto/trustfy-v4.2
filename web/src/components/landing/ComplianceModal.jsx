@@ -1,14 +1,20 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslation } from '@/hooks/useTranslation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Globe, Shield, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export default function ComplianceModal({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const neutralItems = t('landing.compliance.neutral.items', { returnObjects: true });
-  const platformRoles = t('landing.compliance.platformRole.items', { returnObjects: true });
+
+  const getArray = (key) => {
+    const res = t(key, { returnObjects: true });
+    return Array.isArray(res) ? res : [];
+  };
+
+  const neutralItems = getArray('landing.compliance.neutral.items');
+  const platformRoles = getArray('landing.compliance.platformRole.items');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -18,7 +24,9 @@ export default function ComplianceModal({ open, onOpenChange }) {
             <Globe className="w-6 h-6 text-blue-400" />
             {t('landing.compliance.title')}
           </DialogTitle>
-          <p className="text-slate-400 text-sm">{t('landing.compliance.subtitle')}</p>
+          <DialogDescription className="text-slate-400 text-sm">
+            {t('landing.compliance.subtitle')}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[65vh] pr-4">

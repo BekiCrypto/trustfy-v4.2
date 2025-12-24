@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Upload, X, Loader2, CheckCircle, Image as ImageIcon, Link2, FileText, Shield, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useWalletGuard } from "@/components/web3/useWalletGuard";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PaymentConfirmationModal({ open, onOpenChange, trade, onConfirm, effectiveStatus, buyerConfirmRemaining }) {
   const { t } = useTranslation();

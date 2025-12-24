@@ -48,13 +48,15 @@ type JsonValue =
   | { [key: string]: JsonValue }
   | JsonValue[]
 
-const escrowAbiHash =
-  (escrowAbiJson as { transactions?: { record?: { abi?: string } }[] }).transactions?.[0]?.record
-    ?.abi
-const escrowAbiArray = escrowAbiHash
-  ? (escrowAbiJson as { abis?: Record<string, Abi> }).abis?.[escrowAbiHash]
-  : undefined
-const escrowAbi = (escrowAbiArray ?? []) as Abi
+const escrowAbi = (Array.isArray(escrowAbiJson)
+  ? escrowAbiJson
+  : (() => {
+      const abiHash = (escrowAbiJson as { transactions?: { record?: { abi?: string } }[] })
+        .transactions?.[0]?.record?.abi
+      return abiHash
+        ? (escrowAbiJson as { abis?: Record<string, Abi> }).abis?.[abiHash]
+        : []
+    })()) as Abi
 
 interface EscrowStruct {
   status: number
@@ -204,15 +206,141 @@ export class IndexerWorker {
           blockNumber: BigInt(log.blockNumber ?? 0n),
           logIndex: Number(log.logIndex ?? 0),
           timestamp: new Date(Number(timestamp) * 1000),
-          payload: args as JsonValue,
+          payload: args as any,
         },
       })
 
       await this.syncEscrowRecord(tx, chainId, contractAddress, escrowIdBuffer, log, eventName)
+
+      if (eventName === "EscrowReleased") {
+        await this.processReferralCommission(tx, chainId, escrowIdBuffer)
+        await this.updateUserStats(tx, escrowIdBuffer)
+      }
     })
 
     if (eventName === "EscrowResolved") {
       await this.syncDisputeState(chainId, escrowIdBuffer, args)
+      // If buyer wins (outcome 1) or seller wins (outcome 2), it is resolved.
+      // If buyer wins, it counts as a successful trade for volume? 
+      // If seller wins, it means trade cancelled/refunded?
+      // For now let's just track EscrowReleased (happy path) for stats to be safe.
+    }
+  }
+
+  private async updateUserStats(
+    tx: Prisma.TransactionClient,
+    escrowId: Buffer
+  ) {
+    try {
+      const escrow = await tx.escrow.findUnique({ where: { escrowId } })
+      if (!escrow) return
+
+      const amount = new Prisma.Decimal(escrow.amount)
+
+      // Update Seller
+      if (escrow.seller && escrow.seller !== ZERO_ADDRESS) {
+        await tx.user.update({
+          where: { address: escrow.seller },
+          data: {
+            successfulTrades: { increment: 1 },
+            totalVolume: { increment: amount }
+          }
+        })
+      }
+
+      // Update Buyer
+      if (escrow.buyer && escrow.buyer !== ZERO_ADDRESS) {
+        await tx.user.update({
+          where: { address: escrow.buyer },
+          data: {
+            successfulTrades: { increment: 1 },
+            totalVolume: { increment: amount }
+          }
+        })
+      }
+    } catch (error) {
+      console.error("failed to update user stats", error)
+    }
+  }
+
+  private async processReferralCommission(
+    tx: Prisma.TransactionClient,
+    chainId: number,
+    escrowId: Buffer
+  ) {
+    try {
+      const escrow = await tx.escrow.findUnique({ where: { escrowId } })
+      if (!escrow || !escrow.feeAmount || escrow.feeAmount.lte(0)) return
+
+      const feeAmount = escrow.feeAmount // Decimal
+
+      // Get global config or default
+      const config = await tx.referralConfig.findFirst()
+      const rate = config?.commissionRate || new Prisma.Decimal(0.1) // Default 10%
+      const commission = feeAmount.mul(rate)
+
+      if (commission.lte(0)) return
+
+      // Check Seller Referrer
+      if (escrow.seller) {
+        await this.distributeCommission(tx, escrow.seller, commission, feeAmount, rate, escrowId, "SELLER")
+      }
+
+      // Check Buyer Referrer
+      if (escrow.buyer) {
+        await this.distributeCommission(tx, escrow.buyer, commission, feeAmount, rate, escrowId, "BUYER")
+      }
+
+    } catch (error) {
+      console.error("failed to process referral commission", error)
+    }
+  }
+
+  private async distributeCommission(
+    tx: Prisma.TransactionClient,
+    userAddress: string,
+    commissionAmount: Prisma.Decimal,
+    feeAmount: Prisma.Decimal,
+    rate: Prisma.Decimal,
+    escrowId: Buffer,
+    role: "BUYER" | "SELLER"
+  ) {
+    // Find referral record where user is the REFEREE
+    const referral = await tx.referral.findFirst({
+      where: { refereeAddress: userAddress.toLowerCase() }
+    })
+
+    if (!referral) return
+
+    // Add to ledger
+    await tx.commissionLedger.create({
+      data: {
+        referralId: referral.id,
+        feeAmount: feeAmount,
+        commissionRate: rate,
+        commissionAmount: commissionAmount,
+        feeType: `ESCROW_${role}_${escrowId.toString("hex")}`
+      }
+    })
+
+    // Update Wallet
+    await tx.referralWallet.upsert({
+      where: { address: referral.referrerAddress },
+      create: {
+        address: referral.referrerAddress,
+        balance: commissionAmount,
+      },
+      update: {
+        balance: { increment: commissionAmount }
+      }
+    })
+
+    // Mark as qualified if not already
+    if (!referral.qualified) {
+      await tx.referral.update({
+        where: { id: referral.id },
+        data: { qualified: true, qualifiedAt: new Date() }
+      })
     }
   }
 

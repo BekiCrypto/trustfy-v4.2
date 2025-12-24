@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ComingSoonBanner from "../components/common/ComingSoonBanner";
@@ -387,9 +387,7 @@ Return a JSON response with this exact structure:
     }
   };
 
-  // Prime status requires KYC verification
-  const hasKYC = profile?.kyc_status === 'verified';
-  const isPrime = hasKYC;
+  const isPrime = profile?.is_prime === true;
 
   // Show Prime gate if not Prime
   if (!isPrime) {
@@ -415,7 +413,7 @@ Return a JSON response with this exact structure:
               <Lock className="w-16 h-16 text-purple-400 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-2">{t('tradingApiPage.primeAccessRequired')}</h2>
               <p className="text-slate-400">
-                {t('tradingApiPage.primeDescription')}
+                Upgrade via referrals to unlock Prime features
               </p>
             </div>
 
@@ -440,9 +438,49 @@ Return a JSON response with this exact structure:
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                 <span>{t('tradingApiPage.benefits.advancedRateLimits')}</span>
               </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.realTimeSignals')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.fullApiAccess')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.feeDiscounts')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.referralRewards')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.priorityExecution')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.premiumSupport')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.earlyAccess')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.higherLimits')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.customWebhooks')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-300">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>{t('tradingApiPage.benefits.portfolioInsights')}</span>
+              </div>
             </div>
 
-            <Link to={createPageUrl('Settings')}>
+            <Link to={createPageUrl('Settings') + '?tab=account'}>
               <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" size="lg">
                 <Sparkles className="w-5 h-5 mr-2" />
                 {t('tradingApiPage.upgradeToPrime')}
@@ -450,7 +488,7 @@ Return a JSON response with this exact structure:
             </Link>
 
             <p className="text-xs text-slate-500 text-center mt-4">
-              {t('tradingApiPage.kycNote')}
+              Prime unlocks via referrals. No KYC or 2FA required.
             </p>
           </Card>
         </div>

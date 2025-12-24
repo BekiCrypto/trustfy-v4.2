@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,19 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { IsEnum, IsOptional, IsString } from "class-validator";
-export const RESOLUTION_OUTCOMES = ["BUYER_WINS", "SELLER_WINS"];
-export class ResolveDisputeDto {
-    outcome;
-    ref;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResolveDisputeDto = exports.RESOLUTION_OUTCOMES = void 0;
+const class_validator_1 = require("class-validator");
+exports.RESOLUTION_OUTCOMES = ["BUYER_WINS", "SELLER_WINS"];
+class ResolveDisputeDto {
 }
+exports.ResolveDisputeDto = ResolveDisputeDto;
 __decorate([
-    IsEnum(RESOLUTION_OUTCOMES),
+    (0, class_validator_1.IsEnum)(exports.RESOLUTION_OUTCOMES),
     __metadata("design:type", Object)
 ], ResolveDisputeDto.prototype, "outcome", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ResolveDisputeDto.prototype, "ref", void 0);
-//# sourceMappingURL=resolve-dispute.dto.js.map

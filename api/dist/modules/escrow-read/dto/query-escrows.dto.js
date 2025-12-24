@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,41 +8,47 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Type } from "class-transformer";
-import { IsIn, IsOptional, IsPositive, IsString } from "class-validator";
-import { ESCROW_STATES } from "@trustfy/shared";
-export class QueryEscrowsDto {
-    status;
-    tokenKey;
-    role;
-    page = 1;
-    pageSize = 20;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryEscrowsDto = void 0;
+const class_transformer_1 = require("class-transformer");
+const class_validator_1 = require("class-validator");
+const shared_1 = require("@trustfy/shared");
+class QueryEscrowsDto {
+    constructor() {
+        this.page = 1;
+        this.pageSize = 20;
+    }
 }
+exports.QueryEscrowsDto = QueryEscrowsDto;
 __decorate([
-    IsOptional(),
-    IsIn(ESCROW_STATES),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(shared_1.ESCROW_STATES),
     __metadata("design:type", Object)
 ], QueryEscrowsDto.prototype, "status", void 0);
 __decorate([
-    IsOptional(),
-    IsString(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], QueryEscrowsDto.prototype, "tokenKey", void 0);
 __decorate([
-    IsOptional(),
-    IsIn(["seller", "buyer"]),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], QueryEscrowsDto.prototype, "role", void 0);
 __decorate([
-    IsOptional(),
-    Type(() => Number),
-    IsPositive(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryEscrowsDto.prototype, "participant", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsPositive)(),
     __metadata("design:type", Number)
 ], QueryEscrowsDto.prototype, "page", void 0);
 __decorate([
-    IsOptional(),
-    Type(() => Number),
-    IsPositive(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsPositive)(),
     __metadata("design:type", Number)
 ], QueryEscrowsDto.prototype, "pageSize", void 0);
-//# sourceMappingURL=query-escrows.dto.js.map

@@ -1,107 +1,86 @@
-import { sessionStore } from "@/lib/session";
+import axios from 'axios';
+import { getAuthToken } from '../utils/auth';
+import { sessionStore } from '@/lib/session';
 
-const memoryStore = new Map();
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-const getCollection = (name) => {
-  if (!memoryStore.has(name)) {
-    memoryStore.set(name, []);
-  }
-  return memoryStore.get(name);
-};
+export const API_URL = BASE_URL;
 
-const nowIso = () => new Date().toISOString();
-
-const matchesFilter = (item, filter) => {
-  if (!filter) return true;
-  return Object.entries(filter).every(([key, value]) => {
-    if (value && typeof value === "object" && "$in" in value) {
-      return value.$in.includes(item[key]);
-    }
-    if (value && typeof value === "object") {
-      return false;
-    }
-    return item[key] === value;
-  });
-};
-
-const listEntity = (name, sort, limit) => {
-  const collection = [...getCollection(name)];
-  if (typeof limit === "number") {
-    return collection.slice(0, limit);
-  }
-  return collection;
-};
-
-const filterEntity = (name, filter, sort, limit) => {
-  const collection = getCollection(name).filter((item) => matchesFilter(item, filter));
-  if (typeof limit === "number") {
-    return collection.slice(0, limit);
-  }
-  return collection;
-};
-
-const createEntity = (name, payload) => {
-  const collection = getCollection(name);
-  const id = payload?.id ?? `${name}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  const record = {
-    ...payload,
-    id,
-    created_date: payload?.created_date ?? nowIso(),
-    updated_date: payload?.updated_date ?? nowIso(),
+const getHeaders = () => {
+  const token = getAuthToken();
+  return {
+    'Content-Type': 'application/json',
+    Authorization: token ? `Bearer ${token}` : undefined,
   };
-  collection.unshift(record);
-  return record;
 };
 
-const updateEntity = (name, id, payload) => {
-  const collection = getCollection(name);
-  const index = collection.findIndex((item) => item.id === id);
-  if (index === -1) {
-    return createEntity(name, { ...payload, id });
+export const getAuthHeader = getHeaders;
+
+// Helper for generic CRUD operations
+const createEntityClient = (endpoint) => ({
+  list: async (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const response = await axios.get(`${BASE_URL}/v1/${endpoint}?${searchParams.toString()}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+  filter: async (filter, sort, limit) => {
+    // Mapping filter object to query params is complex, simplified here for now
+    // In a real app, we'd serialize 'filter' properly or use a POST search endpoint
+    const response = await axios.get(`${BASE_URL}/v1/${endpoint}`, {
+      params: { ...filter, sort, limit },
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+  create: async (payload) => {
+    const response = await axios.post(`${BASE_URL}/v1/${endpoint}`, payload, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+  update: async (id, payload) => {
+    const response = await axios.patch(`${BASE_URL}/v1/${endpoint}/${id}`, payload, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await axios.delete(`${BASE_URL}/v1/${endpoint}/${id}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+  // Specific get by ID
+  get: async (id) => {
+    const response = await axios.get(`${BASE_URL}/v1/${endpoint}/${id}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
   }
-  const record = {
-    ...collection[index],
-    ...payload,
-    id,
-    updated_date: nowIso(),
-  };
-  collection[index] = record;
-  return record;
-};
-
-const deleteEntity = (name, id) => {
-  const collection = getCollection(name);
-  const index = collection.findIndex((item) => item.id === id);
-  if (index >= 0) {
-    collection.splice(index, 1);
-  }
-  return { id };
-};
-
-const resolveRole = (roles = []) => {
-  if (roles.includes("ADMIN")) return "admin";
-  if (roles.includes("ARBITRATOR")) return "arbitrator";
-  if (roles.includes("SUPER_ADMIN")) return "super_admin";
-  return "user";
-};
+});
 
 const auth = {
   isAuthenticated: async () => {
-    const session = sessionStore.get();
-    return Boolean(session?.accessToken);
+    return !!getAuthToken();
   },
   me: async () => {
-    const session = sessionStore.get();
-    if (!session?.address) {
+    try {
+      const response = await axios.get(`${BASE_URL}/v1/auth/me`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (e) {
       return null;
     }
-    return {
-      email: session.address,
-      role: resolveRole(session.roles),
-      full_name: "Trustfy User",
-    };
   },
   logout: async () => {
+    try {
+      await axios.post(`${BASE_URL}/v1/auth/logout`, {}, { headers: getHeaders() });
+    } catch (e) {
+      // Ignore logout errors
+    }
     sessionStore.clear();
     return true;
   },
@@ -115,29 +94,33 @@ const auth = {
   },
 };
 
+// Map entity names to API endpoints
+const entityEndpoints = {
+  TradeOffer: 'offers',
+  Escrow: 'escrows',
+  Dispute: 'disputes',
+  User: 'users',
+  Notification: 'notifications'
+};
+
 const entities = new Proxy(
   {},
   {
     get: (_, rawName) => {
       const name = String(rawName);
-      return {
-        list: async (sort, limit) => listEntity(name, sort, limit),
-        filter: async (filter, sort, limit) => filterEntity(name, filter, sort, limit),
-        create: async (payload) => createEntity(name, payload),
-        update: async (id, payload) => updateEntity(name, id, payload),
-        delete: async (id) => deleteEntity(name, id),
-      };
+      const endpoint = entityEndpoints[name] || name.toLowerCase() + 's'; // Fallback to plural
+      return createEntityClient(endpoint);
     },
   }
 );
 
 const functions = new Proxy(
   {
-    invoke: async (name, payload) => ({
-      ok: true,
-      name,
-      payload,
-    }),
+    invoke: async (name, payload) => {
+      // TODO: Map specific functions to endpoints if needed
+      console.warn(`Function ${name} invoked but not fully implemented in base44Client`);
+      return { ok: true, name, payload };
+    },
   },
   {
     get: (target, rawName) => {
@@ -173,7 +156,7 @@ const integrations = {
     }),
     CreateFileSignedUrl: async () => ({
       url: "about:blank",
-      expires_at: nowIso(),
+      expires_at: new Date().toISOString(),
     }),
     ExtractDataFromUploadedFile: async () => ({
       fields: {},

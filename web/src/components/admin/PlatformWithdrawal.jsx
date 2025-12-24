@@ -14,14 +14,21 @@ import {
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EXPLORERS } from "../web3/contractABI";
+import { useAdminPools, useWithdrawPlatform } from "@/hooks/admin";
+import { ethers } from "ethers";
+import { BEP20Helper } from "../web3/BEP20Helper";
 
-export default function PlatformWithdrawal({ chain = 'BSC', tokens = ['USDT', 'USDC', 'BNB'] }) {
+const DEFAULT_TOKENS = ['USDT', 'USDC', 'BNB'];
+
+export default function PlatformWithdrawal({ chain = 'BSC', tokens = DEFAULT_TOKENS }) {
   const { 
     account, 
     getPlatformFeePool, 
     getPlatformBondRevenue, 
     withdrawPlatformProceeds 
   } = useWallet();
+  const withdrawMutation = useWithdrawPlatform();
+  const { data: pools } = useAdminPools();
   
   const [feePools, setFeePools] = useState({});
   const [bondRevenue, setBondRevenue] = useState({});
@@ -31,18 +38,27 @@ export default function PlatformWithdrawal({ chain = 'BSC', tokens = ['USDT', 'U
   const [bondWithdrawAmounts, setBondWithdrawAmounts] = useState({});
 
   const fetchPlatformData = async () => {
-    if (!account) return;
-    
     setLoading(true);
     const fees = {};
     const bonds = {};
     
     for (const token of tokens) {
       try {
-        const feePool = await getPlatformFeePool(chain, token);
-        const bondRev = await getPlatformBondRevenue(chain, token);
-        fees[token] = feePool;
-        bonds[token] = bondRev;
+        const tokenAddress = BEP20Helper.getTokenAddress(token, chain);
+        if (!ethers.isAddress(tokenAddress)) {
+          fees[token] = '0';
+          bonds[token] = '0';
+          continue;
+        }
+        const pool = Array.isArray(pools)
+          ? pools.find((p) => (p.tokenKey || "").toLowerCase() === tokenAddress.toLowerCase())
+          : null;
+        const feeAmount = pool?.feeAmount ?? '0';
+        const sellerBond = pool?.sellerBond ?? '0';
+        const buyerBond = pool?.buyerBond ?? '0';
+        const bondTotal = (parseFloat(sellerBond || '0') + parseFloat(buyerBond || '0')).toString();
+        fees[token] = feeAmount;
+        bonds[token] = bondTotal;
       } catch (error) {
         console.error(`Error fetching ${token} platform data:`, error);
         fees[token] = '0';
@@ -57,7 +73,7 @@ export default function PlatformWithdrawal({ chain = 'BSC', tokens = ['USDT', 'U
 
   useEffect(() => {
     fetchPlatformData();
-  }, [account, chain, tokens]);
+  }, [chain, Array.isArray(tokens) ? tokens.join(",") : "", pools]);
 
   const handleWithdraw = async (token) => {
     const feeAmount = withdrawAmounts[token] || '0';
@@ -83,14 +99,13 @@ export default function PlatformWithdrawal({ chain = 'BSC', tokens = ['USDT', 'U
 
     setWithdrawing(token);
     try {
-      const txHash = await withdrawPlatformProceeds(chain, token, feeAmount, bondAmount);
-      
-      toast.success('Platform proceeds withdrawn!', {
-        description: `${feeAmount} revenue + ${bondAmount} bond revenue transferred`,
-        action: {
-          label: 'View TX',
-          onClick: () => window.open(`${EXPLORERS[chain]}/tx/${txHash}`, '_blank')
-        }
+      await withdrawMutation.mutateAsync({
+        tokenKey: token,
+        feeAmount,
+        bondAmount,
+      });
+      toast.success('Platform withdrawal requested via backend worker', {
+        description: `${feeAmount} revenue + ${bondAmount} bond revenue`,
       });
 
       // Refresh data
@@ -99,7 +114,7 @@ export default function PlatformWithdrawal({ chain = 'BSC', tokens = ['USDT', 'U
       setBondWithdrawAmounts(prev => ({ ...prev, [token]: '' }));
     } catch (error) {
       console.error('Error withdrawing platform proceeds:', error);
-      toast.error(error.message || 'Failed to withdraw platform proceeds');
+      toast.error(error.message || 'Failed to request platform withdrawal');
     } finally {
       setWithdrawing(null);
     }

@@ -63,9 +63,19 @@ export class DisputeService {
       },
     })
 
-    await this.notifications.queueEvent(
-      this.buildEvent("dispute/open", escrowId, normalized, payload as unknown as Record<string, unknown>)
-    )
+    const recipient = this.getOtherParty(escrow, normalized)
+    if (recipient) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "Dispute Opened",
+        message: `Dispute opened for escrow ${formatEscrowId(escrow.escrowId)}`,
+        type: "dispute/open",
+        escrowId,
+        sender: normalized,
+        payload: payload as unknown as Record<string, unknown>,
+      })
+    }
+
     await this.rbacService.logAction(
       normalized,
       "dispute:open",
@@ -75,10 +85,13 @@ export class DisputeService {
     return this.mapToSummary(dispute)
   }
 
-  async listDisputes(status?: string) {
+  async listDisputes(status?: string, assignee?: string) {
     const where: Prisma.DisputeWhereInput = {}
     if (status) {
       where.status = status
+    }
+    if (assignee) {
+      where.arbitratorAssigned = this.normalizeAddress(assignee)
     }
 
     const rows = await this.prisma.dispute.findMany({
@@ -89,25 +102,115 @@ export class DisputeService {
       orderBy: { updatedAt: "desc" },
     })
 
-    return rows.map((entry) => this.mapToSummary(entry))
+    return rows.map((entry) => ({
+      ...this.mapToSummary(entry),
+      escrow: {
+        escrowId: formatEscrowId(entry.Escrow.escrowId),
+        seller: entry.Escrow.seller,
+        buyer: entry.Escrow.buyer ?? undefined,
+        state: entry.Escrow.state,
+        amount: entry.Escrow.amount.toString(),
+        tokenKey: entry.Escrow.tokenKey,
+      }
+    }))
+  }
+
+  async claimDispute(escrowId: string, caller: AuthPayload) {
+    this.ensureArbitrator(caller)
+    const dispute = await this.findDispute(parseEscrowId(escrowId))
+    const normalized = this.normalizeAddress(caller.address)
+
+    if (dispute.arbitratorAssigned) {
+      throw new BadRequestException("dispute already assigned")
+    }
+
+    const updated = await this.prisma.dispute.update({
+      where: { escrowId: dispute.escrowId },
+      data: {
+        arbitratorAssigned: normalized,
+        status: "IN_PROGRESS", // Mark as picked up
+      },
+    })
+
+    await this.rbacService.logAction(
+      normalized,
+      "dispute:claim",
+      escrowId,
+      {}
+    )
+
+    return this.mapToSummary(updated)
+  }
+
+  async escalateDispute(escrowId: string, level: number, status: string, caller: AuthPayload) {
+    // Only participants or arbitrators can escalate? 
+    // Usually anyone involved can escalate if they are unhappy.
+    const dispute = await this.findDispute(parseEscrowId(escrowId))
+    
+    // Validate level
+    if (level <= dispute.escalationLevel) {
+      throw new BadRequestException("cannot de-escalate or stay on same level")
+    }
+
+    const updated = await this.prisma.dispute.update({
+      where: { escrowId: dispute.escrowId },
+      data: {
+        escalationLevel: level,
+        status: status,
+      },
+    })
+    
+    return this.mapToSummary(updated)
+  }
+
+  async saveAIAnalysis(escrowId: string, analysis: any, tier: number) {
+    const dispute = await this.findDispute(parseEscrowId(escrowId))
+    
+    const data: Prisma.DisputeUpdateInput = {}
+    if (tier === 1) {
+      data.aiAnalysis = analysis
+    } else if (tier === 2) {
+      data.tier2Analysis = analysis
+    }
+
+    const updated = await this.prisma.dispute.update({
+      where: { escrowId: dispute.escrowId },
+      data,
+    })
+    
+    return this.mapToSummary(updated)
   }
 
   async getDispute(escrowId: string) {
     const dispute = await this.prisma.dispute.findUnique({
       where: { escrowId: parseEscrowId(escrowId) },
-      include: { Escrow: true },
+      include: { 
+        Escrow: {
+          include: {
+            messages: true,
+            evidence: true,
+          }
+        } 
+      },
     })
     if (!dispute) {
       throw new NotFoundException("dispute not found")
     }
     return {
       ...this.mapToSummary(dispute),
+      aiAnalysis: dispute.aiAnalysis,
+      tier2Analysis: dispute.tier2Analysis,
+      escalationLevel: dispute.escalationLevel,
       escrow: dispute.Escrow
         ? {
             escrowId: formatEscrowId(dispute.Escrow.escrowId),
             seller: dispute.Escrow.seller,
             buyer: dispute.Escrow.buyer ?? undefined,
             state: dispute.Escrow.state,
+            amount: dispute.Escrow.amount.toString(),
+            tokenKey: dispute.Escrow.tokenKey,
+            messages: dispute.Escrow.messages,
+            evidence: dispute.Escrow.evidence,
           }
         : undefined,
     }
@@ -120,6 +223,7 @@ export class DisputeService {
   ) {
     this.ensureArbitratorOrAdmin(caller)
     const dispute = await this.findDispute(parseEscrowId(escrowId))
+    const escrow = await this.findEscrow(parseEscrowId(escrowId))
     const normalized = this.normalizeAddress(caller.address)
 
     const summary = payload.note
@@ -140,14 +244,19 @@ export class DisputeService {
       escrowId,
       payload as unknown as Record<string, unknown>
     )
-    await this.notifications.queueEvent(
-      this.buildEvent(
-        "dispute/recommendation",
+    
+    const recipients = [escrow.seller, escrow.buyer].filter(Boolean) as string[]
+    for (const recipient of recipients) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "Dispute Recommendation",
+        message: `Recommendation added: ${payload.summary}`,
+        type: "dispute/recommendation",
         escrowId,
-        normalized,
-        payload as unknown as Record<string, unknown>
-      )
-    )
+        sender: normalized,
+        payload: payload as unknown as Record<string, unknown>,
+      })
+    }
 
     return this.mapToSummary(updated)
   }
@@ -159,6 +268,7 @@ export class DisputeService {
   ) {
     this.ensureArbitrator(caller)
     const dispute = await this.findDispute(parseEscrowId(escrowId))
+    const escrow = await this.findEscrow(parseEscrowId(escrowId))
     const normalized = this.normalizeAddress(caller.address)
 
     const refBuffer = payload.ref
@@ -176,14 +286,18 @@ export class DisputeService {
       },
     })
 
-    await this.notifications.queueEvent(
-      this.buildEvent(
-        "dispute/resolved",
+    const recipients = [escrow.seller, escrow.buyer].filter(Boolean) as string[]
+    for (const recipient of recipients) {
+      await this.notifications.queueEvent({
+        userAddress: recipient,
+        title: "Dispute Resolved",
+        message: `Dispute resolved with outcome: ${payload.outcome}`,
+        type: "dispute/resolved",
         escrowId,
-        normalized,
-        payload as unknown as Record<string, unknown>
-      )
-    )
+        sender: normalized,
+        payload: payload as unknown as Record<string, unknown>,
+      })
+    }
 
     await this.prisma.escrow.update({
       where: { escrowId: dispute.escrowId },
@@ -256,25 +370,17 @@ export class DisputeService {
     }
   }
 
+  private getOtherParty(escrow: Escrow, sender: string): string | null {
+    if (escrow.seller === sender) return escrow.buyer
+    if (escrow.buyer === sender) return escrow.seller
+    return null
+  }
+
   private normalizeAddress(address: string) {
     try {
       return ethers.getAddress(address).toLowerCase()
     } catch {
       throw new BadRequestException("invalid ethereum address")
-    }
-  }
-
-  private buildEvent(
-    type: string,
-    escrowId: string,
-    sender: string,
-    payload: Record<string, unknown>
-  ): NotificationEvent {
-    return {
-      type,
-      escrowId,
-      sender,
-      payload,
     }
   }
 }

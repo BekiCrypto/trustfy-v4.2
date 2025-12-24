@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -18,11 +18,10 @@ import {
   Lock,
   AlertTriangle,
   GraduationCap,
-  Layers
+  Layers,
+  Menu
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import LanguageSwitcher from "../settings/LanguageSwitcher";
 
 export default function LandingHeader({ onAuthClick, onModalOpen }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -51,7 +50,6 @@ export default function LandingHeader({ onAuthClick, onModalOpen }) {
       items: [
         { name: t('landing.header.items.termsConditions'), icon: FileText, action: () => onModalOpen('terms') },
         { name: t('landing.header.items.privacyPolicy'), icon: Lock, action: () => onModalOpen('privacy') },
-        { name: t('landing.header.items.identityPolicy'), icon: Shield, action: () => onModalOpen('kyc') },
         { name: t('landing.header.items.disputePolicy'), icon: Scale, action: () => onModalOpen('safety') },
         { name: t('landing.header.items.complianceStatement'), icon: Scale, action: () => onModalOpen('compliance') },
         { name: t('landing.header.items.legalDisclaimer'), icon: AlertTriangle, action: () => onModalOpen('disclaimer') },
@@ -75,7 +73,7 @@ export default function LandingHeader({ onAuthClick, onModalOpen }) {
           <div className="flex items-center gap-3">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6935c88e6bbf26b171a5a3a1/0e150037c_TECHWEALTH.png" 
-              alt="TECHWEALTH"
+              alt="TRUSTFY"
               className="w-10 h-10 object-contain"
             />
             <div>
@@ -120,7 +118,6 @@ export default function LandingHeader({ onAuthClick, onModalOpen }) {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <LanguageSwitcher variant="outline" size="sm" />
             <Button
               variant="ghost"
               onClick={() => window.location.href = '/docs'}
@@ -169,7 +166,6 @@ export default function LandingHeader({ onAuthClick, onModalOpen }) {
                   </div>
                 ))}
                 <div className="pt-4 border-t border-slate-800">
-                  <LanguageSwitcher variant="outline" size="sm" />
                 </div>
                 <Button
                   onClick={() => {

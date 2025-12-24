@@ -11,7 +11,7 @@ import {
   Loader2,
   Shield
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * TradeFlowManager - Visual guide showing user where they are in the escrow flow

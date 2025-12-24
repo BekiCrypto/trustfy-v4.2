@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,12 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable, UnauthorizedException, } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JwtAuthGuard = void 0;
+const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 let JwtAuthGuard = class JwtAuthGuard {
-    jwtService;
-    configService;
     constructor(jwtService, configService) {
         this.jwtService = jwtService;
         this.configService = configService;
@@ -21,7 +22,7 @@ let JwtAuthGuard = class JwtAuthGuard {
         const request = context.switchToHttp().getRequest();
         const header = request.headers["authorization"];
         if (!header || Array.isArray(header) || !header.startsWith("Bearer ")) {
-            throw new UnauthorizedException("Missing Authorization bearer token");
+            throw new common_1.UnauthorizedException("Missing Authorization bearer token");
         }
         const token = header.replace("Bearer ", "");
         try {
@@ -33,14 +34,13 @@ let JwtAuthGuard = class JwtAuthGuard {
             return true;
         }
         catch (error) {
-            throw new UnauthorizedException("Invalid or expired token");
+            throw new common_1.UnauthorizedException("Invalid or expired token");
         }
     }
 };
-JwtAuthGuard = __decorate([
-    Injectable(),
-    __metadata("design:paramtypes", [JwtService,
-        ConfigService])
+exports.JwtAuthGuard = JwtAuthGuard;
+exports.JwtAuthGuard = JwtAuthGuard = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        config_1.ConfigService])
 ], JwtAuthGuard);
-export { JwtAuthGuard };
-//# sourceMappingURL=jwt-auth.guard.js.map
